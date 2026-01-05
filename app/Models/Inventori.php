@@ -6,6 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Inventori extends Model
 {
+    protected $table = 'inventori';
+    protected $fillable = [
+        'perusahaan_id',
+        'departemen_id',
+        'hostname',
+        'username',
+        'email',
+        'kategori',
+    ];
+    
     public function perusahaan() {
         return $this->belongsTo(Perusahaan::class);
     }

@@ -1,0 +1,694 @@
+@import url('https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@100..1000&display=swap');
+
+*{
+    font-family: "Afacad Flux", sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* colors */
+    --body-color: #E4E9F7;
+    --sidebar-color: #fff;
+    --primary-color: #D8AC9C ;
+    --primary-color-light: #EFD9D1;
+    --toggle-color: #F4EEED;
+    --text-color: #313131;
+    --secondary-color: #999B84;
+    --secondary-color-light: #b7ba9f;
+
+    /* transisi */
+    --tran-02: all 0.2s ease;
+    --tran-03: all 0.3s ease;
+    --tran-04: all 0.4s ease;
+    --tran-05: all 0.5s ease;
+}
+
+body{
+    height: 100vh;
+    background: var(--body-color);
+    overflow-x: hidden;
+}
+
+/* ==== sidebar ==== */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 250px;
+    padding: 10px 14px;
+    background: var(--sidebar-color);
+    transition: var(--tran-05);
+    z-index: 100;
+}
+
+.sidebar.close {
+    width: 88px;
+}
+
+.sidebar.close .bottom-content button {
+    width: 60px;
+}
+
+/* ==== Resuable CSS ==== */
+
+.sidebar .text {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-color);
+    transition: var(--tran-04);
+    white-space: nowrap;
+    opacity: 1;
+}
+
+.sidebar.close .text,
+.sidebar.close .arrow-dropdown,
+.sidebar.close .sub-menu, .kategori.close .sub-kategori {
+    opacity: 0;
+}
+
+.sidebar.close .sub-menu, .kategori.close .sub-kategori{
+    position: absolute;
+}
+
+.sidebar .image {
+    min-width: 60px ;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar li{
+    height: 50px;
+    margin-top: 10px;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    transition: var(--tran-05);
+}
+
+.sidebar li .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    font-size: 20px;
+    color: #313131;
+}
+
+.sidebar li .icon,
+.sidebar li .text{
+    font-size: 20px;
+    transition: var(--tran-02);
+}
+
+.sidebar header {
+    position: relative;
+}
+
+.sidebar .image-text img {
+    width: 40px;
+    border-radius: 40px;
+}
+
+.sidebar header .image-text {
+    display: flex;
+    align-items: center;
+}
+
+header .image-text .header-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-text .name {
+    font-weight: 600;
+}
+
+.header-text .profession{
+    margin-top: -2px;
+}
+
+.sidebar header .toggle{
+    position: absolute;
+    top: 50%;
+    right: -25px;
+    transform: translateY(-50%) rotate(180deg);
+    height: 25px;
+    width: 25px;
+    background: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--sidebar-color);
+    font-size: 22px;
+    transition: var(--tran-03);
+}
+
+.sidebar.close header .toggle {
+    transform: translateY(-50%)
+}
+
+.sidebar .menu{
+    margin-top: 35px;
+}
+
+.sidebar .profile {
+    background-color: #E4E9F7;
+}
+
+.sidebar li a{
+    position: relative;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: var(--tran-04);
+}
+
+.sidebar li a:hover{
+    background: var(--secondary-color);
+    opacity: 70%;
+}
+
+.sidebar li a:hover .icon,
+.sidebar li a:hover .text,
+.sidebar li a:hover .arrow-dropdown {
+    color: var(--sidebar-color);
+}
+
+.sidebar .menu-bar{
+    height: calc(100% - 50px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sidebar li a:hover .sub-menu {
+    background: none; 
+}
+
+.sidebar .sub-menu a:hover {
+    background: none; 
+    color: inherit;
+}
+
+.home{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    height: 100vh;
+    width: 100%;
+    background:var(--body-color);
+    transition: var(--tran-05);
+}
+
+.home .text {
+    font-size: 30px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.sidebar.close ~ .home {
+    left: 40px;
+}
+
+.sidebar ~ .home {
+    left: 120px;
+}
+
+.sidebar li a .arrow-dropdown{
+    position: absolute;
+    right: 20px;
+    top: 25px;
+    font-size: 25px;
+    transform: translateY(-50%);
+    color: var(--secondary-color);
+    transition: var(--tran-03);
+}
+
+.kategori .arrow-dropdown-kategori {
+    font-size: 20px;
+    position: relative;
+    transition: var(--tran-03);   
+}
+
+.kategori:hover .arrow-dropdown-kategori {
+    transform: rotate(-180deg);
+}
+
+.sidebar li a:hover .arrow-dropdown {
+    transform: translateY(-50%) rotate(-180deg);
+}
+
+.sidebar .sub-menu{
+    background-color: var(--secondary-color-light);
+    width: 220px;
+    padding-left: 25px;
+    font-size: 18px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    font-weight: 500;
+    max-height: 500px;
+    opacity: 1;
+    margin-top: 10px;
+    transition: var(--tran-05);
+    overflow: hidden;
+}
+
+.sidebar .sub-menu a {
+    color: #fff;
+}
+
+.sidebar .sub-menu a {
+    color: none;
+}
+
+.sidebar.close .sub-menu {
+    width: 44px;
+    max-height: 0px;
+    opacity: 0;
+    transition: var(--tran-05);
+}
+
+.sub-menu.close {
+    margin-top: 0px;
+    max-height: 0px;
+    opacity: 0;
+    transition: max-height 0.5s ease, opacity 0.5s ease, margin-top 0.5s ease;
+}
+
+.sub-menu.close .arrow-dropdown {
+    transform: translateY(-50%);
+}
+
+.bottom-content button{
+    position: fixed;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    bottom: 0;
+    left: 0;
+    margin-bottom: 15px;
+    background-color: transparent;
+    color: white;
+    z-index: 1000; /* Pastikan elemen berada di atas elemen lainnya */
+    width: 200px;
+    padding: 15px;
+    transition: var(--tran-05);
+    border: none;
+    border-radius: 15px;
+}
+  
+.nav-link.active {
+    order: 1; /* Move active link to the top */
+}
+
+/* ===== entry button ===== */
+
+.entry-button {
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    border: none;
+    transition: var(--tran-05);
+
+    margin-left: auto;      /* 🔥 INI KUNCINYA */
+    display: inline-block;  /* 🔥 penting karena ini <a> */
+    color: #fff;
+    text-decoration: none;
+}
+
+.entry-button a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.entry-button:hover {
+    background-color: var(--secondary-color-light);
+}
+
+/* ===== table feature ===== */
+.table-feature {
+    display: flex;
+    justify-content: space-between;
+}
+
+.table-feature .input-menu {
+    display: flex;
+    align-items: center;
+}
+
+.input-menu button {
+    padding: 10px 15px;
+    border: none;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    font-size: 17px;
+    background-color: #D8AC9C;
+    color: #fff;
+}
+
+.input-menu input {
+    padding: 10px 20px;
+    max-width: 400px;
+    background-color: #f0f2f8;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border: none;
+    font-size: 18px;
+}
+
+.input-menu input:focus, .input-form input:focus {
+    outline: none;
+    border: none;
+    color: var(--secondary-color);
+}
+
+/* ===== table style ===== */
+.header-departemen {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;  
+}
+
+.table-style {
+    width: calc(100% - 250px); /* Parent div takes full width */
+    position: relative;
+    overflow-x: auto; 
+    background: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    margin-top: 10px;
+    -ms-overflow-style: none; /* Untuk Internet Explorer dan Edge */
+    scrollbar-width: none; /* Untuk Firefox */
+}
+
+.table-style::-webkit-scrollbar {
+    display: none; /* Untuk Chrome, Safari, dan Opera */
+}
+
+.table-style table {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 20px;
+    width: 100%; /* Table will take full width of parent */
+    border-collapse: collapse;
+}
+
+.table-style th, .table-style td {
+    padding: 10px 0 10px 10px;
+    border: 1px solid #ddd; /* Optional: Adds border to table cells */
+    border-left: none;
+    border-right: none;
+    text-align: left; /* Align text to the left */
+}
+
+/* ===== Entry button ===== */
+
+.entry-style {
+    width: calc(100% - 350px); /* Parent div takes full width */
+    position: relative;
+    overflow-x: auto; 
+    background: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    margin-top: 10px;
+    -ms-overflow-style: none; /* Untuk Internet Explorer dan Edge */
+    scrollbar-width: none; /* Untuk Firefox */
+}
+
+.table-style::-webkit-scrollbar {
+    display: none; /* Untuk Chrome, Safari, dan Opera */
+}
+
+/* ===== button ===== */
+
+td button {
+    font-size: 20px;
+    padding: 10px 10px 5px 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+.aksi-delete a, .aksi-edit a, .aksi-show a {
+    color: #3c2e2e;
+}
+
+.aksi-delete {
+    background-color: var(--primary-color);
+}
+
+.aksi-show {
+    background-color: #E4E9F7;
+}
+
+.aksi-edit {
+    background-color: var(--secondary-color-light);
+}
+
+.paginate {
+    display: flex;
+}
+
+.paginate button {
+    width: 35px;
+    height: 35px;
+    border: none;
+    padding: 5px;
+    font-size: 18px;
+    background-color: #D8AC9C;
+    color: #fff;
+}
+
+.arrow-left {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.arrow-right {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.input-form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-form input {
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 7px;
+    border: none;
+    background-color: #f0f1f6;
+}
+
+.button-action button {
+    padding: 5px 15px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+}
+
+.button-action button a,.button-back button a {
+    text-decoration: none;
+    color: #3c2e2e;
+}
+
+.button-action .save {
+    background-color: #E4E9F7;
+}
+
+.button-action .reset {
+    background-color: #D8AC9C;
+}
+
+.button-back {
+    display: flex;
+    justify-content: right;
+}
+
+.button-back button {
+    font-size: 20px;
+    padding: 5px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #b7ba9f;
+}
+
+.button-place {
+    display: flex;
+    justify-content: center;
+}
+
+.show-back {
+    font-size: 18px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #b7ba9f;
+}
+
+.show-back a {
+    text-decoration: none;
+    color: #3c2e2e;
+}
+
+.perusahaan-menu {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.perusahaan-menu .perusahaan {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 10px;
+    background-color: #f0f1f6;
+    border: 2px solid var(--secondary-color);
+    cursor: pointer;
+}
+
+.perusahaan span, i {
+    color: var(--text-color);
+}
+
+/* ===== sub-kategori ===== */
+.sub-kategori:not(.close) {
+    position: relative;
+    background-color: var(--secondary-color-light);
+    padding: 10px;
+    font-size: 18px;
+    max-height: 200px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    color: var(--text-color);
+    list-style: none;
+    margin-bottom: 20px;
+    opacity: 100%;
+    cursor: pointer;
+    transition: var(--tran-05);
+}
+
+.sub-kategori li {
+    margin-bottom: 5px;
+    padding: 5px;
+    transition: background-color 0.5s ease;
+}
+
+.sub-kategori li:hover {
+   background-color: var(--secondary-color);
+   border-radius: 5px;
+   transition: background-color 0.5s ease;
+}
+
+.sub-kategori.close {
+    list-style: none;
+    max-height: 0px;
+    margin: 0px;
+    opacity: 0;
+    transition: var(--tran-05);
+}
+
+.kategori-menu {
+    position: relative;
+    width: 100%;
+}
+
+.sub-kategori.close {
+    display: none; /* Atur agar sub-kategori error dan dropdown tersembunyi saat tidak digunakan */
+    position: absolute;
+    top: 100%; /* Menempatkan sub-kategori di bawah elemen utama */
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+.form-select {
+    width: 100%; /* Pastikan select menempati lebar penuh dari container */
+}
+
+.is-invalid {
+    border-color: #dc3545; /* Mengubah border jika ada error */
+}
+
+.sub-kategori {
+    margin-top: 5px; /* Memberikan jarak antara dropdown dan elemen sebelumnya */
+    padding: 10px;
+    background-color: #f8d7da; /* Memberikan latar belakang merah muda untuk error */
+    color: #721c24; /* Warna teks error */
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+}
+
+.arrow-dropdown-kategori {
+    margin-left: 10px;
+}
+
+.kategori {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+ul#customBarangDropdown li {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+}
+
+ul#customBarangDropdown li:hover {
+    background-color: #e9e9e9;
+}
+
+.profile-style {
+    width: calc(100% - 350px); /* Parent div takes full width */
+    position: relative;
+    overflow-x: auto; 
+    background: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    margin-top: 10px;
+    -ms-overflow-style: none; /* Untuk Internet Explorer dan Edge */
+    scrollbar-width: none; /* Untuk Firefox */
+}
+
+.profile-info {
+    width: 100%;
+    position: relative;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.profile-info img {
+    max-width: 150px;
+    max-width: 100px;
+    margin-top: 20px;
+}
+
+.profile-img {
+    display: flex;
+    justify-content: center;
+}
