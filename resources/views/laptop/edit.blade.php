@@ -3,9 +3,9 @@
 @section('content')
 <section class="home">
     <div class="entry-style">
-        <h2>Edit Data Inventori Komputer</h2>
+        <h2>Edit Data Inventori Laptop</h2>
 
-        <form action="{{ route('komputer.update', $komputer->id) }}" method="POST">
+        <form action="{{ route('laptop.update', $laptop->id) }}" method="POST">
             @csrf
             @method('PUT')
 
@@ -15,7 +15,7 @@
                        name="hostname"
                        class="form-control @error('hostname') is-invalid @enderror"
                        placeholder="Hostname"
-                       value="{{ old('hostname', $komputer->hostname) }}">
+                       value="{{ old('hostname', $laptop->hostname) }}">
                 @error('hostname')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -27,7 +27,7 @@
                        name="username"
                        class="form-control @error('username') is-invalid @enderror"
                        placeholder="Username"
-                       value="{{ old('username', $komputer->username) }}">
+                       value="{{ old('username', $laptop->username) }}">
                 @error('username')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -39,7 +39,7 @@
                        name="email"
                        class="form-control @error('email') is-invalid @enderror"
                        placeholder="Email"
-                       value="{{ old('email', $komputer->email) }}">
+                       value="{{ old('email', $laptop->email) }}">
                 @error('email')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -52,7 +52,7 @@
                     <option value="">-- Pilih Perusahaan --</option>
                     @foreach($perusahaans as $perusahaan)
                         <option value="{{ $perusahaan->id }}"
-                            {{ old('perusahaan_id', $komputer->perusahaan_id) == $perusahaan->id ? 'selected' : '' }}>
+                            {{ old('perusahaan_id', $laptop->perusahaan_id) == $perusahaan->id ? 'selected' : '' }}>
                             {{ $perusahaan->nama_perusahaan }}
                         </option>
                     @endforeach
@@ -70,7 +70,7 @@
                     <option value="">-- Pilih Departemen --</option>
                     @foreach($departemens as $departemen)
                         <option value="{{ $departemen->id }}"
-                            {{ old('departemen_id', $komputer->departemen_id) == $departemen->id ? 'selected' : '' }}>
+                            {{ old('departemen_id', $laptop->departemen_id) == $departemen->id ? 'selected' : '' }}>
                             {{ $departemen->nama_departemen }}
                         </option>
                     @endforeach
@@ -88,7 +88,7 @@
             </div>
 
             <div class="button-back">
-                <a href="{{ route('komputer.index') }}" class="back">Back</a>
+                <a href="{{ route('laptop.index') }}" class="back">Back</a>
             </div>
         </form>
     </div>

@@ -11,7 +11,37 @@
         </a>
     </div>
 
+    <form method="GET" action="{{ route('komputer.index') }}">
+        <div class="filter-menu">
 
+            <select name="perusahaan_id"
+                    class="filter"
+                    onchange="this.form.submit()">
+                <option value="">-- Pilih Perusahaan --</option>
+                @foreach ($perusahaans as $perusahaan)
+                    <option value="{{ $perusahaan->id }}"
+                        {{ request('perusahaan_id') == $perusahaan->id ? 'selected' : '' }}>
+                        {{ $perusahaan->nama_perusahaan }}
+                    </option>
+                @endforeach
+            </select>
+
+            <select name="departemen_id"
+                    class="filter"
+                    onchange="this.form.submit()">
+                <option value="">-- Pilih Departemen --</option>
+                @foreach ($perusahaans as $perusahaan)
+                    @foreach ($perusahaan->departemen as $departemen)
+                        <option value="{{ $departemen->id }}"
+                            {{ request('departemen_id') == $departemen->id ? 'selected' : '' }}>
+                            {{ $departemen->nama_departemen }}
+                        </option>
+                    @endforeach
+                @endforeach
+            </select>
+
+        </div>
+    </form>
 
     <table id="departemenTable" class="display">
         <thead>

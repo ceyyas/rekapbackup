@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\KomputerController;
 use App\Http\Controllers\LaptopController;
+use App\Http\Controllers\McpController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -35,6 +36,11 @@ Route::resource('komputer', KomputerController::class);
 
 Route::get('/laptop', [LaptopController::class, 'index'])
         ->name('laptop.index');
+Route::resource('laptop', LaptopController::class);
+
+Route::get('/mcp', [McpController::class, 'index'])
+        ->name('mcp.index');
+
 // LOGOUT
 Route::post('/logout', function () {
     Auth::logout();

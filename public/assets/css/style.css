@@ -692,3 +692,22 @@ ul#customBarangDropdown li:hover {
     display: flex;
     justify-content: center;
 }
+
+/* container jadi flex */
+.filter-menu {
+    display: flex;
+    align-items: center;
+    gap: 12px;           /* jarak antar dropdown */
+    margin: 10px 0;
+}
+
+/* style dropdown */
+.filter-menu .filter {
+    width: 250px;        /* jangan pakai % supaya konsisten */
+    padding: 8px 12px;
+    font-size: 16px;
+    border-radius: 10px;
+    background-color: #f0f1f6;
+    border: 1px solid var(--secondary-color);
+    cursor: pointer;
+}

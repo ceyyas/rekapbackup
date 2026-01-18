@@ -3,9 +3,9 @@
 @section('content')
 <section class="home">
     <div class="entry-style">
-        <h2>Tambah Data Komputer</h2>
+        <h2>Tambah Data Laptop</h2>
 
-        <form action="{{ route('komputer.store') }}" method="POST">
+        <form action="{{ route('laptop.store') }}" method="POST">
             @csrf
 
             {{-- Hostname --}}
@@ -66,12 +66,11 @@
             </div>
 
             <div class="button-back">
-                <a href="{{ route('komputer.index') }}" class="back">Back</a>
+                <a href="{{ route('laptop.index') }}" class="back">Back</a>
             </div>
 
         </form>
     </div>
 </section>
 @endsection
-
 

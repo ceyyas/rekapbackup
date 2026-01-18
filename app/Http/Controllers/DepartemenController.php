@@ -11,10 +11,17 @@ class DepartemenController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $departemens = Departemen::with('perusahaan')->get();
-        return view('departemen.index', compact('departemens'));
+        $perusahaans = Perusahaan::all();
+
+        $departemens = Departemen::with('perusahaan')
+            ->when($request->perusahaan_id, function ($query) use ($request) {
+                $query->where('perusahaan_id', $request->perusahaan_id);
+            })
+            ->get();
+
+    return view('departemen.index', compact('departemens', 'perusahaans'));
     }
 
 

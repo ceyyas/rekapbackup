@@ -49,7 +49,25 @@
                 <ul class="sub-menu close">
                     <li><a href="{{ route('departemen.index') }}">Departemen</a></li>
                     <li><a href="{{ route('komputer.index') }}">Data Komputer</a></li>
-                    <li><a href="{{ route('laptop.index') }}">Data Laptop</a></
+                    <li><a href="{{ route('laptop.index') }}">Data Laptop</a></li>
+                </ul>
+            </ul>
+
+            <ul class="menu-link">
+                <li class="nav-link active">
+                    <a href="#" class="data-induk">
+                        <i class='bx bx-data icon'></i>
+                        <span class="text nav-text">Input Backup</span>
+                        <i class='bx bx-chevron-down arrow-dropdown'></i>
+                    </a>
+                </li>
+                
+                <ul class="sub-menu close">
+                    <li><a href="{{ route('mcp.index') }}">Murni Cahaya Pratama</a></li>
+                    <li><a href="{{ route('departemen.index') }}">Mega Karya Mandiri</a></li>
+                    <li><a href="{{ route('departemen.index') }}">Mekar Karya Pratama</a></li>
+                    <li><a href="{{ route('departemen.index') }}">Putra Prima Grosia</a></li>
+                    <li><a href="{{ route('departemen.index') }}">Prima Panca Murya</a></li>
                 </ul>
             </ul>
 
