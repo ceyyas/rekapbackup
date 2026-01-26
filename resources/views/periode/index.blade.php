@@ -5,10 +5,6 @@
 
     <div class="header-departemen">
         <h2>Data Periode Backup</h2>
-
-        <a href="{{ route('departemen.create') }}" class="entry-button">
-            + Tambah Data
-        </a>
     </div>
 
     <form method="POST" action="{{ route('periode.generate') }}">
@@ -22,7 +18,7 @@
             max="2100"
             required>
 
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="aksi-edit">
             Generate Periode
         </button>
     </form>

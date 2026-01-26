@@ -8,8 +8,8 @@ use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\KomputerController;
 use App\Http\Controllers\LaptopController;
 use App\Http\Controllers\StokController;
-use App\Http\Controllers\RekapBackupController;
 use App\Http\Controllers\PeriodeBackupController;
+use App\Http\Controllers\RekapBackupController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -33,15 +33,24 @@ Route::resource('komputer', KomputerController::class);
 Route::resource('laptop', LaptopController::class);
 Route::resource('stok', StokController::class);
 
-Route::get('/rekap-backup', [RekapBackupController::class, 'index']);
-Route::get('/rekap-backup/global', [RekapBackupController::class, 'global']);
-Route::get('/rekap-backup/detail/{departemen}', [RekapBackupController::class, 'detail']);
-
+Route::get('/periode', [PeriodeBackupController::class, 'index'])
+    ->name('periode.index');
 Route::post('/periode/generate',
     [PeriodeBackupController::class, 'generateTahun']
 )->name('periode.generate');
 
 
+Route::get('/rekap-backup', 
+    [RekapBackupController::class, 'index']
+)->name('rekap-backup.index');
+
+Route::get('/rekap-backup/departemen/{departemen}', 
+    [RekapBackupController::class, 'detailPage']
+)->name('rekap-backup.detail-page');
+
+Route::get('/rekap-backup/departemen/{departemen}/data', 
+    [RekapBackupController::class, 'detailData']
+)->name('rekap-backup.detail-data');
 
 // LOGOUT
 Route::post('/logout', function () {

@@ -2,7 +2,7 @@
     <thead>
         <tr>
             <th>Hostname</th>
-            <th>Size Backup</th>
+            <th>Total Size Backup</th>
         </tr>
     </thead>
     <tbody>

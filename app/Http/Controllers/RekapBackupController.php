@@ -4,112 +4,98 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Departemen;
 use App\Models\Perusahaan;
+use App\Models\Departemen;
 use App\Models\Inventori;
 use App\Models\Periode;
 use App\Models\RekapBackup;
 
 class RekapBackupController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-     public function index()
+    public function index(Request $request)
     {
         $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
-        $periodes = Periode::orderBy('tahun','desc')
-            ->orderBy('bulan','desc')
+
+        $periodes = Periode::orderBy('tahun', 'desc')
+            ->orderBy('bulan', 'desc')
             ->get();
 
-        return view('rekap.index', compact('perusahaans','periodes'));
+        // default kosong
+        $departemens = collect();
+
+        if ($request->filled(['perusahaan_id', 'periode_id'])) {
+
+            $departemens = DB::table('departemen')
+                ->leftJoin('inventori', 'inventori.departemen_id', '=', 'departemen.id')
+                ->leftJoin('rekap_backup', function ($join) use ($request) {
+                    $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
+                        ->where('rekap_backup.periode_id', $request->periode_id);
+                })
+                ->where('departemen.perusahaan_id', $request->perusahaan_id)
+                ->select(
+                    'departemen.id',
+                    'departemen.nama_departemen',
+
+                    DB::raw('COALESCE(SUM(rekap_backup.size_data), 0) AS size_data'),
+                    DB::raw('COALESCE(SUM(rekap_backup.size_email), 0) AS size_email'),
+                    DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size'),
+
+                    DB::raw("
+                        CASE
+                            WHEN COUNT(rekap_backup.id) = 0 THEN 'pending'
+                            WHEN SUM(rekap_backup.status = 'completed') = COUNT(rekap_backup.id)
+                                THEN 'completed'
+                            ELSE 'partial'
+                        END AS status_backup
+                    ")
+                )
+                ->groupBy('departemen.id', 'departemen.nama_departemen')
+                ->orderBy('departemen.nama_departemen')
+                ->get();
+        }
+
+        // ========================
+        // 3. KIRIM KE VIEW
+        // ========================
+        return view('rekap.index', compact(
+            'perusahaans',
+            'periodes',
+            'departemens'
+        ));
     }
 
-    public function global(Request $request)
+
+
+    public function detailPage($departemenId)
     {
-        $departemens = DB::table('departemen')
-            ->leftJoin('inventori', 'inventori.departemen_id', '=', 'departemen.id')
-            ->leftJoin('rekap_backup', function ($join) use ($request) {
-                $join->on('rekap_backup.inventori_id', '=', 'inventori.id');
+        $departemen = Departemen::findOrFail($departemenId);
 
-                if ($request->periode_id) {
-                    $join->where('rekap_backup.periode_id', $request->periode_id);
-                }
-            })
-            ->where('departemen.perusahaan_id', $request->perusahaan_id)
-            ->select(
-                'departemen.id',
-                'departemen.nama_departemen',
-                DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) as total_size')
-            )
-            ->groupBy('departemen.id', 'departemen.nama_departemen')
-            ->get();
-
-        return view('rekap.partials.global', compact('departemens'))->render();
+        return view('rekap.detail-page', compact('departemen'));
     }
 
-    public function detail(Request $request, $departemenId)
+
+    public function detailData(Request $request, $departemenId)
     {
+        // validasi minimal
+        $request->validate([
+            'periode_id' => 'required|exists:periode_backup,id'
+        ]);
+
         $inventoris = DB::table('inventori')
             ->leftJoin('rekap_backup', function ($join) use ($request) {
                 $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
-                     ->where('rekap_backup.periode', $request->periode);
+                     ->where('rekap_backup.periode_id', $request->periode_id);
             })
             ->where('inventori.departemen_id', $departemenId)
             ->select(
-                'inventori.nama',
-                DB::raw('COALESCE(rekap_backup.size_data, 0) as size_data')
+                'inventori.id',
+                'inventori.hostname',
+                DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size')
             )
+            ->groupBy('inventori.id', 'inventori.hostname')
+            ->orderBy('inventori.hostname')
             ->get();
 
-        return view('rekap.partials.detail', compact('inventoris'))->render();
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view('rekap.detail-table', compact('inventoris'));
     }
 }

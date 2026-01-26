@@ -13,16 +13,6 @@ return new class extends Migration
     {
         Schema::table('rekap_backup', function (Blueprint $table) {
 
-        $table->foreignId('perusahaan_id')
-            ->after('inventori_id')
-            ->constrained('perusahaan')
-            ->cascadeOnDelete();
-
-        $table->foreignId('departemen_id')
-            ->after('perusahaan_id')
-            ->constrained('departemen')
-            ->cascadeOnDelete();
-
         $table->foreignId('periode_id')
             ->after('departemen_id')
             ->constrained('periode_backup')
