@@ -42,7 +42,10 @@
         <thead>
             <tr>
                 <th>Departemen</th>
-                <th>Total Size Backup</th>
+                <th>Size Data</th>
+                <th>Size Email</th>
+                <th>Total Size</th>
+                <th>Status Backup</th>
             </tr>
         </thead>
         <tbody>
@@ -56,7 +59,14 @@
                         {{ $dept->nama_departemen }}
                     </a>
                 </td>
-                <td>{{ number_format($dept->total_size) }} MB</td>
+                <td>{{ number_format($dept->size_data) }} MB</td>
+                <td>{{ number_format($dept->size_email) }} MB</td>
+                <td><strong>{{ number_format($dept->total_size) }} MB</strong></td>
+                <td>
+                    <span class="status {{ $dept->status_backup }}">
+                        {{ ucfirst($dept->status_backup) }}
+                    </span>
+                </td>
             </tr>
             @endforeach
         </tbody>

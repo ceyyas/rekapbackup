@@ -54,9 +54,6 @@ class RekapBackupController extends Controller
                 ->get();
         }
 
-        // ========================
-        // 3. KIRIM KE VIEW
-        // ========================
         return view('rekap.index', compact(
             'perusahaans',
             'periodes',
@@ -82,20 +79,53 @@ class RekapBackupController extends Controller
         ]);
 
         $inventoris = DB::table('inventori')
-            ->leftJoin('rekap_backup', function ($join) use ($request) {
-                $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
-                     ->where('rekap_backup.periode_id', $request->periode_id);
-            })
-            ->where('inventori.departemen_id', $departemenId)
-            ->select(
-                'inventori.id',
-                'inventori.hostname',
-                DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size')
-            )
-            ->groupBy('inventori.id', 'inventori.hostname')
-            ->orderBy('inventori.hostname')
-            ->get();
+        ->leftJoin('rekap_backup', function ($join) use ($periodeId) {
+            $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
+                ->where('rekap_backup.periode_id', $periodeId);
+        })
+        ->where('inventori.departemen_id', $departemenId)
+        ->select(
+            'inventori.id',
+            'inventori.hostname',
+            'inventori.username',
+            'inventori.email',
+            DB::raw('COALESCE(rekap_backup.size_data, 0) AS size_data'),
+            DB::raw('COALESCE(rekap_backup.size_email, 0) AS size_email')
+        )
+        ->groupBy(
+            'inventori.id',
+            'inventori.hostname',
+            'inventori.username',
+            'inventori.email'
+        )
+        ->orderBy('inventori.hostname')
+        ->get();
 
         return view('rekap.detail-table', compact('inventoris'));
     }
+    
+    public function saveDetail(Request $request)
+    {
+        $periodeId = $request->periode_id;
+
+        foreach ($request->data as $inventoriId => $val) {
+
+            RekapBackup::updateOrCreate(
+                [
+                    'inventori_id' => $inventoriId,
+                    'periode_id' => $periodeId
+                ],
+                [
+                    'size_data' => $val['size_data'] ?? 0,
+                    'size_email' => $val['size_email'] ?? 0,
+                    'status' => (
+                        ($val['size_data'] ?? 0) + ($val['size_email'] ?? 0)
+                    ) > 0 ? 'completed' : 'pending'
+                ]
+            );
+        }
+
+        return back()->with('success', 'Data backup berhasil disimpan');
+    }
 }
+

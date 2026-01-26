@@ -23,5 +23,18 @@
         </button>
     </form>
 
+    <table id="departemenTable" class="display">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Bulan</th>
+                <th>Tahun</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+
+
 </div>
 @endsection

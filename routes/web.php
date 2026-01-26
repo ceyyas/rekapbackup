@@ -51,6 +51,10 @@ Route::get('/rekap-backup/departemen/{departemen}',
 Route::get('/rekap-backup/departemen/{departemen}/data', 
     [RekapBackupController::class, 'detailData']
 )->name('rekap-backup.detail-data');
+Route::post(
+    '/rekap-backup/save',
+    [RekapBackupController::class, 'saveDetail']
+)->name('rekap-backup.save');
 
 // LOGOUT
 Route::post('/logout', function () {
