@@ -19,5 +19,9 @@ class Departemen extends Model
     public function inventori() {
         return $this->hasMany(Inventori::class);
     }
-
+    
+    public function rekapBackup()
+    {
+        return $this->hasMany(RekapBackup::class);
+    }
 }

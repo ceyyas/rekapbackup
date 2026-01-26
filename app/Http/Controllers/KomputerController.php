@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Departemen;
 use App\Models\Perusahaan;
 use App\Models\Inventori;
+use Illuminate\Validation\Rule;
 
 class KomputerController extends Controller
 {
@@ -14,9 +15,20 @@ class KomputerController extends Controller
      */
     public function index(Request $request)
     {
-        // ambil data perusahaan untuk dropdown
-        $perusahaans = Perusahaan::with('departemen')->get();
+        // dropdown perusahaan
+        $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
 
+        // dropdown departemen (kosong dulu)
+        $departemens = collect();
+
+        // isi departemen hanya jika perusahaan dipilih
+        if ($request->perusahaan_id) {
+            $departemens = Departemen::where('perusahaan_id', $request->perusahaan_id)
+                ->orderBy('nama_departemen')
+                ->get();
+        }
+
+        // data komputer
         $komputers = Inventori::with(['perusahaan', 'departemen'])
             ->where('kategori', 'PC')
 
@@ -29,20 +41,32 @@ class KomputerController extends Controller
             ->when($request->departemen_id, function ($query) use ($request) {
                 $query->where('departemen_id', $request->departemen_id);
             })
-
             ->get();
 
-        return view('komputer.index', compact('komputers', 'perusahaans'));
+        return view('komputer.index', compact(
+            'komputers',
+            'perusahaans',
+            'departemens'
+        ));
     }
+
 
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        $perusahaans = Perusahaan::with('departemen')->get();
-        return view('komputer.create', compact('perusahaans'));
+        $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
+
+        // departemen kosong dulu
+        $departemens = collect();
+
+        if (old('perusahaan_id')) {
+            $departemens = Departemen::where('perusahaan_id', old('perusahaan_id'))->get();
+        }
+
+        return view('komputer.create', compact('perusahaans', 'departemens'));
     }
 
     /**
@@ -51,11 +75,19 @@ class KomputerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-        'perusahaan_id' => 'required',
-        'departemen_id' => 'required',
-        'hostname'      => 'required',
-        'username'      => 'required',
-        'email'         => 'required|email',
+            'perusahaan_id' => ['required', 'exists:perusahaan,id'],
+
+            'departemen_id' => [
+                'required',
+                Rule::exists('departemen', 'id')
+                    ->where(fn ($q) =>
+                        $q->where('perusahaan_id', $request->perusahaan_id)
+                    ),
+            ],
+
+            'hostname' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
+            'email'    => 'required|email',
         ]);
 
         Inventori::create([
@@ -64,10 +96,11 @@ class KomputerController extends Controller
             'hostname'      => $request->hostname,
             'username'      => $request->username,
             'email'         => $request->email,
-            'kategori'      => 'PC', 
+            'kategori'      => 'PC',
         ]);
 
-        return redirect()->route('komputer.index')
+        return redirect()
+            ->route('komputer.index')
             ->with('success', 'Data komputer berhasil ditambahkan');
     }
 
@@ -77,8 +110,8 @@ class KomputerController extends Controller
     public function show(string $id)
     {
         $komputer = Inventori::with(['perusahaan', 'departemen'])
-        ->where('kategori', 'PC')
-        ->findOrFail($id);
+            ->where('kategori', 'PC')
+            ->findOrFail($id);
 
         return view('komputer.show', compact('komputer'));
     }
@@ -90,11 +123,16 @@ class KomputerController extends Controller
     {
         $komputer = Inventori::where('kategori', 'PC')->findOrFail($id);
 
-        $perusahaans = Perusahaan::with('departemen')->get();
+        $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
+
+        // departemen berdasarkan perusahaan komputer
         $departemens = Departemen::where('perusahaan_id', $komputer->perusahaan_id)->get();
 
-        return view('komputer.edit', compact('komputer', 'perusahaans', 'departemens'));
-
+        return view('komputer.edit', compact(
+            'komputer',
+            'perusahaans',
+            'departemens'
+        ));
     }
 
     /**
@@ -104,16 +142,33 @@ class KomputerController extends Controller
     {
         $komputer = Inventori::where('kategori', 'PC')->findOrFail($id);
 
-        $komputer->update([
-            'hostname'       => $request->hostname,
-            'username'       => $request->username,
-            'email'          => $request->email,
-            'perusahaan_id'  => $request->perusahaan_id,
-            'departemen_id'  => $request->departemen_id,
+        $request->validate([
+            'perusahaan_id' => ['required', 'exists:perusahaan,id'],
+
+            'departemen_id' => [
+                'required',
+                Rule::exists('departemen', 'id')
+                    ->where(fn ($q) =>
+                        $q->where('perusahaan_id', $request->perusahaan_id)
+                    ),
+            ],
+
+            'hostname' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
+            'email'    => 'required|email',
         ]);
 
-        return redirect()->route('komputer.index')
-                     ->with('success', 'Data komputer berhasil diupdate');
+        $komputer->update([
+            'hostname'      => $request->hostname,
+            'username'      => $request->username,
+            'email'         => $request->email,
+            'perusahaan_id' => $request->perusahaan_id,
+            'departemen_id' => $request->departemen_id,
+        ]);
+
+        return redirect()
+            ->route('komputer.index')
+            ->with('success', 'Data komputer berhasil diupdate');
     }
 
     /**
@@ -124,7 +179,8 @@ class KomputerController extends Controller
         $komputer = Inventori::where('kategori', 'PC')->findOrFail($id);
         $komputer->delete();
 
-        return redirect()->route('komputer.index')
+        return redirect()
+            ->route('komputer.index')
             ->with('success', 'Data komputer berhasil dihapus');
     }
 }

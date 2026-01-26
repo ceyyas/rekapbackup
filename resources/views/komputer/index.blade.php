@@ -26,17 +26,16 @@
                 @endforeach
             </select>
 
+
             <select name="departemen_id"
                     class="filter"
                     onchange="this.form.submit()">
                 <option value="">-- Pilih Departemen --</option>
-                @foreach ($perusahaans as $perusahaan)
-                    @foreach ($perusahaan->departemen as $departemen)
-                        <option value="{{ $departemen->id }}"
-                            {{ request('departemen_id') == $departemen->id ? 'selected' : '' }}>
-                            {{ $departemen->nama_departemen }}
-                        </option>
-                    @endforeach
+                @foreach ($departemens as $d)
+                    <option value="{{ $d->id }}"
+                        {{ request('departemen_id') == $d->id ? 'selected' : '' }}>
+                        {{ $d->nama_departemen }}
+                    </option>
                 @endforeach
             </select>
 

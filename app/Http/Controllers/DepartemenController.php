@@ -14,14 +14,13 @@ class DepartemenController extends Controller
     public function index(Request $request)
     {
         $perusahaans = Perusahaan::all();
-
         $departemens = Departemen::with('perusahaan')
             ->when($request->perusahaan_id, function ($query) use ($request) {
                 $query->where('perusahaan_id', $request->perusahaan_id);
             })
             ->get();
 
-    return view('departemen.index', compact('departemens', 'perusahaans'));
+        return view('departemen.index', compact('departemens', 'perusahaans'));
     }
 
 
@@ -78,7 +77,18 @@ class DepartemenController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $departemen = Departemen::findOrFail($id);
+        $listPerusahaan = Perusahaan::pluck('nama_perusahaan', 'id');
+
+
+        $departemen->update([
+            'nama_departemen'=> $request->nama_departemen,
+            'perusahaan_id'  => $request->perusahaan_id,
+        ]);
+
+
+        return redirect()->route('departemen.index')
+            ->with('success', 'Data departemen berhasil diupdate');
     }
 
     /**
@@ -86,6 +96,10 @@ class DepartemenController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $departemen = Departemen::findOrFail($id);
+        $departemen->delete();
+
+        return redirect()->route('departemen.index')
+            ->with('success', 'Data departemen berhasil dihapus');
     }
 }

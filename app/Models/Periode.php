@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Periode extends Model
 {
     protected $table = 'periode_backup';
-    protected $fillable = ['nama_departemen', 'perusahaan_id']; 
 
+    protected $fillable = [
+        'bulan',
+        'tahun'
+    ];
+
+    public function rekapBackup()
+    {
+        return $this->hasMany(RekapBackup::class);
+    }
 }
