@@ -61,6 +61,9 @@ Route::post(
     [RekapBackupController::class, 'saveDetail']
 )->name('rekap-backup.save');
 
+Route::get('/rekap-backup/export', [RekapBackupController::class, 'export'])
+    ->name('rekap-backup.export');
+
 // LOGOUT
 Route::post('/logout', function () {
     Auth::logout();

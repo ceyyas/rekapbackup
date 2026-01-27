@@ -34,6 +34,13 @@
                 @endforeach
             </select>
 
+            @if(count($departemens))
+                    <a href="{{ route('rekap-backup.export', request()->query()) }}"
+                    class="entry-button">
+                        Export Excel
+                    </a>
+            @endif
+
         </div>
     </form>
 
