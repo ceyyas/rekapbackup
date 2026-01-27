@@ -14,7 +14,6 @@ class PeriodeBackupController extends Controller
             ->get();
 
         return view('periode.index', compact('periodes'));
-        // atau: view('mcp.periode.index')
     }
 
     public function generateTahun(Request $request)
@@ -29,7 +28,28 @@ class PeriodeBackupController extends Controller
                 'tahun' => $request->tahun
             ]);
         }
+
         return redirect()->route('periode.index')
             ->with('success', 'Periode berhasil dibuat');
+    }
+
+    public function edit(string $id)
+    {
+        $periodes = Periode::orderBy('tahun')
+            ->orderBy('bulan')
+            ->get();
+        
+        return view('periode.edit', compact('periode'));
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $periodes = Periode::orderBy('tahun')
+            ->orderBy('bulan')
+            ->get();
+
+        $request->validate([
+
+        ]);
     }
 }

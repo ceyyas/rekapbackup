@@ -7,7 +7,7 @@
         Detail Backup — {{ $departemen->nama_departemen }}
     </h2>
 
-    {{-- WADAH AJAX --}}
+    {{-- AJAX --}}
     <div id="detail-container">
         <p>Memuat data...</p>
     </div>

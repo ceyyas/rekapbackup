@@ -54,7 +54,9 @@
             </div>
 
             <div class="button-back">
-                <a href="{{ route('stok.index') }}" class="back">Back</a>
+                <button class="back">
+                    <a href="{{ route('stok.index') }}" class="back">Kembali</a>
+                </button> 
             </div>
         </form>
     </div>

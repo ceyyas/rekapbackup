@@ -26,7 +26,7 @@
 
         <div class="button-place">
             <button class="show-back">
-                <a href="{{ route('stok.index') }}">Back</a>
+                <a href="{{ route('stok.index') }}">Kembali</a>
             </button>
         </div>
     </div>

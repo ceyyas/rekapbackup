@@ -35,6 +35,11 @@ Route::resource('stok', StokController::class);
 
 Route::get('/periode', [PeriodeBackupController::class, 'index'])
     ->name('periode.index');
+Route::get('/periode/edit', [PeriodeBackupController::class, 'edit'])
+    ->name('periode.edit');
+Route::get('/periode/destroy', [PeriodeBackupController::class, 'destroy'])
+    ->name('periode.destroy');
+
 Route::post('/periode/generate',
     [PeriodeBackupController::class, 'generateTahun']
 )->name('periode.generate');

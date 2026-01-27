@@ -88,7 +88,9 @@
             </div>
 
             <div class="button-back">
-                <a href="{{ route('laptop.index') }}" class="back">Back</a>
+                <button class="back">
+                    <a href="{{ route('laptop.index') }}" class="back">Kembali</a>
+                </button> 
             </div>
         </form>
     </div>

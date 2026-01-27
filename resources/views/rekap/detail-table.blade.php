@@ -41,6 +41,13 @@
         @endforeach
     </tbody>
 </table>
+<div class="button-action">
+    <button type="submit" class="save">Simpan</button>
+</div>
+<div class="button-back">
+    <button class="back">
+        <a href="{{ route('komputer.index') }}" class="back">Kembali</a>
+    </button>
+</div>
 
-<button type="submit" class="save">Simpan</button>
 </form>
