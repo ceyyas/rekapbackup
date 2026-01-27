@@ -14,7 +14,6 @@ class PeriodeBackupController extends Controller
             ->get();
 
         return view('periode.index', compact('periodes'));
-        // atau: view('mcp.periode.index')
     }
 
     public function generateTahun(Request $request)
@@ -29,7 +28,9 @@ class PeriodeBackupController extends Controller
                 'tahun' => $request->tahun
             ]);
         }
+
         return redirect()->route('periode.index')
             ->with('success', 'Periode berhasil dibuat');
     }
 }
+
