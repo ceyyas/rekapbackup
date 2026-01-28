@@ -15,6 +15,15 @@
                     value="{{ old('nomor_sppb') }}"
                     required>
             </div>
+            
+            <div class="input-form">
+                <input type="number"
+                    name="jumlah_barang"
+                    placeholder="Jumlah"
+                    min="1"
+                    value="{{ old('jumlah_barang') }}"
+                    required>
+            </div>
 
             <div class="perusahaan-menu">
                 <select name="nama_barang" required class="perusahaan">
@@ -23,15 +32,6 @@
                     <option value="DVD 4.7 GB">DVD 4.7 GB</option>
                     <option value="DVD 8.5 GB">DVD 8.5 GB</option>
                 </select>
-            </div>
-
-            <div class="input-form">
-                <input type="number"
-                    name="jumlah_barang"
-                    placeholder="Jumlah"
-                    min="1"
-                    value="{{ old('jumlah_barang') }}"
-                    required>
             </div>
 
             <div class="button-action">

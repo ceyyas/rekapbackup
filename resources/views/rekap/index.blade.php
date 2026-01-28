@@ -29,7 +29,7 @@
                 @foreach ($periodes as $p)
                     <option value="{{ $p->id }}"
                         {{ request('periode_id') == $p->id ? 'selected' : '' }}>
-                        {{ str_pad($p->bulan,2,'0',STR_PAD_LEFT) }}/{{ $p->tahun }}
+                        {{ ($p->nama_bulan) }} {{ $p->tahun }}
                     </option>
                 @endforeach
             </select>

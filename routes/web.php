@@ -28,6 +28,9 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware('auth')
     ->name('dashboard');
 
+Route::get('/departemen/by-perusahaan', [KomputerController::class, 'getDepartemen']);
+Route::get('/departemen/by-perusahaan', [LaptopController::class, 'getDepartemen']);
+
 Route::resource('departemen', DepartemenController::class);
 Route::resource('komputer', KomputerController::class);
 Route::resource('laptop', LaptopController::class);

@@ -28,28 +28,14 @@
                 <th>No</th>
                 <th>Bulan</th>
                 <th>Tahun</th>
-                <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
             @foreach($periodes as $index => $periode)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $periode->bulan }}</td>
+                    <td>{{ $periode->nama_bulan }}</td>
                     <td>{{ $periode->tahun }}</td>
-                    <td class="text-center">
-                        <button class="aksi-edit"><a href="{{ route('periode.edit', $periode->id) }}"><i class='bx bx-edit-alt'></i></a></button>
-
-                        <form action="{{ route('periode.destroy', $periode->id) }}"
-                            method="POST"
-                            onsubmit="return confirm('Are you sure?')"
-                            style="display: inline;">
-                            @csrf 
-                            @method('DELETE') 
-                                    
-                            <button type="submit" class="aksi-delete"><i class='bx bx-trash'></i></button>
-                        </form>
-                    </td>
                 </tr>
             @endforeach
         </tbody>

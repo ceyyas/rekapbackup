@@ -22,34 +22,36 @@ class PeriodeBackupController extends Controller
             'tahun' => 'required|digits:4'
         ]);
 
-        for ($bulan = 1; $bulan <= 12; $bulan++) {
-            Periode::firstOrCreate([
-                'bulan' => $bulan,
-                'tahun' => $request->tahun
-            ]);
+        $bulanMap = [
+            1  => 'Januari',
+            2  => 'Februari',
+            3  => 'Maret',
+            4  => 'April',
+            5  => 'Mei',
+            6  => 'Juni',
+            7  => 'Juli',
+            8  => 'Agustus',
+            9  => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
+
+        foreach ($bulanMap as $bulan => $namaBulan) {
+            Periode::firstOrCreate(
+                [
+                    'bulan' => $bulan,
+                    'tahun' => $request->tahun,
+                ],
+                [
+                    'nama_bulan' => $namaBulan,
+                ]
+            );
         }
 
-        return redirect()->route('periode.index')
+        return redirect()
+            ->route('periode.index')
             ->with('success', 'Periode berhasil dibuat');
     }
-
-    public function edit(string $id)
-    {
-        $periodes = Periode::orderBy('tahun')
-            ->orderBy('bulan')
-            ->get();
-        
-        return view('periode.edit', compact('periode'));
-    }
-
-    public function update(Request $request, string $id)
-    {
-        $periodes = Periode::orderBy('tahun')
-            ->orderBy('bulan')
-            ->get();
-
-        $request->validate([
-
-        ]);
-    }
+    
 }

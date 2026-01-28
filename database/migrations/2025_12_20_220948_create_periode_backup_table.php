@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('periode_backup', function (Blueprint $table) {
             $table->id(); 
             $table->tinyInteger('bulan'); 
+            $table->string('nama_bulan');  
             $table->year('tahun');
             $table->timestamps();
 
@@ -29,4 +30,5 @@ return new class extends Migration
     {
         Schema::dropIfExists('periode_backup');
     }
+    
 };

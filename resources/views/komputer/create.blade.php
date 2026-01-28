@@ -36,7 +36,7 @@
             </div>
             {{-- Perusahaan --}}
             <div class="perusahaan-menu">
-                <select name="perusahaan_id" id="perusahaan" required class="perusahaan">
+                <select name="perusahaan_id" id="perusahaan_id" required class="perusahaan">
                     <option value="">-- Pilih Perusahaan --</option>
                     @foreach ($perusahaans as $p)
                         <option value="{{ $p->id }}">
@@ -47,15 +47,8 @@
             </div>
             {{-- Departemen --}}
             <div class="perusahaan-menu">
-                <select name="departemen_id" id="departemen" required class="perusahaan">
+                <select name="departemen_id" id="departemen_id" required class="perusahaan">
                     <option value="">-- Pilih Departemen --</option>
-                    @foreach ($perusahaans as $p)
-                        @foreach ($p->departemen as $d)
-                            <option value="{{ $d->id }}">
-                                {{ $d->nama_departemen }}
-                            </option>
-                        @endforeach
-                    @endforeach
                 </select>
             </div>
 
@@ -75,5 +68,32 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+$('#perusahaan_id').on('change', function () {
+    let perusahaanId = $(this).val();
+    let departemen = $('#departemen_id');
+
+    departemen.html('<option>Loading...</option>');
+
+    if (!perusahaanId) {
+        departemen.html('<option>-- Pilih Departemen --</option>');
+        return;
+    }
+
+    $.get('/departemen/by-perusahaan', { perusahaan_id: perusahaanId }, function (data) {
+        departemen.html('<option>-- Pilih Departemen --</option>');
+
+        $.each(data, function (i, d) {
+            departemen.append(
+                `<option value="${d.id}">${d.nama_departemen}</option>`
+            );
+        });
+    });
+});
+</script>
+@endpush
+
 
 

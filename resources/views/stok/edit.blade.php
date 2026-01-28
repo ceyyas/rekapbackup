@@ -19,6 +19,17 @@
                 @enderror
             </div>
 
+            <div class="input-form">
+                <input type="text"
+                       name="jumlah_barang"
+                       class="form-control @error('jumlah_barang') is-invalid @enderror"
+                       placeholder="jumlah_barang"
+                       value="{{ old('jumlah_barang', $stok->jumlah_barang) }}">
+                @error('jumlah_barang')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            
             <div class="perusahaan-menu">
                 <select name="nama_barang" class="perusahaan"
                         class="form-control @error('nama_barang') is-invalid @enderror">
@@ -37,16 +48,7 @@
                 @enderror
             </div>
 
-            <div class="input-form">
-                <input type="text"
-                       name="jumlah_barang"
-                       class="form-control @error('jumlah_barang') is-invalid @enderror"
-                       placeholder="jumlah_barang"
-                       value="{{ old('jumlah_barang', $stok->jumlah_barang) }}">
-                @error('jumlah_barang')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
+            
 
             <div class="button-action">
                 <button type="submit" class="save">Save</button>

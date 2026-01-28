@@ -68,6 +68,13 @@ class KomputerController extends Controller
 
         return view('komputer.create', compact('perusahaans', 'departemens'));
     }
+    
+    public function getDepartemen(Request $request)
+    {
+        return Departemen::where('perusahaan_id', $request->perusahaan_id)
+            ->orderBy('nama_departemen')
+            ->get();
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -76,7 +83,6 @@ class KomputerController extends Controller
     {
         $request->validate([
             'perusahaan_id' => ['required', 'exists:perusahaan,id'],
-
             'departemen_id' => [
                 'required',
                 Rule::exists('departemen', 'id')
@@ -84,7 +90,6 @@ class KomputerController extends Controller
                         $q->where('perusahaan_id', $request->perusahaan_id)
                     ),
             ],
-
             'hostname' => 'required|string|max:255',
             'username' => 'required|string|max:255',
             'email'    => 'required|email',
@@ -144,7 +149,6 @@ class KomputerController extends Controller
 
         $request->validate([
             'perusahaan_id' => ['required', 'exists:perusahaan,id'],
-
             'departemen_id' => [
                 'required',
                 Rule::exists('departemen', 'id')
