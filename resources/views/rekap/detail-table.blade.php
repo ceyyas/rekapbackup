@@ -24,14 +24,14 @@
                 <input type="number"
                        name="data[{{ $inv->id }}][size_data]"
                        value="{{ $inv->size_data }}"
-                       class="size-data">
+                       class="size-input size-data">
             </td>
 
             <td>
                 <input type="number"
                        name="data[{{ $inv->id }}][size_email]"
                        value="{{ $inv->size_email }}"
-                       class="size-email">
+                       class="size-input size-email">
             </td>
 
             <td class="total-size">

@@ -45,6 +45,8 @@
         <thead>
             <tr>
                 <th>No</th>
+                <th>Perusahaan</th>
+                <th>Departemen</th>
                 <th>Hostname</th>
                 <th>User</th>
                 <th>Email</th>
@@ -55,6 +57,8 @@
             @foreach ($laptops as $index => $inventori)
             <tr>
                 <td>{{ $index + 1 }}</td>
+                <td>{{ $inventori->perusahaan->nama_perusahaan }}</td>
+                <td>{{ $inventori->departemen->nama_departemen }}</td>     
                 <td>{{ $inventori->hostname }}</td>
                 <td>{{ $inventori->username }}</td>
                 <td>{{ $inventori->email }}</td>

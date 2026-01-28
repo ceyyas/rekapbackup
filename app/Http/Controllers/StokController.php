@@ -12,7 +12,7 @@ class StokController extends Controller
      */
     public function index()
     {
-        $stoks = Stok::orderBy('id', 'desc')->get();
+        $stoks = Stok::orderByDesc('updated_at')->get();
         return view('stok.index', compact('stoks'));
     }
 

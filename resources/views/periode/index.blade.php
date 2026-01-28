@@ -8,14 +8,28 @@
     <div class="header-departemen">
         <h2>Data Periode Backup</h2>
     </div>
+    
 
-
-    <form method="POST" action="{{ route('periode.generate') }}">
+    <form method="POST" action="{{ route('periode.generate') }}" class="periode-form">
         @csrf
-        <label>Tahun Backup</label>
-        <input type="number" name="tahun" value="{{ date('Y') }}" min="2000" max="2100" required>
-        <button type="submit" class="aksi-edit">Generate Periode</button>
+
+        <h3>Tahun Backup</h3>
+
+        <div class="periode-input-group">
+            <input type="number"
+                name="tahun"
+                value="{{ date('Y') }}"
+                min="2000"
+                max="2100"
+                required
+                class="periode-input">
+        </div>
+
+        <button type="submit" class="btn-generate">
+            Generate Periode
+        </button>
     </form>
+
 
 
     @if(session('success'))

@@ -41,6 +41,7 @@ class KomputerController extends Controller
             ->when($request->departemen_id, function ($query) use ($request) {
                 $query->where('departemen_id', $request->departemen_id);
             })
+            ->orderByDesc('updated_at')
             ->get();
 
         return view('komputer.index', compact(
