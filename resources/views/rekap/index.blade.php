@@ -52,7 +52,6 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    // Inisialisasi DataTables tanpa search & length menu
     let table = $('#rekapTable').DataTable({
         paging: false,       
         info: false,         
@@ -60,13 +59,11 @@ $(document).ready(function() {
         lengthChange: false 
     });
 
-    // Event listener untuk filter dropdown
     $('#perusahaan_id, #periode_id').on('change', function() {
         loadData(table);
     });
 });
 
-// Fungsi Ajax untuk ambil data sesuai filter
 function loadData(table) {
     let perusahaanId = $('#perusahaan_id').val();
     let periodeId = $('#periode_id').val();
@@ -80,8 +77,9 @@ function loadData(table) {
 
             $.each(data, function(i, d) {
             let detailUrl = "{{ route('rekap-backup.detail-page', ':id') }}"
-                            .replace(':id', d.id) 
-                            + "?periode_id=" + $('#periode_id').val();
+                .replace(':id', d.id)
+                + "?periode_id=" + $('#periode_id').val()
+                + "&perusahaan_id=" + $('#perusahaan_id').val();
 
                 table.row.add([
                     d.nama_departemen,
@@ -91,7 +89,6 @@ function loadData(table) {
                     d.status_backup
                 ]).node().setAttribute('onclick', "window.location='" + detailUrl + "'");
             });
-
 
             table.draw();
         }

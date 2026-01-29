@@ -46,8 +46,12 @@
 </div>
 <div class="button-back">
     <button class="back">
-        <a href="{{ route('komputer.index') }}" class="back">Kembali</a>
-    </button>
+    <a href="{{ route('rekap-backup.index', [
+        'perusahaan_id' => request('perusahaan_id'),
+        'periode_id' => request('periode_id')
+    ]) }}" class="back">Kembali</a>
+</button>
+
 </div>
 
 </form>

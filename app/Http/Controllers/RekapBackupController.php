@@ -105,7 +105,6 @@ class RekapBackupController extends Controller
         return view('rekap.detail-page', compact('departemen'));
     }
 
-
     public function detailData(Request $request, $departemenId)
     {
         // validasi minimal

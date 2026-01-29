@@ -26,8 +26,6 @@
     </section>
 
     <script src="{{ asset('assets/js/script.js') }}"></script>
-    <script src="{{ asset('assets/js/rekap-backup.js') }}"></script>
-
     @stack('scripts')
 
 </body>

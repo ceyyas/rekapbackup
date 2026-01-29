@@ -108,7 +108,6 @@
         });
     });
 
-    // filter komputer ketika departemen dipilih
     $('#departemen_id').on('change', function () {
         let perusahaanId = $('#perusahaan_id').val();
         let departemenId = $(this).val();
