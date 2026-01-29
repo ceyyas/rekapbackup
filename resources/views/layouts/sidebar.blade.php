@@ -29,7 +29,7 @@
 
             <ul class="menu-link">
                 <li class="nav-link">
-                    <a href="{{ route('departemen.index') }}">
+                    <a href="{{ route('dashboard') }}">
                         <i class='bx bx-home-alt icon'></i>
                         <span class="text nav-text">Dashboard</span>
                     </a>

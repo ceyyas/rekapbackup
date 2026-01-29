@@ -39,14 +39,10 @@ class PeriodeBackupController extends Controller
 
         foreach ($bulanMap as $bulan => $namaBulan) {
             Periode::firstOrCreate(
-                [
-                    'bulan' => $bulan,
-                    'tahun' => $request->tahun,
-                ],
-                [
-                    'nama_bulan' => $namaBulan,
-                ]
+                ['bulan' => $bulan, 'tahun' => $request->tahun],
+                ['nama_bulan' => $namaBulan]
             );
+
         }
 
         return redirect()
