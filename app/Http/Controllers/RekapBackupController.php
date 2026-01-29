@@ -63,7 +63,40 @@ class RekapBackupController extends Controller
         ));
     }
 
+    public function filter(Request $request)
+    {
+        if (!$request->filled(['perusahaan_id', 'periode_id'])) {
+            return response()->json([]);
+        }
 
+        $departemens = DB::table('departemen')
+            ->leftJoin('inventori', 'inventori.departemen_id', '=', 'departemen.id')
+            ->leftJoin('rekap_backup', function ($join) use ($request) {
+                $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
+                    ->where('rekap_backup.periode_id', $request->periode_id);
+            })
+            ->where('departemen.perusahaan_id', $request->perusahaan_id)
+            ->select(
+                'departemen.id',
+                'departemen.nama_departemen',
+                DB::raw('COALESCE(SUM(rekap_backup.size_data), 0) AS size_data'),
+                DB::raw('COALESCE(SUM(rekap_backup.size_email), 0) AS size_email'),
+                DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size'),
+                DB::raw("
+                    CASE
+                        WHEN COUNT(rekap_backup.id) = 0 THEN 'pending'
+                        WHEN SUM(rekap_backup.status = 'completed') = COUNT(rekap_backup.id)
+                            THEN 'completed'
+                        ELSE 'partial'
+                    END AS status_backup
+                ")
+            )
+            ->groupBy('departemen.id', 'departemen.nama_departemen')
+            ->orderBy('departemen.nama_departemen')
+            ->get();
+
+        return response()->json($departemens);
+    }
 
     public function detailPage($departemenId)
     {

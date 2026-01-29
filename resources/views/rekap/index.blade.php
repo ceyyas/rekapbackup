@@ -10,27 +10,17 @@
     <form method="GET" action="{{ route('rekap-backup.index') }}">
         <div class="filter-menu">
 
-            <select name="perusahaan_id"
-                    class="filter"
-                    onchange="this.form.submit()">
+            <select id="perusahaan_id" class="filter">
                 <option value="">-- Pilih Perusahaan --</option>
                 @foreach ($perusahaans as $p)
-                    <option value="{{ $p->id }}"
-                        {{ request('perusahaan_id') == $p->id ? 'selected' : '' }}>
-                        {{ $p->nama_perusahaan }}
-                    </option>
+                    <option value="{{ $p->id }}">{{ $p->nama_perusahaan }}</option>
                 @endforeach
             </select>
 
-            <select name="periode_id"
-                    class="filter"
-                    onchange="this.form.submit()">
+            <select id="periode_id" class="filter">
                 <option value="">-- Pilih Periode --</option>
                 @foreach ($periodes as $p)
-                    <option value="{{ $p->id }}"
-                        {{ request('periode_id') == $p->id ? 'selected' : '' }}>
-                        {{ ($p->nama_bulan) }} {{ $p->tahun }}
-                    </option>
+                    <option value="{{ $p->id }}">{{ $p->nama_bulan }} {{ $p->tahun }}</option>
                 @endforeach
             </select>
 
@@ -44,8 +34,7 @@
         </div>
     </form>
 
-    @if(count($departemens))
-    <table class="display">
+    <table id="rekapTable" class="display">
         <thead>
             <tr>
                 <th>Departemen</th>
@@ -55,30 +44,58 @@
                 <th>Status Backup</th>
             </tr>
         </thead>
-        <tbody>
-            @foreach ($departemens as $dept)
-            <tr onclick="window.location='{{ route('rekap-backup.detail-page', [
-                    'departemen' => $dept->id,
-                    'periode_id' => request('periode_id')
-                ]) }}'"
-                style="cursor: pointer;"
-            >
-                <td>{{ $dept->nama_departemen }}</td>
-                <td>{{ number_format($dept->size_data) }} MB</td>
-                <td>{{ number_format($dept->size_email) }} MB</td>
-                <td><strong>{{ number_format($dept->total_size) }} MB</strong></td>
-                <td>
-                    <span class="status {{ $dept->status_backup }}">
-                        {{ ucfirst($dept->status_backup) }}
-                    </span>
-                </td>
-            </tr>
-
-            </tr>
-            @endforeach
-        </tbody>
+        <tbody></tbody>
     </table>
-    @endif
-
 </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    // Inisialisasi DataTables tanpa search & length menu
+    let table = $('#rekapTable').DataTable({
+        paging: false,       
+        info: false,         
+        searching: false,   
+        lengthChange: false 
+    });
+
+    // Event listener untuk filter dropdown
+    $('#perusahaan_id, #periode_id').on('change', function() {
+        loadData(table);
+    });
+});
+
+// Fungsi Ajax untuk ambil data sesuai filter
+function loadData(table) {
+    let perusahaanId = $('#perusahaan_id').val();
+    let periodeId = $('#periode_id').val();
+
+    if (!perusahaanId || !periodeId) return;
+
+    $.get("{{ route('rekap.filter') }}", 
+        { perusahaan_id: perusahaanId, periode_id: periodeId }, 
+        function(data) {
+            table.clear();
+
+            $.each(data, function(i, d) {
+            let detailUrl = "{{ route('rekap-backup.detail-page', ':id') }}"
+                            .replace(':id', d.id) 
+                            + "?periode_id=" + $('#periode_id').val();
+
+                table.row.add([
+                    d.nama_departemen,
+                    d.size_data + ' MB',
+                    d.size_email + ' MB',
+                    d.total_size + ' MB',
+                    d.status_backup
+                ]).node().setAttribute('onclick', "window.location='" + detailUrl + "'");
+            });
+
+
+            table.draw();
+        }
+    );
+}
+</script>
+@endpush

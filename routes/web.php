@@ -29,6 +29,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::get('/departemen/by-perusahaan', [KomputerController::class, 'getDepartemen']);
+Route::get('/komputers/filter', [KomputerController::class, 'getKomputers']);
 Route::get('/departemen/by-perusahaan', [LaptopController::class, 'getDepartemen']);
 
 Route::resource('departemen', DepartemenController::class);
@@ -63,6 +64,7 @@ Route::post(
     '/rekap-backup/save',
     [RekapBackupController::class, 'saveDetail']
 )->name('rekap-backup.save');
+Route::get('/rekap-backup/filter', [RekapBackupController::class, 'filter'])->name('rekap.filter');
 
 Route::get('/rekap-backup/export', [RekapBackupController::class, 'export'])
     ->name('rekap-backup.export');
