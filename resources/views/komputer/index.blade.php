@@ -83,10 +83,10 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-    $('#departemenTable').DataTable({
-        pageLength: 10,
-        lengthMenu: [5, 10, 25, 50]
-    });
+    // $('#departemenTable').DataTable({
+    //     pageLength: 10,
+    //     lengthMenu: [5, 10, 25, 50]
+    // });
 });
 
     $('#perusahaan_id').on('change', function () {
