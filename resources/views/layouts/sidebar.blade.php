@@ -29,7 +29,7 @@
 
             <ul class="menu-link">
                 <li class="nav-link">
-                    <a href="{{ route('dashboard') }}">
+                    <a href="{{ route('departemen.index') }}">
                         <i class='bx bx-home-alt icon'></i>
                         <span class="text nav-text">Dashboard</span>
                     </a>
@@ -49,7 +49,6 @@
                     <li><a href="{{ route('departemen.index') }}">Departemen</a></li>
                     <li><a href="{{ route('komputer.index') }}">Data Komputer</a></li>
                     <li><a href="{{ route('laptop.index') }}">Data Laptop</a></li>
-                    <li><a href="{{ route('periode.index') }}">Periode Backup</a></li>
                     <li><a href="{{ route('stok.index') }}">Stok CD/DVD</a></li>
                 </ul>
             </ul>

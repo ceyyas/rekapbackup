@@ -29,64 +29,34 @@
         let perusahaanId = $('#perusahaan_id').val();
         let departemenId = $(this).val();
 
-        $.get('/komputers/filter', { perusahaan_id: perusahaanId, departemen_id: departemenId }, function (data) {
-            let tbody = $('#departemenTable tbody');
-            tbody.html('');
-            $.each(data, function (i, k) {
-                tbody.append(`
-                    <tr>
-                        <td>${i+1}</td>
-                        <td>${k.perusahaan?.nama_perusahaan ?? '-'}</td>
-                        <td>${k.departemen?.nama_departemen ?? '-'}</td>
-                        <td>${k.hostname}</td>
-                        <td>${k.username}</td>
-                        <td>${k.email}</td>
-                        <td class="text-center">
-                            <!-- tombol show -->
-                            <button class="aksi-show">
-                                <a href="/komputers/${k.id}">
-                                    <i class='bx bx-show'></i>
-                                </a>
-                            </button>
-
-                            <!-- tombol edit -->
-                            <button class="aksi-edit">
-                                <a href="/komputers/${k.id}/edit">
-                                    <i class='bx bx-edit-alt'></i>
-                                </a>
-                            </button>
-
-                            <!-- tombol delete -->
-                            <form action="/komputers/${k.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure?')">
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                <input type="hidden" name="_method" value="DELETE">
-                                <button type="submit" class="aksi-delete"><i class='bx bx-trash'></i></button>
-                            </form>
-                        </td>
-                    </tr>
-                `);
-            });
+        $.get('/komputers/filter', { perusahaan_id: perusahaanId, departemen_id: departemenId }, function (html) {
+            $('#departemenTable tbody').html(html);
         });
     });
 
 // edit data komputer 
-document.getElementById('perusahaan_id').addEventListener('change', function () {
-    let perusahaanId = this.value;
-    let departemen = document.getElementById('departemen_id');
+document.addEventListener('DOMContentLoaded', function () {
+    let perusahaanSelect = document.getElementById('perusahaan_id');
+    let departemenSelect = document.getElementById('departemen_id');
 
-    departemen.innerHTML = '<option>Loading...</option>';
+    if (!perusahaanSelect || !departemenSelect) return;
 
-    fetch(`/departemen/by-perusahaan?perusahaan_id=${perusahaanId}`)
-        .then(res => res.json())
-        .then(data => {
-            departemen.innerHTML = '<option>-- Pilih Departemen --</option>';
+    perusahaanSelect.addEventListener('change', function () {
+        let perusahaanId = this.value;
 
-            data.forEach(d => {
-                departemen.innerHTML +=
-                    `<option value="${d.id}">${d.nama_departemen}</option>`;
+        departemenSelect.innerHTML = '<option>Loading...</option>';
+
+        fetch(`/departemen/by-perusahaan?perusahaan_id=${perusahaanId}`)
+            .then(res => res.json())
+            .then(data => {
+                departemenSelect.innerHTML = '<option>-- Pilih Departemen --</option>';
+                data.forEach(d => {
+                    departemenSelect.innerHTML += `<option value="${d.id}">${d.nama_departemen}</option>`;
+                });
             });
-        });
+    });
 });
+
 
 // create data komputer
 $('#perusahaan_id').on('change', function () {
@@ -111,65 +81,83 @@ $('#perusahaan_id').on('change', function () {
     });
 });
 
-// index blade rekap
-$(document).ready(function() {
+// --- Index Page ---
+function initIndexPage() {
+    if (!document.getElementById('rekapTable')) return;
+
     let table = $('#rekapTable').DataTable({
-        paging: false,       
-        info: false,         
-        searching: false,   
-        lengthChange: false 
+        paging: false,
+        info: false,
+        searching: false,
+        lengthChange: false
     });
 
     $('#perusahaan_id, #periode_id').on('change', function() {
         loadData(table);
     });
-});
 
-function loadData(table) {
-    let perusahaanId = $('#perusahaan_id').val();
-    let periodeId = $('#periode_id').val();
+    function loadData(table) {
+        let perusahaanId = $('#perusahaan_id').val();
+        let periodeId = $('#periode_id').val();
 
-    if (!perusahaanId || !periodeId) return;
+        if (!perusahaanId || !periodeId) return;
 
-    $.get("{{ route('rekap.filter') }}", 
-        { perusahaan_id: perusahaanId, periode_id: periodeId }, 
-        function(data) {
+        let filterUrl = window.rekapRoutes.filter;
+        let detailUrlTemplate = window.rekapRoutes.detail;
+
+        $.get(filterUrl, { perusahaan_id: perusahaanId, periode_id: periodeId }, function(data) {
             table.clear();
 
             $.each(data, function(i, d) {
-            let detailUrl = "{{ route('rekap-backup.detail-page', ':id') }}"
-                .replace(':id', d.id)
-                + "?periode_id=" + $('#periode_id').val()
-                + "&perusahaan_id=" + $('#perusahaan_id').val();
+                let detailUrl = detailUrlTemplate.replace(':id', d.id)
+                    + "?periode_id=" + periodeId
+                    + "&perusahaan_id=" + perusahaanId;
 
                 table.row.add([
                     d.nama_departemen,
-                    d.size_data + ' MB',
-                    d.size_email + ' MB',
-                    d.total_size + ' MB',
+                    formatSizeBoth(d.size_data),
+                    formatSizeBoth(d.size_email),
+                    formatSizeBoth(d.total_size),
                     d.status_backup
                 ]).node().setAttribute('onclick', "window.location='" + detailUrl + "'");
-            });
+
+                    // Fungsi helper: tampilkan MB dan GB
+                    function formatSizeBoth(sizeMB) {
+                        let sizeGB = (sizeMB / 1024).toFixed(2);
+                        return sizeMB + ' MB (' + sizeGB + ' GB)';
+                    }
+                });
+
 
             table.draw();
-        }
-    );
+        });
+    }
 }
 
-// rekap - detail page
-$(function () {
-    $.get(
-        "{{ route('rekap-backup.detail-data', $departemen->id) }}",
-        { periode_id: "{{ request('periode_id') }}" }
-    )
-    .done(function (html) {
-        $('#detail-container').html(html);
-    })
-    .fail(function (xhr) {
-        $('#detail-container').html(
-            '<pre style="color:red">'+xhr.responseText+'</pre>'
-        );
-    });
+// --- Detail Page ---
+function initDetailPage() {
+    let container = document.getElementById('detail-container');
+    if (!container) return;
+
+    let departemenId = document.getElementById('departemen_id')?.value;
+    let periodeId = document.getElementById('periode_id')?.value;
+
+    if (!departemenId || !periodeId) return;
+
+    let url = window.rekapRoutes.detailData.replace(':id', departemenId) +
+              "?periode_id=" + periodeId;
+
+    fetch(url)
+        .then(res => res.text())
+        .then(html => {
+            container.innerHTML = html;
+        });
+}
+
+// --- Panggil sesuai halaman ---
+document.addEventListener('DOMContentLoaded', function () {
+    initIndexPage();
+    initDetailPage();
 });
 
 

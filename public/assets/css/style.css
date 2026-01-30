@@ -803,3 +803,15 @@ ul#customBarangDropdown li:hover {
     border-radius: 15px;
     box-shadow: 0 6px 12px rgba(0,0,0,0.1);
 }
+
+.date-picker {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    background-color: #f0f1f6;
+    color: #333;
+    transition: all 0.2s ease-in-out;
+}
+
+

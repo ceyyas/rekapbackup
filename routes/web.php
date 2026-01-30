@@ -8,7 +8,6 @@ use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\KomputerController;
 use App\Http\Controllers\LaptopController;
 use App\Http\Controllers\StokController;
-use App\Http\Controllers\PeriodeBackupController;
 use App\Http\Controllers\RekapBackupController;
 
 Route::get('/', function () {
@@ -27,43 +26,25 @@ Route::post('/login', [LoginController::class, 'login'])
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware('auth')
     ->name('dashboard');
+;
 
-Route::get('/departemen/by-perusahaan', [KomputerController::class, 'getDepartemen']);
-Route::get('/komputers/filter', [KomputerController::class, 'getKomputers']);
-Route::get('/departemen/by-perusahaan', [LaptopController::class, 'getDepartemen']);
+Route::get('/komputers/filter', [KomputerController::class, 'filter'])->name('komputer.filter');
+Route::get('/departemen/by-perusahaan', [KomputerController::class, 'getDepartemen'])->name('departemen.byperusahaan');
 
+// route master data
 Route::resource('departemen', DepartemenController::class);
 Route::resource('komputer', KomputerController::class);
 Route::resource('laptop', LaptopController::class);
 Route::resource('stok', StokController::class);
 
-Route::get('/periode', [PeriodeBackupController::class, 'index'])
-    ->name('periode.index');
-Route::get('/periode/edit', [PeriodeBackupController::class, 'edit'])
-    ->name('periode.edit');
-Route::get('/periode/destroy', [PeriodeBackupController::class, 'destroy'])
-    ->name('periode.destroy');
-
-Route::post('/periode/generate',
-    [PeriodeBackupController::class, 'generateTahun']
-)->name('periode.generate');
-
-
-Route::get('/rekap-backup', 
-    [RekapBackupController::class, 'index']
-)->name('rekap-backup.index');
-
+// route rekap backup
+Route::get('/rekap-backup', [RekapBackupController::class, 'index'])->name('rekap-backup.index');
 Route::get('/rekap-backup/departemen/{departemen}', 
     [RekapBackupController::class, 'detailPage']
 )->name('rekap-backup.detail-page');
-
-Route::get('/rekap-backup/departemen/{departemen}/data', 
-    [RekapBackupController::class, 'detailData']
+Route::get('/rekap-backup/departemen/{departemen}/data', [RekapBackupController::class, 'detailData']
 )->name('rekap-backup.detail-data');
-Route::post(
-    '/rekap-backup/save',
-    [RekapBackupController::class, 'saveDetail']
-)->name('rekap-backup.save');
+Route::post('/rekap-backup/save', [RekapBackupController::class, 'saveDetail'])->name('rekap-backup.save');
 Route::get('/rekap-backup/filter', [RekapBackupController::class, 'filter'])->name('rekap.filter');
 
 Route::get('/rekap-backup/export', [RekapBackupController::class, 'export'])

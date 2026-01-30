@@ -25,10 +25,20 @@
         @yield('content')
     </section>
 
+    <script>
+        window.rekapRoutes = {
+            detailData: "{{ route('rekap-backup.detail-data', ':id') }}",
+            filter: "{{ route('rekap.filter') }}",
+            detail: "{{ route('rekap-backup.detail-page', ':id') }}",
+            departemenByPerusahaan: "{{ url('/departemen/by-perusahaan') }}"
+        };
+    </script>
+
+    <script src="{{ asset('assets/js/rekap.js') }}"></script>
     <script src="{{ asset('assets/js/script.js') }}"></script>
     @stack('scripts')
-
 </body>
+
 </html>
 
 

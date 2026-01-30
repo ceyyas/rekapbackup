@@ -1,49 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
-<div class="table-style">
-
-    <div class="header-departemen">
-        <h2>Data Komputer</h2>
-
-        <a href="{{ route('komputer.create') }}" class="entry-button">
-            + Tambah Data
-        </a>
-    </div>
-
-    <form method="GET" action="{{ route('komputer.index') }}">
-        <div class="filter-menu">
-
-            <select id="perusahaan_id" name="perusahaan_id" class="filter">
-                <option value="">-- Pilih Perusahaan --</option>
-                @foreach ($perusahaans as $perusahaan)
-                    <option value="{{ $perusahaan->id }}"
-                        {{ request('perusahaan_id') == $perusahaan->id ? 'selected' : '' }}>
-                        {{ $perusahaan->nama_perusahaan }}
-                    </option>
-                @endforeach
-            </select>
-
-            <select id="departemen_id" name="departemen_id" class="filter">
-                <option value="">-- Pilih Departemen --</option>
-            </select>
-
-
-        </div>
-    </form>
-
-    <table id="departemenTable" class="display">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Perusahaan</th>
-                <th>Departemen</th>
-                <th>Hostname</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
+<table id="departemenTable" class="display">
         <tbody>
             @foreach ($komputers as $index => $inventori)
             <tr>
@@ -77,6 +32,3 @@
             @endforeach
         </tbody>
     </table>
-</div>
-@endsection
-
