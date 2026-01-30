@@ -36,6 +36,9 @@
 
     <script src="{{ asset('assets/js/rekap.js') }}"></script>
     <script src="{{ asset('assets/js/script.js') }}"></script>
+    <script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0">
+    </script>
     @stack('scripts')
 </body>
 

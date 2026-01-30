@@ -796,12 +796,13 @@ ul#customBarangDropdown li:hover {
     font-weight: bold;
 }
 
-.chart-container {
-    margin-top: 40px;
+.chart {
     background: #fff;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 10px;
 }
 
 .date-picker {
