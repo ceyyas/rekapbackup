@@ -47,7 +47,7 @@
 
             {{-- Perusahaan --}}
             <div class="perusahaan-menu">
-                <select name="perusahaan_id" class="perusahaan"
+                <select name="perusahaan_id" id="perusahaan_id" class="perusahaan"
                         class="form-control @error('perusahaan_id') is-invalid @enderror">
                     <option value="">-- Pilih Perusahaan --</option>
                     @foreach($perusahaans as $perusahaan)
@@ -65,12 +65,10 @@
 
             {{-- Departemen --}}
             <div class="perusahaan-menu">
-                <select name="departemen_id" class="perusahaan"
-                        class="form-control @error('departemen_id') is-invalid @enderror">
-                    <option value="">-- Pilih Departemen --</option>
-                    @foreach($departemens as $departemen)
+                <select name="departemen_id" id="departemen_id" class="perusahaan">
+                    @foreach ($departemens as $departemen)
                         <option value="{{ $departemen->id }}"
-                            {{ old('departemen_id', $laptop->departemen_id) == $departemen->id ? 'selected' : '' }}>
+                            {{ $laptop->departemen_id == $departemen->id ? 'selected' : '' }}>
                             {{ $departemen->nama_departemen }}
                         </option>
                     @endforeach
@@ -88,9 +86,33 @@
             </div>
 
             <div class="button-back">
-                <a href="{{ route('laptop.index') }}" class="back">Back</a>
+                <button class="back">
+                    <a href="{{ route('laptop.index') }}" class="back">Kembali</a>
+                </button> 
             </div>
         </form>
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+document.getElementById('perusahaan_id').addEventListener('change', function () {
+    let perusahaanId = this.value;
+    let departemen = document.getElementById('departemen_id');
+
+    departemen.innerHTML = '<option>Loading...</option>';
+
+    fetch(`/departemen/by-perusahaan?perusahaan_id=${perusahaanId}`)
+        .then(res => res.json())
+        .then(data => {
+            departemen.innerHTML = '<option>-- Pilih Departemen --</option>';
+
+            data.forEach(d => {
+                departemen.innerHTML +=
+                    `<option value="${d.id}">${d.nama_departemen}</option>`;
+            });
+        });
+});
+</script>
+@endpush

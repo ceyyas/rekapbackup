@@ -24,14 +24,14 @@
                 <input type="number"
                        name="data[{{ $inv->id }}][size_data]"
                        value="{{ $inv->size_data }}"
-                       class="size-data">
+                       class="size-input size-data">
             </td>
 
             <td>
                 <input type="number"
                        name="data[{{ $inv->id }}][size_email]"
                        value="{{ $inv->size_email }}"
-                       class="size-email">
+                       class="size-input size-email">
             </td>
 
             <td class="total-size">
@@ -41,6 +41,17 @@
         @endforeach
     </tbody>
 </table>
+<div class="button-action">
+    <button type="submit" class="save">Simpan</button>
+</div>
+<div class="button-back">
+    <button class="back">
+    <a href="{{ route('rekap-backup.index', [
+        'perusahaan_id' => request('perusahaan_id'),
+        'periode_id' => request('periode_id')
+    ]) }}" class="back">Kembali</a>
+</button>
 
-<button type="submit" class="save">Simpan</button>
+</div>
+
 </form>

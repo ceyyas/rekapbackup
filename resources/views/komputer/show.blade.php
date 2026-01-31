@@ -42,7 +42,7 @@
 
         <div class="button-place">
             <button class="show-back">
-                <a href="{{ route('komputer.index') }}">Back</a>
+                <a href="{{ route('komputer.index') }}">Kembali</a>
             </button>
         </div>
     </div>

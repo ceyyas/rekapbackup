@@ -30,13 +30,11 @@
                     class="filter"
                     onchange="this.form.submit()">
                 <option value="">-- Pilih Departemen --</option>
-                @foreach ($perusahaans as $perusahaan)
-                    @foreach ($perusahaan->departemen as $departemen)
-                        <option value="{{ $departemen->id }}"
-                            {{ request('departemen_id') == $departemen->id ? 'selected' : '' }}>
-                            {{ $departemen->nama_departemen }}
-                        </option>
-                    @endforeach
+                @foreach ($departemens as $d)
+                    <option value="{{ $d->id }}"
+                        {{ request('departemen_id') == $d->id ? 'selected' : '' }}>
+                        {{ $d->nama_departemen }}
+                    </option>
                 @endforeach
             </select>
 
@@ -47,6 +45,8 @@
         <thead>
             <tr>
                 <th>No</th>
+                <th>Perusahaan</th>
+                <th>Departemen</th>
                 <th>Hostname</th>
                 <th>User</th>
                 <th>Email</th>
@@ -57,6 +57,8 @@
             @foreach ($laptops as $index => $inventori)
             <tr>
                 <td>{{ $index + 1 }}</td>
+                <td>{{ $inventori->perusahaan->nama_perusahaan }}</td>
+                <td>{{ $inventori->departemen->nama_departemen }}</td>     
                 <td>{{ $inventori->hostname }}</td>
                 <td>{{ $inventori->username }}</td>
                 <td>{{ $inventori->email }}</td>

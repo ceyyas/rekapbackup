@@ -28,19 +28,16 @@ class KomputerController extends Controller
                 ->get();
         }
 
-        // data komputer
+        // data komputer selalu tampil, difilter jika ada request
         $komputers = Inventori::with(['perusahaan', 'departemen'])
             ->where('kategori', 'PC')
-
-            // filter perusahaan
             ->when($request->perusahaan_id, function ($query) use ($request) {
                 $query->where('perusahaan_id', $request->perusahaan_id);
             })
-
-            // filter departemen
             ->when($request->departemen_id, function ($query) use ($request) {
                 $query->where('departemen_id', $request->departemen_id);
             })
+            ->orderByDesc('updated_at') 
             ->get();
 
         return view('komputer.index', compact(
@@ -48,6 +45,23 @@ class KomputerController extends Controller
             'perusahaans',
             'departemens'
         ));
+    }
+
+    public function getDepartemen(Request $request)
+    {
+        return Departemen::where('perusahaan_id', $request->perusahaan_id)
+            ->orderBy('nama_departemen')
+            ->get();
+    }
+
+    public function getKomputers(Request $request)
+    {
+        return Inventori::with(['perusahaan', 'departemen'])
+            ->where('kategori', 'PC')
+            ->when($request->perusahaan_id, fn($q) => $q->where('perusahaan_id', $request->perusahaan_id))
+            ->when($request->departemen_id, fn($q) => $q->where('departemen_id', $request->departemen_id))
+            ->orderByDesc('updated_at')
+            ->get();
     }
 
 
@@ -76,7 +90,6 @@ class KomputerController extends Controller
     {
         $request->validate([
             'perusahaan_id' => ['required', 'exists:perusahaan,id'],
-
             'departemen_id' => [
                 'required',
                 Rule::exists('departemen', 'id')
@@ -84,7 +97,6 @@ class KomputerController extends Controller
                         $q->where('perusahaan_id', $request->perusahaan_id)
                     ),
             ],
-
             'hostname' => 'required|string|max:255',
             'username' => 'required|string|max:255',
             'email'    => 'required|email',
@@ -144,7 +156,6 @@ class KomputerController extends Controller
 
         $request->validate([
             'perusahaan_id' => ['required', 'exists:perusahaan,id'],
-
             'departemen_id' => [
                 'required',
                 Rule::exists('departemen', 'id')

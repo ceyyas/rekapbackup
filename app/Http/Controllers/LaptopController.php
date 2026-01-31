@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Departemen;
 use App\Models\Perusahaan;
 use App\Models\Inventori;
+use Illuminate\Validation\Rule;
 
 class LaptopController extends Controller
 {
@@ -14,7 +15,18 @@ class LaptopController extends Controller
      */
     public function index(Request $request)
     {
-        $perusahaans = Perusahaan::with('departemen')->get();
+        $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
+
+        // dropdown departemen (kosong dulu)
+        $departemens = collect();
+
+        // isi departemen hanya jika perusahaan dipilih
+        if ($request->perusahaan_id) {
+            $departemens = Departemen::where('perusahaan_id', $request->perusahaan_id)
+                ->orderBy('nama_departemen')
+                ->get();
+        }
+
         $laptops = Inventori::with(['perusahaan', 'departemen'])
             ->where('kategori', 'Laptop')
 
@@ -27,10 +39,10 @@ class LaptopController extends Controller
             ->when($request->departemen_id, function ($query) use ($request) {
                 $query->where('departemen_id', $request->departemen_id);
             })
-
+            ->orderByDesc('updated_at')
             ->get();
 
-        return view('laptop.index', compact('laptops', 'perusahaans'));
+        return view('laptop.index', compact('laptops', 'perusahaans', 'departemens'));
     }
 
     /**
@@ -38,8 +50,23 @@ class LaptopController extends Controller
      */
     public function create()
     {
-        $perusahaans = Perusahaan::with('departemen')->get();
-        return view('laptop.create', compact('perusahaans'));
+        $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
+
+        // departemen kosong dulu
+        $departemens = collect();
+
+        if (old('perusahaan_id')) {
+            $departemens = Departemen::where('perusahaan_id', old('perusahaan_id'))->get();
+        }
+
+        return view('laptop.create', compact('perusahaans', 'departemens'));
+    }
+
+    public function getDepartemen(Request $request)
+    {
+        return Departemen::where('perusahaan_id', $request->perusahaan_id)
+            ->orderBy('nama_departemen')
+            ->get();
     }
 
     /**
@@ -48,11 +75,17 @@ class LaptopController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-        'perusahaan_id' => 'required',
-        'departemen_id' => 'required',
-        'hostname'      => 'required',
-        'username'      => 'required',
-        'email'         => 'required|email',
+            'perusahaan_id' => ['required', 'exists:perusahaan,id'],
+            'departemen_id' => [
+                'required',
+                Rule::exists('departemen', 'id')
+                    ->where(fn ($q) =>
+                        $q->where('perusahaan_id', $request->perusahaan_id)
+                    ),
+            ],
+            'hostname' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
+            'email'    => 'required|email',
         ]);
 
         Inventori::create([
@@ -99,6 +132,21 @@ class LaptopController extends Controller
     public function update(Request $request, string $id)
     {
         $laptop = Inventori::where('kategori', 'Laptop')->findOrFail($id);
+
+        $request->validate([
+            'perusahaan_id' => ['required', 'exists:perusahaan,id'],
+            'departemen_id' => [
+                'required',
+                Rule::exists('departemen', 'id')
+                    ->where(fn ($q) =>
+                        $q->where('perusahaan_id', $request->perusahaan_id)
+                    ),
+            ],
+
+            'hostname' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
+            'email'    => 'required|email',
+        ]);
 
         $laptop->update([
             'hostname'       => $request->hostname,

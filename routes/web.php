@@ -28,6 +28,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware('auth')
     ->name('dashboard');
 
+Route::get('/departemen/by-perusahaan', [KomputerController::class, 'getDepartemen']);
+Route::get('/komputers/filter', [KomputerController::class, 'getKomputers']);
+Route::get('/departemen/by-perusahaan', [LaptopController::class, 'getDepartemen']);
+
 Route::resource('departemen', DepartemenController::class);
 Route::resource('komputer', KomputerController::class);
 Route::resource('laptop', LaptopController::class);
@@ -35,6 +39,11 @@ Route::resource('stok', StokController::class);
 
 Route::get('/periode', [PeriodeBackupController::class, 'index'])
     ->name('periode.index');
+Route::get('/periode/edit', [PeriodeBackupController::class, 'edit'])
+    ->name('periode.edit');
+Route::get('/periode/destroy', [PeriodeBackupController::class, 'destroy'])
+    ->name('periode.destroy');
+
 Route::post('/periode/generate',
     [PeriodeBackupController::class, 'generateTahun']
 )->name('periode.generate');
@@ -55,6 +64,10 @@ Route::post(
     '/rekap-backup/save',
     [RekapBackupController::class, 'saveDetail']
 )->name('rekap-backup.save');
+Route::get('/rekap-backup/filter', [RekapBackupController::class, 'filter'])->name('rekap.filter');
+
+Route::get('/rekap-backup/export', [RekapBackupController::class, 'export'])
+    ->name('rekap-backup.export');
 
 // LOGOUT
 Route::post('/logout', function () {

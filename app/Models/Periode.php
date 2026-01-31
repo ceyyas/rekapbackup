@@ -10,6 +10,7 @@ class Periode extends Model
 
     protected $fillable = [
         'bulan',
+        'nama_bulan',
         'tahun'
     ];
 

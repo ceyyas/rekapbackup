@@ -15,6 +15,15 @@
                     value="{{ old('nomor_sppb') }}"
                     required>
             </div>
+            
+            <div class="input-form">
+                <input type="number"
+                    name="jumlah_barang"
+                    placeholder="Jumlah"
+                    min="1"
+                    value="{{ old('jumlah_barang') }}"
+                    required>
+            </div>
 
             <div class="perusahaan-menu">
                 <select name="nama_barang" required class="perusahaan">
@@ -25,22 +34,15 @@
                 </select>
             </div>
 
-            <div class="input-form">
-                <input type="number"
-                    name="jumlah_barang"
-                    placeholder="Jumlah"
-                    min="1"
-                    value="{{ old('jumlah_barang') }}"
-                    required>
-            </div>
-
             <div class="button-action">
                 <button type="submit" class="save">Save</button>
                 <button type="reset" class="reset">Reset</button>
             </div>
 
             <div class="button-back">
-                <a href="{{ route('stok.index') }}" class="back">Back</a>
+                <button class="back">
+                    <a href="{{ route('stok.index') }}" class="back">Kembali</a>
+                </button> 
             </div>
         </form>
     </div>

@@ -46,7 +46,9 @@
             </div>
 
             <div class="button-back">
-                <a href="{{ route('departemen.index') }}" class="back">Back</a>
+                <button class="back">
+                    <a href="{{ route('departemen.index') }}" class="back">Kembali</a>
+                </button> 
             </div>
         </form>
     </div>

@@ -301,7 +301,7 @@ header .image-text .header-text {
     margin-bottom: 15px;
     background-color: transparent;
     color: white;
-    z-index: 1000; /* Pastikan elemen berada di atas elemen lainnya */
+    z-index: 1000; 
     width: 200px;
     padding: 15px;
     transition: var(--tran-05);
@@ -323,8 +323,8 @@ header .image-text .header-text {
     border: none;
     transition: var(--tran-05);
 
-    margin-left: auto;      /* 🔥 INI KUNCINYA */
-    display: inline-block;  /* 🔥 penting karena ini <a> */
+    margin-left: auto;      
+    display: inline-block;  
     color: #fff;
     text-decoration: none;
 }
@@ -481,6 +481,13 @@ td button {
 .arrow-right {
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
+}
+
+.input-size {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .input-form {
@@ -710,4 +717,89 @@ ul#customBarangDropdown li:hover {
     background-color: #f0f1f6;
     border: 1px solid var(--secondary-color);
     cursor: pointer;
+}
+
+.size-input {
+    width: 90px;
+    padding: 6px 10px;
+    font-size: 14px;
+    text-align: right;
+
+    border: 1px solid #d1d5db;      /* abu soft */
+    border-radius: 6px;
+
+    background-color: #f9fafb;
+    color: #111827;
+
+    transition: all 0.2s ease;
+}
+
+/* saat fokus */
+.size-input:focus {
+    outline: none;
+    border-color: #2563eb;          /* biru */
+    background-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* hover */
+.size-input:hover {
+    border-color: #9ca3af;
+}
+
+/* disable scroll number */
+.size-input::-webkit-inner-spin-button,
+.size-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.periode-form {
+    margin-top: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.periode-input {
+    width: 100px;
+    padding: 6px 8px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.btn-generate {
+    padding: 7px 12px;
+    background: #b7ba9f;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.big-card {
+    margin-top: 20px;
+    background: #fff;
+    padding: 25px 20px;
+    border-radius: 15px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.big-card h3 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.card-value {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.chart-container {
+    margin-top: 40px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
 }

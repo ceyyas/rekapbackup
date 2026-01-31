@@ -18,6 +18,7 @@ class DepartemenController extends Controller
             ->when($request->perusahaan_id, function ($query) use ($request) {
                 $query->where('perusahaan_id', $request->perusahaan_id);
             })
+            ->orderByDesc('updated_at')
             ->get();
 
         return view('departemen.index', compact('departemens', 'perusahaans'));

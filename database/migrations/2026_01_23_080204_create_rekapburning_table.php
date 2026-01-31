@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('rekapburning', function (Blueprint $table) {
             $table->id();
             $table->string('nomor_sppb');
-            $table->string('nama_barang');
+             $table->enum('nama_barang', [
+                'CD 700 MB',
+                'DVD 4.7 GB',
+                'DVD 8.5 GB']);
             $table->tinyInteger('jumlah_barang');
             $table->timestamps();
         });

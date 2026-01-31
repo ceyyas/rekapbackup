@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('rekap_backup', function (Blueprint $table) {
             $table->id(); 
             $table->foreignId('inventori_id');
+            $table->date('tanggal_backup');
             $table->bigInteger('size_data')->default(0);
             $table->bigInteger('size_email')->default(0);
             $table->enum('status', [
