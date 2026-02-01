@@ -778,30 +778,66 @@ ul#customBarangDropdown li:hover {
     cursor: pointer;
 }
 
+.dashboard {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* rata kiri */
+}
+
+.cards {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  margin-bottom: 30px;
+}
+
 .big-card {
-  border-radius: 15px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin-bottom: 20px;
+  flex: 1;
+  min-width: 300px;
+  padding: 25px 30px;
+  border-radius: 12px;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.big-card:hover {
+  transform: scale(1.02);
+}
+
+.bg-komputer {
+  background-color: #007bff;
+}
+
+.bg-laptop {
+  background-color: #e83e8c;
 }
 
 .card-body h3 {
-  font-size: 22px;
+  font-size: 20px;
   margin-bottom: 10px;
 }
 
 .card-value {
-  font-size: 32px;
+  font-size: 36px;
   font-weight: bold;
 }
 
 .chart {
-  background: #ffffff;
+  width: 100%;
+  max-width: 1000px;
+  background: #fff;
   padding: 30px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  margin-top: 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
+
+#backupChart {
+  width: 100% !important;
+  height: 400px !important;
+}
+
 
 .date-picker {
     padding: 8px 16px;

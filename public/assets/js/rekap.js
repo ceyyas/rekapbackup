@@ -1,3 +1,45 @@
+document.addEventListener("DOMContentLoaded", function() {
+    const rawData = window.dashboardData.rawData;
+    const labels = window.dashboardData.labels;
+
+    console.log("Labels:", labels);
+    console.log("RawData:", rawData);
+
+    const perusahaanList = [...new Set(Object.values(rawData).flatMap(obj => Object.keys(obj)))];
+
+    const colors = [
+        'rgba(54, 162, 235, 0.5)',
+        'rgba(255, 99, 132, 0.5)',
+        'rgba(75, 192, 192, 0.5)',
+        'rgba(255, 206, 86, 0.5)',
+        'rgba(153, 102, 255, 0.5)'
+    ];
+
+    const datasets = perusahaanList.map((nama, idx) => ({
+        label: nama,
+        data: labels.map(bulan => rawData[bulan] && rawData[bulan][nama] ? rawData[bulan][nama] : 0),
+        backgroundColor: colors[idx % colors.length],
+    }));
+
+    const ctx = document.getElementById('backupChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Rekap Backup Per Bulan (GB)'
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+});
+
 // index data komputer 
     $(document).ready(function() {
     // $('#departemenTable').DataTable({

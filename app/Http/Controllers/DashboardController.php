@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Inventori;
-use App\Models\RekapBackup;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -28,14 +27,18 @@ class DashboardController extends Controller
 
         $dataChart = [];
         foreach ($rekapBackup as $row) {
-            // bikin tanggal lengkap dari tahun + bulan
             $periode = Carbon::createFromDate($row->tahun, $row->bulan, 1);
-            $labelBulan = $periode->translatedFormat('F Y'); // contoh: Juni 2026
+            // gunakan format bahasa Inggris agar konsisten dengan JS
+            $labelBulan = $periode->format('F Y'); // contoh: February 2026
+
+            if (!isset($dataChart[$labelBulan])) {
+                $dataChart[$labelBulan] = [];
+            }
+
+            // konversi ke GB (asumsi size dalam MB)
             $dataChart[$labelBulan][$row->nama_perusahaan] = round($row->total_size / 1024, 2);
-        }        
+        }
 
         return view('dashboard', compact('totalKomputer', 'totalLaptop', 'dataChart'));
     }
-
-
 }
