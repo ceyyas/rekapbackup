@@ -779,27 +779,38 @@ ul#customBarangDropdown li:hover {
 }
 
 .big-card {
-    margin-top: 20px;
-    background: #fff;
-    padding: 25px 20px;
-    border-radius: 15px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  border-radius: 15px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
-.big-card h3 {
-    font-size: 24px;
-    margin-bottom: 15px;
+.card-body h3 {
+  font-size: 22px;
+  margin-bottom: 10px;
 }
 
 .card-value {
-    font-size: 30px;
-    font-weight: bold;
+  font-size: 32px;
+  font-weight: bold;
 }
 
-.chart-container {
-    margin-top: 40px;
-    background: #fff;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+.chart {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-top: 30px;
 }
+
+.date-picker {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    background-color: #f0f1f6;
+    color: #333;
+    transition: all 0.2s ease-in-out;
+}
+
+

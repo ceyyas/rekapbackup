@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>BMS</title>
 
     <!-- Google Fonts -->
@@ -25,10 +26,25 @@
         @yield('content')
     </section>
 
-    <script src="{{ asset('assets/js/script.js') }}"></script>
-    @stack('scripts')
+    <script>
+        window.rekapRoutes = {
+            detailData: "{{ route('rekap-backup.detail-data', ':id') }}",
+            filter: "{{ route('rekap.filter') }}",
+            detail: "{{ route('rekap-backup.detail-page', ':id') }}",
+            departemenByPerusahaan: "{{ url('/departemen/by-perusahaan') }}",
+            autoSave: "{{ route('rekap-backup.autoSave') }}"
+        };
 
+    </script>
+
+    <script src="{{ asset('assets/js/rekap.js') }}"></script>
+    <script src="{{ asset('assets/js/script.js') }}"></script>
+    <script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0">
+    </script>
+    @stack('scripts')
 </body>
+
 </html>
 
 

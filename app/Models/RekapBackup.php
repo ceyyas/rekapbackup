@@ -10,27 +10,18 @@ class RekapBackup extends Model
 
     protected $fillable = [
         'inventori_id',
-        'perusahaan_id',
-        'departemen_id',
-        'periode_id',
+        'periode',
         'size_data',
         'size_email',
-        'status'
+        'status',
+        'jumlah_cd700',
+        'jumlah_dvd47',
+        'jumlah_dvd85'
     ];
     
     public function inventori()
     {
         return $this->belongsTo(Inventori::class);
-    }
-
-    public function departemen()
-    {
-        return $this->belongsTo(Departemen::class);
-    }
-
-    public function periode()
-    {
-        return $this->belongsTo(PeriodeBackup::class);
     }
 
 }

@@ -54,17 +54,17 @@ class KomputerController extends Controller
             ->get();
     }
 
-    public function getKomputers(Request $request)
+    public function filter(Request $request)
     {
-        return Inventori::with(['perusahaan', 'departemen'])
+        $komputers = Inventori::with(['perusahaan','departemen'])
             ->where('kategori', 'PC')
             ->when($request->perusahaan_id, fn($q) => $q->where('perusahaan_id', $request->perusahaan_id))
             ->when($request->departemen_id, fn($q) => $q->where('departemen_id', $request->departemen_id))
             ->orderByDesc('updated_at')
             ->get();
+
+        return view('komputer.partials.table_rows', compact('komputers'));
     }
-
-
 
     /**
      * Show the form for creating a new resource.
@@ -136,8 +136,6 @@ class KomputerController extends Controller
         $komputer = Inventori::where('kategori', 'PC')->findOrFail($id);
 
         $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
-
-        // departemen berdasarkan perusahaan komputer
         $departemens = Departemen::where('perusahaan_id', $komputer->perusahaan_id)->get();
 
         return view('komputer.edit', compact(

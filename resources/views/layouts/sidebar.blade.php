@@ -49,7 +49,6 @@
                     <li><a href="{{ route('departemen.index') }}">Departemen</a></li>
                     <li><a href="{{ route('komputer.index') }}">Data Komputer</a></li>
                     <li><a href="{{ route('laptop.index') }}">Data Laptop</a></li>
-                    <li><a href="{{ route('periode.index') }}">Periode Backup</a></li>
                     <li><a href="{{ route('stok.index') }}">Stok CD/DVD</a></li>
                 </ul>
             </ul>
@@ -64,7 +63,6 @@
 
                 <ul class="sub-menu close">
                     <li><a href="{{ url('/rekap-backup') }}">Input Size Backup</a></li>
-                    <li><a href="{{ route('komputer.index') }}">Penggunaan CD/DVD</a></li>
                 </ul>
             </ul>
 
