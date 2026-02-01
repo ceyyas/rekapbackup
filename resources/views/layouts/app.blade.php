@@ -34,10 +34,6 @@
             departemenByPerusahaan: "{{ url('/departemen/by-perusahaan') }}",
             autoSave: "{{ route('rekap-backup.autoSave') }}"
         };
-        window.dashboardData = {
-            rawData: @json($dataChart),
-            labels: @json(array_keys($dataChart))
-        };
     </script>
 
     <script src="{{ asset('assets/js/rekap.js') }}"></script>

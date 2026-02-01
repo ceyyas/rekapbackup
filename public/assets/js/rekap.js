@@ -161,20 +161,19 @@ function initIndexPage() {
                     + "?periode_id=" + periodeId
                     + "&perusahaan_id=" + perusahaanId;
 
-                // kolom input CD/DVD hanya jika completed
+                // input dengan data-inventori-id
                 let cd700Col = (d.status_backup === 'completed')
-                    ? '<input type="number" name="cd700['+d.id+']" value="'+(d.jumlah_cd700 ?? 0)+'" min="0" class="form-control form-control-sm">'
+                    ? '<input type="number" name="cd700['+d.id+']" value="'+(d.jumlah_cd700 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.inventori_id+'">'
                     : (d.jumlah_cd700 ?? 0);
 
                 let dvd47Col = (d.status_backup === 'completed')
-                    ? '<input type="number" name="dvd47['+d.id+']" value="'+(d.jumlah_dvd47 ?? 0)+'" min="0" class="form-control form-control-sm">'
+                    ? '<input type="number" name="dvd47['+d.id+']" value="'+(d.jumlah_dvd47 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.inventori_id+'">'
                     : (d.jumlah_dvd47 ?? 0);
 
                 let dvd85Col = (d.status_backup === 'completed')
-                    ? '<input type="number" name="dvd85['+d.id+']" value="'+(d.jumlah_dvd85 ?? 0)+'" min="0" class="form-control form-control-sm">'
+                    ? '<input type="number" name="dvd85['+d.id+']" value="'+(d.jumlah_dvd85 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.inventori_id+'">'
                     : (d.jumlah_dvd85 ?? 0);
 
-                // tambahkan row
                 let rowNode = table.row.add([
                     d.nama_departemen,
                     formatSizeBoth(d.size_data),
@@ -186,7 +185,6 @@ function initIndexPage() {
                     '<span class="status '+d.status_backup+'">'+d.status_backup+'</span>'
                 ]).draw(false).node();
 
-                // klik row -> redirect, kecuali kalau target input number
                 $(rowNode).css('cursor','pointer').on('click', function(e) {
                     if ($(e.target).is('input[type=number]')) return;
                     window.location = detailUrl;
@@ -195,18 +193,16 @@ function initIndexPage() {
         });
     }
 
-    // --- Auto-save listener ---
+    // --- Auto-save listener (delegated) ---
     $('#rekapTable').on('change', 'input[type=number]', function() {
         let $input = $(this);
-        let match = $input.attr('name').match(/\[(\d+)\]/);
-        if (!match) return;
-        let departemenId = match[1];
+        let inventoriId = $input.data('inventori-id');
         let periodeId = $('#periode_id').val();
         let perusahaanId = $('#perusahaan_id').val();
 
         let payload = {
             _token: $('meta[name="csrf-token"]').attr('content'),
-            departemen_id: departemenId,
+            inventori_id: inventoriId,
             periode_id: periodeId,
             perusahaan_id: perusahaanId
         };
@@ -221,11 +217,14 @@ function initIndexPage() {
 
         $.post(window.rekapRoutes.autoSave, payload, function(res) {
             if (res.success) {
-                console.log('Auto-save berhasil untuk departemen ' + departemenId);
+                console.log('Auto-save berhasil untuk inventori ' + inventoriId);
             }
+        }).fail(function(xhr) {
+            console.error('Auto-save gagal:', xhr.responseText);
         });
     });
 }
+
 
 // --- Detail Page ---
 function initDetailPage() {

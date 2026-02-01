@@ -9,7 +9,6 @@
 
     <form method="GET" action="{{ route('rekap-backup.index') }}">
         <div class="filter-menu">
-
             <select id="perusahaan_id" class="filter" name="perusahaan_id">
                 <option value="">-- Pilih Perusahaan --</option>
                 @foreach ($perusahaans as $p)
@@ -27,7 +26,6 @@
                     Export Excel
                 </a>
             @endif
-
         </div>
     </form>
 
@@ -60,7 +58,9 @@
                 <td>
                     @if($dept->status_backup === 'completed')
                         <input type="number" name="cd700[{{ $dept->id }}]" 
-                            value="{{ $dept->jumlah_cd700 ?? 0 }}" min="0" class="form-control form-control-sm">
+                            value="{{ $dept->jumlah_cd700 ?? 0 }}" min="0" 
+                            class="form-control form-control-sm"
+                            data-inventori-id="{{ $dept->inventori_id }}">
                     @else
                         {{ $dept->jumlah_cd700 ?? 0 }}
                     @endif
@@ -68,7 +68,9 @@
                 <td>
                     @if($dept->status_backup === 'completed')
                         <input type="number" name="dvd47[{{ $dept->id }}]" 
-                            value="{{ $dept->jumlah_dvd47 ?? 0 }}" min="0" class="form-control form-control-sm">
+                            value="{{ $dept->jumlah_dvd47 ?? 0 }}" min="0" 
+                            class="form-control form-control-sm"
+                            data-inventori-id="{{ $dept->inventori_id }}">
                     @else
                         {{ $dept->jumlah_dvd47 ?? 0 }}
                     @endif
@@ -76,12 +78,13 @@
                 <td>
                     @if($dept->status_backup === 'completed')
                         <input type="number" name="dvd85[{{ $dept->id }}]" 
-                            value="{{ $dept->jumlah_dvd85 ?? 0 }}" min="0" class="form-control form-control-sm">
+                            value="{{ $dept->jumlah_dvd85 ?? 0 }}" min="0" 
+                            class="form-control form-control-sm"
+                            data-inventori-id="{{ $dept->inventori_id }}">
                     @else
                         {{ $dept->jumlah_dvd85 ?? 0 }}
                     @endif
                 </td>
-
                 <td>
                     <span class="status {{ $dept->status_backup }}">
                         {{ ucfirst($dept->status_backup) }}

@@ -23,3 +23,11 @@
   </div>
 @endsection
 
+@push('scripts')
+<script>
+    window.dashboardData = {
+            rawData: @json($dataChart),
+            labels: @json(array_keys($dataChart))
+        };
+</script>
+
