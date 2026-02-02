@@ -64,7 +64,6 @@ document.addEventListener("DOMContentLoaded", function() {
         $.get('/departemen/by-perusahaan', { perusahaan_id: perusahaanId }, function (data) {
             departemen.html('<option>-- Pilih Departemen --</option>');
             $.each(data, function (i, d) {
-                console.log('Row data:', d);
                 departemen.append(`<option value="${d.id}">${d.nama_departemen}</option>`);
             });
         });
@@ -167,7 +166,7 @@ function initIndexPage() {
                 // input dengan data-inventori-id
                 let cd700Col = (d.status_backup === 'completed')
                     ? '<input type="number" name="cd700['+d.departemen_id+']" value="'+(d.jumlah_cd700 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.departemen_id+'">'
-                    : (d.jumlah_dvd47 ?? 0)
+                    : (d.jumlah_cd700 ?? 0);
 
                 let dvd47Col = (d.status_backup === 'completed')
                     ? '<input type="number" name="dvd47['+d.departemen_id+']" value="'+(d.jumlah_dvd47 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.departemen_id+'">'
@@ -231,7 +230,6 @@ function initIndexPage() {
 
 }
 
-
 // --- Detail Page ---
 function initDetailPage() {
     let container = document.getElementById('detail-container');
@@ -257,7 +255,6 @@ document.addEventListener('DOMContentLoaded', function () {
     initIndexPage();
     initDetailPage();
 });
-
 
 // --- Detail Page ---
 function initDetailPage() {

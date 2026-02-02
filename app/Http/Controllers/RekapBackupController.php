@@ -56,38 +56,6 @@ class RekapBackupController extends Controller
         return view('rekap.index', compact('perusahaans', 'departemens'));
     }
 
-    public function autoSave(Request $request)
-    {
-        // Pastikan departemen_id dikirim
-        if (!$request->departemen_id) {
-            return response()->json(['success' => false, 'message' => 'departemen_id kosong'], 400);
-        }
-
-        // Cari departemen
-        $departemen = \App\Models\Departemen::find($request->departemen_id);
-        if (!$departemen) {
-            return response()->json(['success' => false, 'message' => 'Departemen tidak ditemukan'], 404);
-        }
-
-        // Update atau buat record rekapbackup
-        \App\Models\RekapBackup::updateOrCreate(
-            [
-                'departemen_id' => $departemen->id,
-                'periode_id'    => $request->periode_id,
-                'perusahaan_id' => $request->perusahaan_id,
-            ],
-            [
-                'cd700' => $request->cd700,
-                'dvd47' => $request->dvd47,
-                'dvd85' => $request->dvd85,
-            ]
-        );
-
-        return response()->json(['success' => true]);
-    }
-
-
-
     public function filter(Request $request)
     {
         if (!$request->filled(['perusahaan_id', 'periode_id'])) {
