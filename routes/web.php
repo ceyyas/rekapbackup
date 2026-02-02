@@ -45,7 +45,7 @@ Route::get('/rekap-backup/departemen/{departemen}',
 Route::get('/rekap-backup/departemen/{departemen}/data', [RekapBackupController::class, 'detailData']
 )->name('rekap-backup.detail-data');
 Route::post('/rekap-backup/save', [RekapBackupController::class, 'saveDetail'])->name('rekap-backup.save');
-Route::post('/rekap-backup/auto-save', [RekapBackupController::class, 'autoSave']) ->name('rekap-backup.autoSave');
+Route::post('/rekap-backup/auto-save', [RekapBackupController::class, 'autoSave']) ->name('rekap.autoSave');
 
 Route::get('/rekap-backup/filter', [RekapBackupController::class, 'filter'])->name('rekap.filter');
 

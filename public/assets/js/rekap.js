@@ -1,18 +1,19 @@
 document.addEventListener("DOMContentLoaded", function() {
+    // pastikan hanya jalan kalau ada elemen #backupChart
+    const chartElement = document.getElementById('backupChart');
+    if (!chartElement) return; // keluar kalau bukan di dashboard
+
     const rawData = window.dashboardData.rawData;
     const labels = window.dashboardData.labels;
-
-    console.log("Labels:", labels);
-    console.log("RawData:", rawData);
 
     const perusahaanList = [...new Set(Object.values(rawData).flatMap(obj => Object.keys(obj)))];
 
     const colors = [
-        'rgba(54, 162, 235, 0.5)',
-        'rgba(255, 99, 132, 0.5)',
-        'rgba(75, 192, 192, 0.5)',
+        '#36a2eb80',
+        '#ff638480',
+        '#4bc0c080',
         'rgba(255, 206, 86, 0.5)',
-        'rgba(153, 102, 255, 0.5)'
+        '#9966ff80'
     ];
 
     const datasets = perusahaanList.map((nama, idx) => ({
@@ -21,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function() {
         backgroundColor: colors[idx % colors.length],
     }));
 
-    const ctx = document.getElementById('backupChart').getContext('2d');
+    const ctx = chartElement.getContext('2d');
     new Chart(ctx, {
         type: 'bar',
         data: { labels, datasets },
@@ -39,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+
 
 // index data komputer 
     $(document).ready(function() {
@@ -62,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function() {
         $.get('/departemen/by-perusahaan', { perusahaan_id: perusahaanId }, function (data) {
             departemen.html('<option>-- Pilih Departemen --</option>');
             $.each(data, function (i, d) {
+                console.log('Row data:', d);
                 departemen.append(`<option value="${d.id}">${d.nama_departemen}</option>`);
             });
         });
@@ -163,15 +166,15 @@ function initIndexPage() {
 
                 // input dengan data-inventori-id
                 let cd700Col = (d.status_backup === 'completed')
-                    ? '<input type="number" name="cd700['+d.id+']" value="'+(d.jumlah_cd700 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.inventori_id+'">'
-                    : (d.jumlah_cd700 ?? 0);
+                    ? '<input type="number" name="cd700['+d.departemen_id+']" value="'+(d.jumlah_cd700 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.departemen_id+'">'
+                    : (d.jumlah_dvd47 ?? 0)
 
                 let dvd47Col = (d.status_backup === 'completed')
-                    ? '<input type="number" name="dvd47['+d.id+']" value="'+(d.jumlah_dvd47 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.inventori_id+'">'
+                    ? '<input type="number" name="dvd47['+d.departemen_id+']" value="'+(d.jumlah_dvd47 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.departemen_id+'">'
                     : (d.jumlah_dvd47 ?? 0);
 
                 let dvd85Col = (d.status_backup === 'completed')
-                    ? '<input type="number" name="dvd85['+d.id+']" value="'+(d.jumlah_dvd85 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.inventori_id+'">'
+                    ? '<input type="number" name="dvd85['+d.departemen_id+']" value="'+(d.jumlah_dvd85 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.departemen_id+'">'
                     : (d.jumlah_dvd85 ?? 0);
 
                 let rowNode = table.row.add([
@@ -194,15 +197,15 @@ function initIndexPage() {
     }
 
     // --- Auto-save listener (delegated) ---
-    $('#rekapTable').on('change', 'input[type=number]', function() {
+        $('#rekapTable').on('change', 'input[type=number]', function() {
         let $input = $(this);
-        let inventoriId = $input.data('inventori-id');
+        let rekapId = $input.data('rekap-id'); 
         let periodeId = $('#periode_id').val();
         let perusahaanId = $('#perusahaan_id').val();
 
         let payload = {
             _token: $('meta[name="csrf-token"]').attr('content'),
-            inventori_id: inventoriId,
+            rekap_id: rekapId,
             periode_id: periodeId,
             perusahaan_id: perusahaanId
         };
@@ -215,14 +218,17 @@ function initIndexPage() {
             payload.dvd85 = $input.val();
         }
 
+        console.log('Payload autosave:', payload);
+
         $.post(window.rekapRoutes.autoSave, payload, function(res) {
             if (res.success) {
-                console.log('Auto-save berhasil untuk inventori ' + inventoriId);
+                console.log('Auto-save berhasil untuk rekap ' + rekapId);
             }
         }).fail(function(xhr) {
             console.error('Auto-save gagal:', xhr.responseText);
         });
     });
+
 }
 
 

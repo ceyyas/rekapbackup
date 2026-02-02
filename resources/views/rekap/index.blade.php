@@ -57,30 +57,36 @@
                 <td><strong>{{ number_format($dept->total_size) }} MB</strong></td>
                 <td>
                     @if($dept->status_backup === 'completed')
-                        <input type="number" name="cd700[{{ $dept->id }}]" 
-                            value="{{ $dept->jumlah_cd700 ?? 0 }}" min="0" 
+                        <input type="number"
+                            name="cd700[{{ $dept->id }}]"
+                            value="{{ $dept->jumlah_cd700 ?? 0 }}"
+                            min="0"
                             class="form-control form-control-sm"
-                            data-inventori-id="{{ $dept->inventori_id }}">
+                            data-departemen-id="{{ $dept->departemen_id }}">
                     @else
                         {{ $dept->jumlah_cd700 ?? 0 }}
                     @endif
                 </td>
                 <td>
                     @if($dept->status_backup === 'completed')
-                        <input type="number" name="dvd47[{{ $dept->id }}]" 
-                            value="{{ $dept->jumlah_dvd47 ?? 0 }}" min="0" 
+                        <input type="number"
+                            name="cd700[{{ $dept->id }}]"
+                            value="{{ $dept->jumlah_dvd47 ?? 0 }}"
+                            min="0"
                             class="form-control form-control-sm"
-                            data-inventori-id="{{ $dept->inventori_id }}">
+                            data-departemen-id="{{ $dept->departemen_id }}">
                     @else
                         {{ $dept->jumlah_dvd47 ?? 0 }}
                     @endif
                 </td>
                 <td>
                     @if($dept->status_backup === 'completed')
-                        <input type="number" name="dvd85[{{ $dept->id }}]" 
-                            value="{{ $dept->jumlah_dvd85 ?? 0 }}" min="0" 
+                        <input type="number"
+                            name="cd700[{{ $dept->id }}]"
+                            value="{{ $dept->jumlah_dvd85 ?? 0 }}"
+                            min="0"
                             class="form-control form-control-sm"
-                            data-inventori-id="{{ $dept->inventori_id }}">
+                            data-departemen-id="{{ $dept->departemen_id }}">
                     @else
                         {{ $dept->jumlah_dvd85 ?? 0 }}
                     @endif

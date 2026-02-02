@@ -31,16 +31,14 @@
             detailData: "{{ route('rekap-backup.detail-data', ':id') }}",
             filter: "{{ route('rekap.filter') }}",
             detail: "{{ route('rekap-backup.detail-page', ':id') }}",
-            departemenByPerusahaan: "{{ url('/departemen/by-perusahaan') }}",
-            autoSave: "{{ route('rekap-backup.autoSave') }}"
+            autoSave: "{{ route('rekap.autoSave') }}",
+            departemenByPerusahaan: "{{ url('/departemen/by-perusahaan') }}"
         };
     </script>
 
     <script src="{{ asset('assets/js/rekap.js') }}"></script>
     <script src="{{ asset('assets/js/script.js') }}"></script>
-    <script
-    src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
     @stack('scripts')
 </body>
 

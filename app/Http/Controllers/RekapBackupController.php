@@ -58,30 +58,35 @@ class RekapBackupController extends Controller
 
     public function autoSave(Request $request)
     {
-        $request->validate([
-            'inventori_id' => 'required|exists:inventori,id',
-            'periode_id'   => 'required|date_format:Y-m',
-            'cd700'        => 'nullable|integer|min:0',
-            'dvd47'        => 'nullable|integer|min:0',
-            'dvd85'        => 'nullable|integer|min:0',
-        ]);
+        // Pastikan departemen_id dikirim
+        if (!$request->departemen_id) {
+            return response()->json(['success' => false, 'message' => 'departemen_id kosong'], 400);
+        }
 
-        $periode = $request->periode_id . '-01';
+        // Cari departemen
+        $departemen = \App\Models\Departemen::find($request->departemen_id);
+        if (!$departemen) {
+            return response()->json(['success' => false, 'message' => 'Departemen tidak ditemukan'], 404);
+        }
 
-        RekapBackup::updateOrCreate(
+        // Update atau buat record rekapbackup
+        \App\Models\RekapBackup::updateOrCreate(
             [
-                'inventori_id' => $request->inventori_id,
-                'periode'      => $periode,
+                'departemen_id' => $departemen->id,
+                'periode_id'    => $request->periode_id,
+                'perusahaan_id' => $request->perusahaan_id,
             ],
             [
-                'jumlah_cd700' => $request->cd700 ?? 0,
-                'jumlah_dvd47' => $request->dvd47 ?? 0,
-                'jumlah_dvd85' => $request->dvd85 ?? 0,
+                'cd700' => $request->cd700,
+                'dvd47' => $request->dvd47,
+                'dvd85' => $request->dvd85,
             ]
         );
 
         return response()->json(['success' => true]);
     }
+
+
 
     public function filter(Request $request)
     {
@@ -191,9 +196,6 @@ class RekapBackupController extends Controller
                 [
                     'size_data' => $val['size_data'] ?? 0,
                     'size_email' => $val['size_email'] ?? 0,
-                    'jumlah_cd700' => $val['jumlah_cd700'] ?? 0,
-                    'jumlah_dvd47' => $val['jumlah_dvd47'] ?? 0,
-                    'jumlah_dvd85' => $val['jumlah_dvd85'] ?? 0,
                     'status' => (
                         ($val['size_data'] ?? 0) + ($val['size_email'] ?? 0)
                     ) > 0 ? 'completed' : 'pending'

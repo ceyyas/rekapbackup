@@ -47,7 +47,7 @@
 
             <div class="button-back">
                 <button class="back">
-                    <a href="{{ route('departemen.index') }}" class="back">Kembali</a>
+                    <a href="{{ route('departemen.index', ['perusahaan_id' => $departemen->perusahaan_id]) }}" class="back">Kembali</a>
                 </button> 
             </div>
         </form>

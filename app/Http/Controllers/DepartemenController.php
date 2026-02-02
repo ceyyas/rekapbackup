@@ -81,7 +81,6 @@ class DepartemenController extends Controller
         $departemen = Departemen::findOrFail($id);
         $listPerusahaan = Perusahaan::pluck('nama_perusahaan', 'id');
 
-
         $departemen->update([
             'nama_departemen'=> $request->nama_departemen,
             'perusahaan_id'  => $request->perusahaan_id,

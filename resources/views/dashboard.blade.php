@@ -15,6 +15,12 @@
           <p class="card-value">{{ $totalLaptop }}</p>
         </div>
       </div>
+      <div class="big-card bg-stok">
+        <div class="card-body">
+          <h3>Total Stok CD/DVD</h3>
+          <p class="card-value">{{ $totalStok }}</p>
+        </div>
+      </div>
     </div>
 
     <div class="chart">

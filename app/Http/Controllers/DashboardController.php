@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Stok;
 use App\Models\Inventori;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -14,6 +15,7 @@ class DashboardController extends Controller
         // Ringkasan inventori
         $totalKomputer = Inventori::where('kategori', 'PC')->count();
         $totalLaptop   = Inventori::where('kategori', 'Laptop')->count();
+        $totalStok = Stok::sum('jumlah_barang');
 
         // Rekap backup per bulan per perusahaan
         $rekapBackup = DB::table('rekap_backup as rb')
@@ -39,6 +41,6 @@ class DashboardController extends Controller
             $dataChart[$labelBulan][$row->nama_perusahaan] = round($row->total_size / 1024, 2);
         }
 
-        return view('dashboard', compact('totalKomputer', 'totalLaptop', 'dataChart'));
+        return view('dashboard', compact('totalKomputer', 'totalLaptop','totalStok', 'dataChart'));
     }
 }
