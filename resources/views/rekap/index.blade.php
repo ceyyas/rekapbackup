@@ -39,9 +39,6 @@
                 <th>Size Data</th>
                 <th>Size Email</th>
                 <th>Total Size</th>
-                <th>CD 700 MB</th>
-                <th>DVD 4.7 GB</th>
-                <th>DVD 8.5 GB</th>
                 <th>Status Backup</th>
             </tr>
         </thead>
@@ -55,42 +52,6 @@
                 <td>{{ number_format($dept->size_data) }} MB</td>
                 <td>{{ number_format($dept->size_email) }} MB</td>
                 <td><strong>{{ number_format($dept->total_size) }} MB</strong></td>
-                <td>
-                    @if($dept->status_backup === 'completed')
-                        <input type="number"
-                            name="cd700[{{ $dept->id }}]"
-                            value="{{ $dept->jumlah_cd700 ?? 0 }}"
-                            min="0"
-                            class="form-control form-control-sm"
-                            data-departemen-id="{{ $dept->departemen_id }}">
-                    @else
-                        {{ $dept->jumlah_cd700 ?? 0 }}
-                    @endif
-                </td>
-                <td>
-                    @if($dept->status_backup === 'completed')
-                        <input type="number"
-                            name="cd700[{{ $dept->id }}]"
-                            value="{{ $dept->jumlah_dvd47 ?? 0 }}"
-                            min="0"
-                            class="form-control form-control-sm"
-                            data-departemen-id="{{ $dept->departemen_id }}">
-                    @else
-                        {{ $dept->jumlah_dvd47 ?? 0 }}
-                    @endif
-                </td>
-                <td>
-                    @if($dept->status_backup === 'completed')
-                        <input type="number"
-                            name="cd700[{{ $dept->id }}]"
-                            value="{{ $dept->jumlah_dvd85 ?? 0 }}"
-                            min="0"
-                            class="form-control form-control-sm"
-                            data-departemen-id="{{ $dept->departemen_id }}">
-                    @else
-                        {{ $dept->jumlah_dvd85 ?? 0 }}
-                    @endif
-                </td>
                 <td>
                     <span class="status {{ $dept->status_backup }}">
                         {{ ucfirst($dept->status_backup) }}

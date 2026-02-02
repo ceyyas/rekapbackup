@@ -51,7 +51,7 @@ Route::get('/rekap-backup/filter', [RekapBackupController::class, 'filter'])->na
 
 Route::get('/rekap-backup/export', [RekapBackupController::class, 'export'])
     ->name('rekap-backup.export');
-
+Route::get('/rekap-backup/cd-dvd', [RekapBackupController::class, 'cdDvd'])->name('rekap-backup.cd-dvd');
 
 // LOGOUT
 Route::post('/logout', function () {

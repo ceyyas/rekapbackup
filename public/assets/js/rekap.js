@@ -163,48 +163,86 @@ function initIndexPage() {
                     + "?periode_id=" + periodeId
                     + "&perusahaan_id=" + perusahaanId;
 
-                // input dengan data-inventori-id
-                let cd700Col = (d.status_backup === 'completed')
-                    ? '<input type="number" name="cd700['+d.departemen_id+']" value="'+(d.jumlah_cd700 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.departemen_id+'">'
-                    : (d.jumlah_cd700 ?? 0);
-
-                let dvd47Col = (d.status_backup === 'completed')
-                    ? '<input type="number" name="dvd47['+d.departemen_id+']" value="'+(d.jumlah_dvd47 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.departemen_id+'">'
-                    : (d.jumlah_dvd47 ?? 0);
-
-                let dvd85Col = (d.status_backup === 'completed')
-                    ? '<input type="number" name="dvd85['+d.departemen_id+']" value="'+(d.jumlah_dvd85 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.departemen_id+'">'
-                    : (d.jumlah_dvd85 ?? 0);
-
                 let rowNode = table.row.add([
                     d.nama_departemen,
                     formatSizeBoth(d.size_data),
                     formatSizeBoth(d.size_email),
                     formatSizeBoth(d.total_size),
-                    cd700Col,
-                    dvd47Col,
-                    dvd85Col,
                     '<span class="status '+d.status_backup+'">'+d.status_backup+'</span>'
                 ]).draw(false).node();
 
-                $(rowNode).css('cursor','pointer').on('click', function(e) {
-                    if ($(e.target).is('input[type=number]')) return;
+                $(rowNode).css('cursor','pointer').on('click', function() {
                     window.location = detailUrl;
                 });
             });
         });
     }
+}
 
-    // --- Auto-save listener (delegated) ---
-        $('#rekapTable').on('change', 'input[type=number]', function() {
+// --- CD/DVD Input Page ---
+function initCdDvdPage() {
+    if (!document.getElementById('cdDvdTable')) return;
+
+    let table = $('#cdDvdTable').DataTable({
+        paging: false,
+        info: false,
+        searching: false,
+        lengthChange: false,
+        destroy: true
+    });
+
+    $('#perusahaan_id, #periode_id').on('change', function() {
+        loadCdDvdData(table);
+    });
+
+    function loadCdDvdData(table) {
+        let perusahaanId = $('#perusahaan_id').val();
+        let periodeId = $('#periode_id').val();
+
+        if (!perusahaanId || !periodeId) return;
+
+        let filterUrl = window.rekapRoutes.filter;
+
+        $.get(filterUrl, { perusahaan_id: perusahaanId, periode_id: periodeId }, function(data) {
+            table.clear();
+
+            $.each(data, function(i, d) {
+                let cd700Col = (d.status_backup === 'completed')
+                    ? '<input type="number" name="cd700['+d.id+']" value="'+(d.jumlah_cd700 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.inventori_id+'">'
+                    : (d.jumlah_cd700 ?? 0);
+
+                let dvd47Col = (d.status_backup === 'completed')
+                    ? '<input type="number" name="dvd47['+d.id+']" value="'+(d.jumlah_dvd47 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.inventori_id+'">'
+                    : (d.jumlah_dvd47 ?? 0);
+
+                let dvd85Col = (d.status_backup === 'completed')
+                    ? '<input type="number" name="dvd85['+d.id+']" value="'+(d.jumlah_dvd85 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.inventori_id+'">'
+                    : (d.jumlah_dvd85 ?? 0);
+
+                table.row.add([
+                    d.nama_departemen,
+                    d.size_data + ' MB',
+                    d.size_email + ' MB',
+                    d.total_size + ' MB',
+                    cd700Col,
+                    dvd47Col,
+                    dvd85Col,
+                    '<span class="status '+d.status_backup+'">'+d.status_backup+'</span>'
+                ]).draw(false);
+            });
+        });
+    }
+
+    // --- Auto-save listener ---
+    $('#cdDvdTable').on('change', 'input[type=number]', function() {
         let $input = $(this);
-        let rekapId = $input.data('rekap-id'); 
+        let inventoriId = $input.data('inventori-id');
         let periodeId = $('#periode_id').val();
         let perusahaanId = $('#perusahaan_id').val();
 
         let payload = {
             _token: $('meta[name="csrf-token"]').attr('content'),
-            rekap_id: rekapId,
+            inventori_id: inventoriId,
             periode_id: periodeId,
             perusahaan_id: perusahaanId
         };
@@ -219,15 +257,16 @@ function initIndexPage() {
 
         console.log('Payload autosave:', payload);
 
-        $.post(window.rekapRoutes.autoSave, payload, function(res) {
+        $.post(window.rekapRoutes.autoSave, payload)
+         .done(function(res) {
             if (res.success) {
-                console.log('Auto-save berhasil untuk rekap ' + rekapId);
+                console.log('Auto-save berhasil untuk inventori ' + inventoriId);
             }
-        }).fail(function(xhr) {
+         })
+         .fail(function(xhr) {
             console.error('Auto-save gagal:', xhr.responseText);
-        });
+         });
     });
-
 }
 
 // --- Detail Page ---
@@ -279,6 +318,7 @@ function initDetailPage() {
 // --- Panggil sesuai halaman ---
 document.addEventListener('DOMContentLoaded', function () {
     initIndexPage();
+    initCdDvdPage();
     initDetailPage();
 });
 

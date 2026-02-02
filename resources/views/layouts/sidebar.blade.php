@@ -63,6 +63,7 @@
 
                 <ul class="sub-menu close">
                     <li><a href="{{ url('/rekap-backup') }}">Input Size Backup</a></li>
+                    <li><a href="{{ route('rekap-backup.cd-dvd') }}">CD/DVD</a></li>
                 </ul>
             </ul>
 
