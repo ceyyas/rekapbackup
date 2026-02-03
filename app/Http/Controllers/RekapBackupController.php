@@ -161,7 +161,6 @@ class RekapBackupController extends Controller
             'periode'      => $periode,
         ]);
 
-        // Pastikan nilai di-cast ke integer, bukan string
         if ($request->cd700 !== null) {
             $rekap->jumlah_cd700 = (int) $request->cd700;
         }
@@ -255,35 +254,47 @@ class RekapBackupController extends Controller
     public function export(Request $request)
     {
         if (!$request->filled(['perusahaan_id', 'periode_id'])) {
-            return redirect()->back()->with('error', 'Filter belum lengkap');
+            return response()->json([]);
         }
+
+        $request->validate([
+            'periode_id' => 'date_format:Y-m',
+            'perusahaan_id' => 'required|exists:perusahaan,id'
+        ]);
+
+        // Sesuaikan format periode dengan isi DB
+        $periode = $request->periode_id . '-01';
 
         $departemens = DB::table('departemen')
             ->leftJoin('inventori', 'inventori.departemen_id', '=', 'departemen.id')
-            ->leftJoin('rekap_backup', function ($join) use ($request) {
+            ->leftJoin('rekap_backup', function ($join) use ($periode) {
                 $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
-                    ->where('rekap_backup.periode_id', $request->periode_id);
+                    ->where('rekap_backup.periode', $periode);
             })
             ->where('departemen.perusahaan_id', $request->perusahaan_id)
             ->select(
+                'departemen.id',
                 'departemen.nama_departemen',
-
+                DB::raw('MAX(inventori.id) as inventori_id'), // ambil satu inventori_id
                 DB::raw('COALESCE(SUM(rekap_backup.size_data), 0) AS size_data'),
                 DB::raw('COALESCE(SUM(rekap_backup.size_email), 0) AS size_email'),
                 DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size'),
-
+                DB::raw('COALESCE(SUM(rekap_backup.jumlah_cd700), 0) AS jumlah_cd700'),
+                DB::raw('COALESCE(SUM(rekap_backup.jumlah_dvd47), 0) AS jumlah_dvd47'),
+                DB::raw('COALESCE(SUM(rekap_backup.jumlah_dvd85), 0) AS jumlah_dvd85'),
                 DB::raw("
                     CASE
                         WHEN COUNT(rekap_backup.id) = 0 THEN 'pending'
-                        WHEN SUM(rekap_backup.status = 'completed') = COUNT(rekap_backup.id)
+                        WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rekap_backup.id)
                             THEN 'completed'
                         ELSE 'partial'
                     END AS status_backup
                 ")
             )
-            ->groupBy('departemen.id', 'departemen.nama_departemen')
+            ->groupBy('departemen.id','departemen.nama_departemen')
             ->orderBy('departemen.nama_departemen')
             ->get();
+
 
         return Excel::download(
             new RekapExport($departemens),
