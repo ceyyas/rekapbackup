@@ -17,7 +17,9 @@
                 <th>No</th>
                 <th>Nomor SPPB</th>
                 <th>Nama Barang</th>
-                <th>Jumlah</th>
+                <th>Stok Awal</th>
+                <th>Pemakaian</th>
+                <th>Stok Tersisa</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -27,7 +29,9 @@
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $stok->nomor_sppb }}</td>
                 <td>{{ $stok->nama_barang }}</td>
-                <td>{{ $stok->jumlah_barang }}</td>  
+                <td>{{ $stok->jumlah_barang }}</td> 
+                <td>{{ $stok->pemakaian }}</td> 
+                <td>{{ $stok->tersisa }}</td>  
                 <td class="text-center">
                     <!-- tombol show -->
                     <button class="aksi-show"><a href="{{ route('stok.show', $stok->id) }}"><i class='bx bx-show'></i></a></button>

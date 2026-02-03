@@ -8,6 +8,7 @@ use App\Models\Perusahaan;
 use App\Models\Departemen;
 use App\Models\Inventori;
 use App\Models\RekapBackup;
+use App\Models\Stok;
 use App\Exports\RekapExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -63,7 +64,8 @@ class RekapBackupController extends Controller
             'perusahaan_id' => 'required|exists:perusahaan,id'
         ]);
 
-        $periode = $request->periode_id . '-01'; // tambahkan ini
+        // Sesuaikan format periode dengan isi DB
+        $periode = $request->periode_id . '-01';
 
         $departemens = DB::table('departemen')
             ->leftJoin('inventori', 'inventori.departemen_id', '=', 'departemen.id')
@@ -75,7 +77,7 @@ class RekapBackupController extends Controller
             ->select(
                 'departemen.id',
                 'departemen.nama_departemen',
-                'inventori.id as inventori_id',
+                DB::raw('MAX(inventori.id) as inventori_id'), // ambil satu inventori_id
                 DB::raw('COALESCE(SUM(rekap_backup.size_data), 0) AS size_data'),
                 DB::raw('COALESCE(SUM(rekap_backup.size_email), 0) AS size_email'),
                 DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size'),
@@ -91,12 +93,13 @@ class RekapBackupController extends Controller
                     END AS status_backup
                 ")
             )
-            ->groupBy('departemen.id','departemen.nama_departemen','inventori.id')
+            ->groupBy('departemen.id','departemen.nama_departemen')
             ->orderBy('departemen.nama_departemen')
             ->get();
 
         return response()->json($departemens);
     }
+
 
     public function cdDvd(Request $request)
     {
@@ -132,7 +135,7 @@ class RekapBackupController extends Controller
                         END AS status_backup
                     ")
                 )
-                ->groupBy('departemen.id','departemen.nama_departemen','inventori.id')
+                ->groupBy('departemen.id','departemen.nama_departemen')
                 ->orderBy('departemen.nama_departemen')
                 ->get();
 
@@ -153,21 +156,26 @@ class RekapBackupController extends Controller
 
         $periode = $request->periode_id . '-01';
 
-        RekapBackup::updateOrCreate(
-            [
-                'inventori_id' => $request->inventori_id,
-                'periode'      => $periode,
-            ],
-            [
-                'jumlah_cd700' => $request->cd700 ?? 0,
-                'jumlah_dvd47' => $request->dvd47 ?? 0,
-                'jumlah_dvd85' => $request->dvd85 ?? 0,
-            ]
-        );
+        $rekap = RekapBackup::firstOrNew([
+            'inventori_id' => $request->inventori_id,
+            'periode'      => $periode,
+        ]);
+
+        // Pastikan nilai di-cast ke integer, bukan string
+        if ($request->cd700 !== null) {
+            $rekap->jumlah_cd700 = (int) $request->cd700;
+        }
+        if ($request->dvd47 !== null) {
+            $rekap->jumlah_dvd47 = (int) $request->dvd47;
+        }
+        if ($request->dvd85 !== null) {
+            $rekap->jumlah_dvd85 = (int) $request->dvd85;
+        }
+
+        $rekap->save();
 
         return response()->json(['success' => true]);
     }
-
 
 
     public function detailPage($departemenId)

@@ -13,8 +13,16 @@ class StokController extends Controller
     public function index()
     {
         $stoks = Stok::orderByDesc('updated_at')->get();
+
+        // Tambahkan properti pemakaian & tersisa
+        foreach ($stoks as $stok) {
+            $stok->pemakaian = $stok->pemakaian; // dari accessor
+            $stok->tersisa   = $stok->tersisa;   // dari accessor
+        }
+
         return view('stok.index', compact('stoks'));
     }
+
 
     /**
      * Show the form for creating a new resource.

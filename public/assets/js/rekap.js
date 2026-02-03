@@ -1,5 +1,5 @@
+// dashboard
 document.addEventListener("DOMContentLoaded", function() {
-    // pastikan hanya jalan kalau ada elemen #backupChart
     const chartElement = document.getElementById('backupChart');
     if (!chartElement) return; // keluar kalau bukan di dashboard
 
@@ -248,11 +248,11 @@ function initCdDvdPage() {
         };
 
         if ($input.attr('name').startsWith('cd700')) {
-            payload.cd700 = $input.val();
+            payload.cd700 = parseInt($input.val());
         } else if ($input.attr('name').startsWith('dvd47')) {
-            payload.dvd47 = $input.val();
+            payload.dvd47 = parseInt($input.val());
         } else if ($input.attr('name').startsWith('dvd85')) {
-            payload.dvd85 = $input.val();
+            payload.dvd85 = parseInt($input.val());
         }
 
         console.log('Payload autosave:', payload);
@@ -269,25 +269,6 @@ function initCdDvdPage() {
     });
 }
 
-// --- Detail Page ---
-function initDetailPage() {
-    let container = document.getElementById('detail-container');
-    if (!container) return;
-
-    let departemenId = document.getElementById('departemen_id')?.value;
-    let periodeId = document.getElementById('periode_id')?.value;
-
-    if (!departemenId || !periodeId) return;
-
-    let url = window.rekapRoutes.detailData.replace(':id', departemenId) +
-              "?periode_id=" + periodeId;
-
-    fetch(url)
-        .then(res => res.text())
-        .then(html => {
-            container.innerHTML = html;
-        });
-}
 
 // --- Panggil sesuai halaman ---
 document.addEventListener('DOMContentLoaded', function () {

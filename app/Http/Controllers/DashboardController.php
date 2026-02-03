@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Stok;
 use App\Models\Inventori;
+use App\Models\RekapBackup;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -12,10 +13,22 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Ringkasan inventori
+        // total inventori
         $totalKomputer = Inventori::where('kategori', 'PC')->count();
         $totalLaptop   = Inventori::where('kategori', 'Laptop')->count();
         $totalStok = Stok::sum('jumlah_barang');
+
+        // foreach ($totalStok as $stok) {
+        //     $pemakaian = match ($stok->nama_barang) {
+        //         'CD 700 MB' => RekapBackup::sum('jumlah_cd700'),
+        //         'DVD 4.7 GB' => RekapBackup::sum('jumlah_dvd47'),
+        //         'DVD 8.5 GB' => RekapBackup::sum('jumlah_dvd85'),
+        //     };
+
+        //     $stok->pemakaian = $pemakaian;
+        //     $stok->tersisa   = $stok->jumlah_barang - $pemakaian;
+        // }
+
 
         // Rekap backup per bulan per perusahaan
         $rekapBackup = DB::table('rekap_backup as rb')
@@ -30,8 +43,7 @@ class DashboardController extends Controller
         $dataChart = [];
         foreach ($rekapBackup as $row) {
             $periode = Carbon::createFromDate($row->tahun, $row->bulan, 1);
-            // gunakan format bahasa Inggris agar konsisten dengan JS
-            $labelBulan = $periode->format('F Y'); // contoh: February 2026
+            $labelBulan = $periode->format('F Y'); 
 
             if (!isset($dataChart[$labelBulan])) {
                 $dataChart[$labelBulan] = [];

@@ -46,7 +46,7 @@
                     @if($dept->status_backup === 'completed')
                         <input type="number" name="cd700[{{ $dept->id }}]"
                                value="{{ $dept->jumlah_cd700 ?? 0 }}" min="0"
-                               class="form-control form-control-sm"
+                               class="size-input cd700"
                                data-inventori-id="{{ $dept->inventori_id }}">
                     @else
                         {{ $dept->jumlah_cd700 ?? 0 }}
@@ -56,7 +56,7 @@
                     @if($dept->status_backup === 'completed')
                         <input type="number" name="dvd47[{{ $dept->id }}]"
                                value="{{ $dept->jumlah_dvd47 ?? 0 }}" min="0"
-                               class="form-control form-control-sm"
+                               class="size-input size-data"
                                data-inventori-id="{{ $dept->inventori_id }}">
                     @else
                         {{ $dept->jumlah_dvd47 ?? 0 }}
