@@ -87,7 +87,7 @@
 
         </div>
 
-        <!-- <div class="bottom-content">
+        <div class="bottom-content">
             <li class="logout">
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
@@ -97,6 +97,6 @@
                     </button>
                 </form>
             </li>
-        </div> -->
+        </div>
     </div>
 </nav>

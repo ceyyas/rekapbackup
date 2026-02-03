@@ -11,52 +11,40 @@ use App\Http\Controllers\StokController;
 use App\Http\Controllers\RekapBackupController;
 
 Route::get('/', function () {
-    return redirect('/login');
+    return redirect()->route('login');
 });
 
 // LOGIN (hanya untuk guest)
-Route::get('/login', [LoginController::class, 'view'])
-    ->middleware('guest');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'view'])->name('login.view');
+    Route::post('/login', [LoginController::class, 'login'])->name('login');
+});
 
-Route::post('/login', [LoginController::class, 'login'])
-    ->middleware('guest')
-    ->name('login');
+// Semua route yang butuh login
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-// DASHBOARD (harus login)
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware('auth')
-    ->name('dashboard');
-;
+    // route master data
+    Route::resource('departemen', DepartemenController::class);
+    Route::resource('komputer', KomputerController::class);
+    Route::resource('laptop', LaptopController::class);
+    Route::resource('stok', StokController::class);
 
-Route::get('/komputers/filter', [KomputerController::class, 'filter'])->name('komputer.filter');
-Route::get('/departemen/by-perusahaan', [KomputerController::class, 'getDepartemen'])->name('departemen.byperusahaan');
+    // route rekap backup
+    Route::get('/rekap-backup', [RekapBackupController::class, 'index'])->name('rekap-backup.index');
+    Route::get('/rekap-backup/departemen/{departemen}', [RekapBackupController::class, 'detailPage'])->name('rekap-backup.detail-page');
+    Route::get('/rekap-backup/departemen/{departemen}/data', [RekapBackupController::class, 'detailData'])->name('rekap-backup.detail-data');
+    Route::post('/rekap-backup/save', [RekapBackupController::class, 'saveDetail'])->name('rekap-backup.save');
+    Route::post('/rekap-backup/auto-save', [RekapBackupController::class, 'autoSave'])->name('rekap.autoSave');
+    Route::get('/rekap-backup/filter', [RekapBackupController::class, 'filter'])->name('rekap.filter');
+    Route::get('/rekap-backup/export', [RekapBackupController::class, 'export'])->name('rekap-backup.export');
+    Route::get('/rekap-backup/cd-dvd', [RekapBackupController::class, 'cdDvd'])->name('rekap-backup.cd-dvd');
 
-// route master data
-Route::resource('departemen', DepartemenController::class);
-Route::resource('komputer', KomputerController::class);
-Route::resource('laptop', LaptopController::class);
-Route::resource('stok', StokController::class);
-
-// route rekap backup
-Route::get('/rekap-backup', [RekapBackupController::class, 'index'])->name('rekap-backup.index');
-Route::get('/rekap-backup/departemen/{departemen}', 
-    [RekapBackupController::class, 'detailPage']
-)->name('rekap-backup.detail-page');
-Route::get('/rekap-backup/departemen/{departemen}/data', [RekapBackupController::class, 'detailData']
-)->name('rekap-backup.detail-data');
-Route::post('/rekap-backup/save', [RekapBackupController::class, 'saveDetail'])->name('rekap-backup.save');
-Route::post('/rekap-backup/auto-save', [RekapBackupController::class, 'autoSave']) ->name('rekap.autoSave');
-
-Route::get('/rekap-backup/filter', [RekapBackupController::class, 'filter'])->name('rekap.filter');
-
-Route::get('/rekap-backup/export', [RekapBackupController::class, 'export'])
-    ->name('rekap-backup.export');
-Route::get('/rekap-backup/cd-dvd', [RekapBackupController::class, 'cdDvd'])->name('rekap-backup.cd-dvd');
-
-// LOGOUT
-Route::post('/logout', function () {
-    Auth::logout();
-    request()->session()->invalidate();
-    request()->session()->regenerateToken();
-    return redirect('/login');
-})->middleware('auth')->name('logout');
+    // LOGOUT
+    Route::post('/logout', function () {
+        Auth::logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+        return redirect()->route('login');
+    })->name('logout');
+});
