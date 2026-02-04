@@ -43,7 +43,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 $(document).ready(function () {
-    // fungsi umum untuk load departemen
     function loadDepartemen(perusahaanId, departemenSelect) {
         departemenSelect.html('<option>Loading...</option>');
 
@@ -139,7 +138,7 @@ $('#perusahaan_id').on('change', function () {
     });
 });
 
-// --- Index Page ---
+// rekap backup global
 function initIndexPage() {
     if (!document.getElementById('rekapTable')) return;
 
@@ -193,7 +192,7 @@ function initIndexPage() {
     }
 }
 
-// --- CD/DVD Input Page ---
+// input cd/dvd
 function initCdDvdPage() {
     if (!document.getElementById('cdDvdTable')) return;
 
@@ -247,7 +246,7 @@ function initCdDvdPage() {
         });
     }
 
-    // --- Auto-save listener ---
+    // auto save
     $('#cdDvdTable').on('change', 'input[type=number]', function() {
         let $input = $(this);
         let inventoriId = $input.data('inventori-id');
@@ -283,14 +282,7 @@ function initCdDvdPage() {
     });
 }
 
-
-// --- Panggil sesuai halaman ---
-document.addEventListener('DOMContentLoaded', function () {
-    initIndexPage();
-    initDetailPage();
-});
-
-// --- Detail Page ---
+// detail backup per departemen
 function initDetailPage() {
     let container = document.getElementById('detail-container');
     if (!container) return;

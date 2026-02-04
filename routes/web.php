@@ -42,8 +42,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/rekap-backup/save', [RekapBackupController::class, 'saveDetail'])->name('rekap-backup.save');
     Route::post('/rekap-backup/auto-save', [RekapBackupController::class, 'autoSave'])->name('rekap.autoSave');
     Route::get('/rekap-backup/filter', [RekapBackupController::class, 'filter'])->name('rekap.filter');
-    Route::get('/rekap-backup/export', [RekapBackupController::class, 'export'])->name('rekap-backup.export');
     Route::get('/rekap-backup/cd-dvd', [RekapBackupController::class, 'cdDvd'])->name('rekap-backup.cd-dvd');
+
+    // export data
+    Route::get('/rekap-backup/export', [RekapBackupController::class, 'export'])->name('rekap-backup.export');
 
     // LOGOUT
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

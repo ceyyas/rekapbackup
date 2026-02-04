@@ -13,7 +13,6 @@ class Stok extends Model
     protected $fillable = ['nomor_sppb', 'nama_barang', 'jumlah_barang'];
 
     public $timestamps = false;
-    // App\Models\Stok.php
     public function getPemakaianAttribute()
     {
         return match ($this->nama_barang) {
