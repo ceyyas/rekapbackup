@@ -799,7 +799,11 @@ ul#customBarangDropdown li:hover {
   background-color: #36a2eb80;
 }
 
-.bg-stok {
+.bg-stoksisa {
+  background-color: #9966ff80;
+}
+
+.bg-pemakaian {
   background-color: #4bc0c080;
 }
 

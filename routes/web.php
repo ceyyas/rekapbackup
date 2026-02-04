@@ -41,10 +41,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/rekap-backup/cd-dvd', [RekapBackupController::class, 'cdDvd'])->name('rekap-backup.cd-dvd');
 
     // LOGOUT
-    Route::post('/logout', function () {
-        Auth::logout();
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
-        return redirect()->route('login');
-    })->name('logout');
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
 });

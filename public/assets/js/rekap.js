@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function() {
         '#36a2eb80',
         '#ff638480',
         '#4bc0c080',
-        'rgba(255, 206, 86, 0.5)',
+        '#ffce5680',
         '#9966ff80'
     ];
 

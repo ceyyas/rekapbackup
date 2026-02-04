@@ -15,10 +15,16 @@
           <p class="card-value">{{ $totalLaptop }}</p>
         </div>
       </div>
-      <div class="big-card bg-stok">
+      <div class="big-card bg-stoksisa">
         <div class="card-body">
-          <h3>Total Stok CD/DVD</h3>
-          <p class="card-value">{{ $totalStok }}</p>
+          <h3>Sisa Stok CD/DVD</h3>
+          <p class="card-value">{{ $totalTersisa }}</p>
+        </div>
+      </div>
+      <div class="big-card bg-pemakaian">
+        <div class="card-body">
+          <h3>Pemakaian CD/DVD</h3>
+          <p class="card-value">{{ $totalPemakaian }}</p>
         </div>
       </div>
     </div>

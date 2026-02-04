@@ -16,19 +16,10 @@ class DashboardController extends Controller
         // total inventori
         $totalKomputer = Inventori::where('kategori', 'PC')->count();
         $totalLaptop   = Inventori::where('kategori', 'Laptop')->count();
-        $totalStok = Stok::sum('jumlah_barang');
-
-        // foreach ($totalStok as $stok) {
-        //     $pemakaian = match ($stok->nama_barang) {
-        //         'CD 700 MB' => RekapBackup::sum('jumlah_cd700'),
-        //         'DVD 4.7 GB' => RekapBackup::sum('jumlah_dvd47'),
-        //         'DVD 8.5 GB' => RekapBackup::sum('jumlah_dvd85'),
-        //     };
-
-        //     $stok->pemakaian = $pemakaian;
-        //     $stok->tersisa   = $stok->jumlah_barang - $pemakaian;
-        // }
-
+        
+        $stoks = Stok::orderByDesc('updated_at')->get();
+        $totalTersisa = $stoks->sum('tersisa');
+        $totalPemakaian = $stoks->sum('pemakaian');
 
         // Rekap backup per bulan per perusahaan
         $rekapBackup = DB::table('rekap_backup as rb')
@@ -53,6 +44,6 @@ class DashboardController extends Controller
             $dataChart[$labelBulan][$row->nama_perusahaan] = round($row->total_size / 1024, 2);
         }
 
-        return view('dashboard', compact('totalKomputer', 'totalLaptop','totalStok', 'dataChart'));
+        return view('dashboard', compact('totalKomputer', 'totalLaptop','stoks','totalTersisa', 'totalPemakaian', 'dataChart'));
     }
 }

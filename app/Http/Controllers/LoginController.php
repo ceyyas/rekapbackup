@@ -26,4 +26,17 @@ class LoginController extends Controller
         }
     return back()->withErrors(['email' => 'Invalid credentials provided.']);
     }
+
+
+    public function logout(Request $request) {
+        // Proses Logout
+        Auth::logout();
+
+        // Menghapus session
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Arahkan ke halaman login
+        return redirect('/login')->with('status', 'Kamu telah berhasil logout.');
+    }
 }
