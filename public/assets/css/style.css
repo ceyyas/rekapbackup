@@ -752,6 +752,34 @@ ul#customBarangDropdown li:hover {
     margin: 0;
 }
 
+.jumlah-cd {
+    width: 80px;
+    padding: 6px 10px;
+    font-size: 14px;
+    text-align: center;
+
+    border: 1px solid #d1d5db;     
+    border-radius: 6px;
+
+    background-color: #f9fafb;
+    color: #111827;
+
+    transition: all 0.2s ease;
+}
+
+
+.jumlah-cd:focus {
+    outline: none;
+    border-color: #2563eb;          
+    background-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* hover */
+.sjumlah-cd:hover {
+    border-color: #9ca3af;
+}
+
 .btn-generate {
     padding: 7px 12px;
     background: #b7ba9f;

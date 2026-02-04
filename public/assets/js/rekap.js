@@ -221,15 +221,15 @@ function initCdDvdPage() {
 
             $.each(data, function(i, d) {
                 let cd700Col = (d.status_backup === 'completed')
-                    ? '<input type="number" name="cd700['+d.id+']" value="'+(d.jumlah_cd700 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.inventori_id+'">'
+                    ? '<input type="number" name="cd700['+d.id+']" value="'+(d.jumlah_cd700 ?? 0)+'" min="0" class="jumlah-cd" data-inventori-id="'+d.inventori_id+'">'
                     : (d.jumlah_cd700 ?? 0);
 
                 let dvd47Col = (d.status_backup === 'completed')
-                    ? '<input type="number" name="dvd47['+d.id+']" value="'+(d.jumlah_dvd47 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.inventori_id+'">'
+                    ? '<input type="number" name="dvd47['+d.id+']" value="'+(d.jumlah_dvd47 ?? 0)+'" min="0" class="jumlah-cd" data-inventori-id="'+d.inventori_id+'">'
                     : (d.jumlah_dvd47 ?? 0);
 
                 let dvd85Col = (d.status_backup === 'completed')
-                    ? '<input type="number" name="dvd85['+d.id+']" value="'+(d.jumlah_dvd85 ?? 0)+'" min="0" class="form-control form-control-sm" data-inventori-id="'+d.inventori_id+'">'
+                    ? '<input type="number" name="dvd85['+d.id+']" value="'+(d.jumlah_dvd85 ?? 0)+'" min="0" class="jumlah-cd" data-inventori-id="'+d.inventori_id+'">'
                     : (d.jumlah_dvd85 ?? 0);
 
                 table.row.add([

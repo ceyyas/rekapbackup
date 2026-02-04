@@ -45,22 +45,6 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($departemens as $dept)
-            <tr onclick="window.location='{{ route('rekap-backup.detail-page', [
-                    'departemen' => $dept->id,
-                    'periode_id' => request('periode_id')
-                ]) }}';" style="cursor:pointer;">
-                <td>{{ $dept->nama_departemen }}</td>
-                <td>{{ number_format($dept->size_data) }} MB</td>
-                <td>{{ number_format($dept->size_email) }} MB</td>
-                <td><strong>{{ number_format($dept->total_size) }} MB</strong></td>
-                <td>
-                    <span class="status {{ $dept->status_backup }}">
-                        {{ ucfirst($dept->status_backup) }}
-                    </span>
-                </td>
-            </tr>
-            @endforeach
         </tbody>
     </table>
 </div>

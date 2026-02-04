@@ -67,7 +67,7 @@
                 </ul>
             </ul>
 
-            <ul class="menu-link">
+            <!-- <ul class="menu-link">
                 <li class="nav-link active">
                     <a href="#" class="data-induk">
                         <i class='bx bx-file icon'></i>
@@ -82,7 +82,7 @@
                     <li><a href="{{ route('komputer.index') }}">Perusahaan</a></li>
                     <li><a href="{{ route('laptop.index') }}">Departemen</a></li>
                 </ul>
-            </ul>
+            </ul> -->
 
 
         </div>
