@@ -15,9 +15,9 @@
             @csrf
 
             <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input type="email" name="email" class="form-control" required>
-                @error('email')
+                <label class="form-label">Username</label>
+                <input type="name" name="name" class="form-control" required>
+                @error('name')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
             </div>
