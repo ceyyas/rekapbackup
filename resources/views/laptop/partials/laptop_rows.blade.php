@@ -1,6 +1,6 @@
-<table id="departemenTable" class="display">
+<table id="laptopTable" class="table">
         <tbody>
-            @foreach ($komputers as $index => $inventori)
+            @foreach ($laptops as $index => $inventori)
             <tr>
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $inventori->perusahaan->nama_perusahaan }}</td>
@@ -11,13 +11,13 @@
                 <!-- awal tombol aksi -->
                 <td class="text-center">
                     <!-- tombol show -->
-                    <button class="aksi-show"><a href="{{ route('komputer.show', $inventori->id) }}"><i class='bx bx-show'></i></a></button>
+                    <button class="aksi-show"><a href="{{ route('laptop.show', $inventori->id) }}"><i class='bx bx-show'></i></a></button>
                             
                     <!-- tombol edit -->
-                    <button class="aksi-edit"><a href="{{ route('komputer.edit', $inventori->id) }}"><i class='bx bx-edit-alt'></i></a></button>
+                    <button class="aksi-edit"><a href="{{ route('laptop.edit', $inventori->id) }}"><i class='bx bx-edit-alt'></i></a></button>
 
                     <!-- form untuk tombol delete -->
-                    <form action="{{ route('komputer.destroy', $inventori->id) }}"
+                    <form action="{{ route('laptop.destroy', $inventori->id) }}"
                         method="POST"
                         onsubmit="return confirm('Are you sure?')"
                         style="display: inline;">

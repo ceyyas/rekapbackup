@@ -62,11 +62,16 @@ class LaptopController extends Controller
         return view('laptop.create', compact('perusahaans', 'departemens'));
     }
 
-    public function getDepartemen(Request $request)
+    public function filter(Request $request)
     {
-        return Departemen::where('perusahaan_id', $request->perusahaan_id)
-            ->orderBy('nama_departemen')
+        $laptops = Inventori::with(['perusahaan','departemen'])
+            ->where('kategori', 'Laptop')
+            ->when($request->perusahaan_id, fn($q) => $q->where('perusahaan_id', $request->perusahaan_id))
+            ->when($request->departemen_id, fn($q) => $q->where('departemen_id', $request->departemen_id))
+            ->orderByDesc('updated_at')
             ->get();
+
+        return view('laptop.partials.laptop_rows', compact('laptops'));
     }
 
     /**
@@ -85,7 +90,7 @@ class LaptopController extends Controller
             ],
             'hostname' => 'required|string|max:255',
             'username' => 'required|string|max:255',
-            'email'    => 'required|email',
+            'email'    => 'nullable|email',
         ]);
 
         Inventori::create([
@@ -145,7 +150,7 @@ class LaptopController extends Controller
 
             'hostname' => 'required|string|max:255',
             'username' => 'required|string|max:255',
-            'email'    => 'required|email',
+            'email'    => 'nullable|email',
         ]);
 
         $laptop->update([

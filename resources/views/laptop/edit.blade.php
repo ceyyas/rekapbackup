@@ -87,32 +87,13 @@
 
             <div class="button-back">
                 <button class="back">
-                    <a href="{{ route('laptop.index') }}" class="back">Kembali</a>
+                    <a href="{{ route('laptop.index', [
+                        'perusahaan_id' => $laptop->perusahaan_id,
+                        'departemen_id' => $laptop->departemen_id
+                    ]) }}" class="back">Kembali</a>
                 </button> 
             </div>
         </form>
     </div>
 </section>
 @endsection
-
-@push('scripts')
-<script>
-document.getElementById('perusahaan_id').addEventListener('change', function () {
-    let perusahaanId = this.value;
-    let departemen = document.getElementById('departemen_id');
-
-    departemen.innerHTML = '<option>Loading...</option>';
-
-    fetch(`/departemen/by-perusahaan?perusahaan_id=${perusahaanId}`)
-        .then(res => res.json())
-        .then(data => {
-            departemen.innerHTML = '<option>-- Pilih Departemen --</option>';
-
-            data.forEach(d => {
-                departemen.innerHTML +=
-                    `<option value="${d.id}">${d.nama_departemen}</option>`;
-            });
-        });
-});
-</script>
-@endpush

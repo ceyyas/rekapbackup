@@ -13,10 +13,7 @@
 
     <form method="GET" action="{{ route('laptop.index') }}">
         <div class="filter-menu">
-
-            <select name="perusahaan_id"
-                    class="filter"
-                    onchange="this.form.submit()">
+            <select id="perusahaan_id_laptop" name="perusahaan_id_laptop" class="filter">
                 <option value="">-- Pilih Perusahaan --</option>
                 @foreach ($perusahaans as $perusahaan)
                     <option value="{{ $perusahaan->id }}"
@@ -26,22 +23,13 @@
                 @endforeach
             </select>
 
-            <select name="departemen_id"
-                    class="filter"
-                    onchange="this.form.submit()">
+            <select id="departemen_id_laptop" name="departemen_id_laptop" class="filter">
                 <option value="">-- Pilih Departemen --</option>
-                @foreach ($departemens as $d)
-                    <option value="{{ $d->id }}"
-                        {{ request('departemen_id') == $d->id ? 'selected' : '' }}>
-                        {{ $d->nama_departemen }}
-                    </option>
-                @endforeach
             </select>
-
         </div>
     </form>
 
-    <table id="departemenTable" class="display">
+    <table id="laptopTable" class="table">
         <thead>
             <tr>
                 <th>No</th>

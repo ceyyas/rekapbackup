@@ -31,8 +31,7 @@
                 <input type="email"
                        name="email"
                        placeholder="Email"
-                       value="{{ old('email') }}"
-                       required>
+                       value="{{ old('email') }}">
             </div>
             {{-- Perusahaan --}}
             <div class="perusahaan-menu">
@@ -69,30 +68,5 @@
 </section>
 @endsection
 
-@push('scripts')
-<script>
-$('#perusahaan_id').on('change', function () {
-    let perusahaanId = $(this).val();
-    let departemen = $('#departemen_id');
-
-    departemen.html('<option>Loading...</option>');
-
-    if (!perusahaanId) {
-        departemen.html('<option>-- Pilih Departemen --</option>');
-        return;
-    }
-
-    $.get('/departemen/by-perusahaan', { perusahaan_id: perusahaanId }, function (data) {
-        departemen.html('<option>-- Pilih Departemen --</option>');
-
-        $.each(data, function (i, d) {
-            departemen.append(
-                `<option value="${d.id}">${d.nama_departemen}</option>`
-            );
-        });
-    });
-});
-</script>
-@endpush
 
 

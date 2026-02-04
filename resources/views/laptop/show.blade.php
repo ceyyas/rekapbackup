@@ -42,7 +42,10 @@
 
         <div class="button-place">
             <button class="show-back">
-                <a href="{{ route('laptop.index') }}">Kembali</a>
+                <a href="{{ route('laptop.index', [
+                        'perusahaan_id' => $laptop->perusahaan_id,
+                        'departemen_id' => $laptop->departemen_id
+                    ]) }}" class="back">Kembali</a>
             </button>
         </div>
     </div>

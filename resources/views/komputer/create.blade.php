@@ -31,8 +31,7 @@
                 <input type="email"
                        name="email"
                        placeholder="Email"
-                       value="{{ old('email') }}"
-                       required>
+                       value="{{ old('email') }}">
             </div>
             {{-- Perusahaan --}}
             <div class="perusahaan-menu">

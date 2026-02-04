@@ -47,13 +47,6 @@ class KomputerController extends Controller
         ));
     }
 
-    public function getDepartemen(Request $request)
-    {
-        return Departemen::where('perusahaan_id', $request->perusahaan_id)
-            ->orderBy('nama_departemen')
-            ->get();
-    }
-
     public function filter(Request $request)
     {
         $komputers = Inventori::with(['perusahaan','departemen'])
@@ -63,7 +56,7 @@ class KomputerController extends Controller
             ->orderByDesc('updated_at')
             ->get();
 
-        return view('komputer.partials.table_rows', compact('komputers'));
+        return view('komputer.partials.komputer_rows', compact('komputers'));
     }
 
     /**
@@ -99,7 +92,7 @@ class KomputerController extends Controller
             ],
             'hostname' => 'required|string|max:255',
             'username' => 'required|string|max:255',
-            'email'    => 'required|email',
+            'email'    => 'nullable|email',
         ]);
 
         Inventori::create([
@@ -164,7 +157,7 @@ class KomputerController extends Controller
 
             'hostname' => 'required|string|max:255',
             'username' => 'required|string|max:255',
-            'email'    => 'required|email',
+            'email'    => 'nullable|email',
         ]);
 
         $komputer->update([

@@ -102,4 +102,11 @@ class DepartemenController extends Controller
         return redirect()->route('departemen.index')
             ->with('success', 'Data departemen berhasil dihapus');
     }
+
+    public function byPerusahaan(Request $request)
+    {
+        $departemen = Departemen::where('perusahaan_id', $request->perusahaan_id)->get();
+        return response()->json($departemen);
+    }
+
 }
