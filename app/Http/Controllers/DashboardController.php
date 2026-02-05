@@ -14,8 +14,12 @@ class DashboardController extends Controller
     public function index()
     {
         $rekap = RekapBackup::orderByDesc('updated_at')->get();
-        $totalData = $rekap->sum('size_data');
-        $totalEmail = $rekap->sum('size_email');
+
+        $totalDataMB   = $rekap->sum('size_data');
+        $totalEmailMB  = $rekap->sum('size_email');
+
+        $totalDataGB   = number_format($totalDataMB / 1024, 2);
+        $totalEmailGB  = number_format($totalEmailMB / 1024, 2);
 
         $stoks = Stok::orderByDesc('updated_at')->get();
         $totalTersisa = $stoks->sum('tersisa');
@@ -44,6 +48,6 @@ class DashboardController extends Controller
             $dataChart[$labelBulan][$row->nama_perusahaan] = round($row->total_size / 1024, 2);
         }
 
-        return view('dashboard', compact('totalData', 'totalEmail','stoks','totalTersisa', 'totalPemakaian', 'dataChart'));
+        return view('dashboard', compact('totalDataGB', 'totalEmailGB','stoks','totalTersisa', 'totalPemakaian', 'dataChart'));
     }
 }

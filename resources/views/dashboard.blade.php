@@ -7,14 +7,14 @@
         <div class="card-body" 
          onclick="window.location='{{ url('/rekap-backup') }}'">
           <h3>Total Backup Data Keseluruhan</h3>
-          <p class="card-value">{{ $totalData }} GB</p>
+          <p class="card-value">{{ $totalDataGB }} GB</p>
         </div>
       </div>
       <div class="big-card bg-laptop">
         <div class="card-body"
         onclick="window.location='{{ url('/rekap-backup') }}'">
           <h3>Total Backup Email Keseluruhan</h3>
-          <p class="card-value">{{ $totalEmail }} GB</p>
+          <p class="card-value">{{ $totalEmailGB }} GB</p>
         </div>
       </div>
       <div class="big-card bg-stoksisa">

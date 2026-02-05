@@ -28,11 +28,15 @@
                 </td>
 
                 <td>
-                    <input type="number"
-                        name="data[{{ $inv->id }}][size_email]"
-                        value="{{ $inv->size_email }}"
-                        class="size-input size-email"> 
-                    <small>({{ number_format($inv->size_email / 1024, 2) }} GB)</small>
+                    @if(!empty($inv->email))
+                        <input type="number"
+                            name="data[{{ $inv->id }}][size_email]"
+                            value="{{ $inv->size_email }}"
+                            class="size-input size-email"> 
+                        <small>({{ number_format($inv->size_email / 1024, 2) }} GB)</small>
+                    @else
+                        <span>0 MB</span>
+                    @endif
                 </td>
 
                 <td class="total-size">

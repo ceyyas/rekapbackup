@@ -21,13 +21,12 @@
             <label for="periode_id">Pilih Periode:</label>
             <input type="month" id="periode_id" name="periode_id" class="date-picker" value="{{ request('periode_id') }}">
 
-             @if($departemens->count())
+            <button type="submit" class="btn btn-primary">Filter</button>
+            @if($departemens->count())
                 <a href="{{ route('rekap-backup.export', request()->query()) }}" class="entry-button">
                     Export Excel
                 </a>
-            @endif
-
-            
+            @endif 
         </div>
     </form>
 
