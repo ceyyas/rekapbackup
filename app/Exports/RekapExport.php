@@ -33,12 +33,12 @@ class RekapExport implements
             $rows->push([
                 'No' => $no++,
                 'Departemen' => $dept->nama_departemen,
-                'DATA (MB)' => $dept->size_data_mb,
-                'DATA (GB)' => $dept->size_data_gb,
-                'EMAIL (MB)' => $dept->size_email_mb,
-                'EMAIL (GB)' => $dept->size_email_gb,
-                'Total Size Burning (MB)' => $dept->total_size_mb,
-                'Total Size Burning (GB)' => $dept->total_size_gb,
+                'DATA (MB)' => $dept->size_data_mb . 'MB',
+                'DATA (GB)' => $dept->size_data_gb . 'GB',
+                'EMAIL (MB)' => $dept->size_email_mb . 'MB',
+                'EMAIL (GB)' => $dept->size_email_gb . 'GB',
+                'Total Size Burning (MB)' => $dept->total_size_mb . 'MB',
+                'Total Size Burning (GB)' => $dept->total_size_gb . 'GB',
                 'Status Backup' => $dept->status_backup,
                 'Status Data' => $dept->status_data,
             ]);
