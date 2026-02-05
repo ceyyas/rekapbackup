@@ -47,8 +47,7 @@
 
                 <ul class="sub-menu close">
                     <li><a href="{{ route('departemen.index') }}">Departemen</a></li>
-                    <li><a href="{{ route('komputer.index') }}">Data Komputer</a></li>
-                    <li><a href="{{ route('laptop.index') }}">Data Laptop</a></li>
+                    <li><a href="{{ route('komputer.index') }}">Data Inventori</a></li>
                     <li><a href="{{ route('stok.index') }}">Stok CD/DVD</a></li>
                 </ul>
             </ul>
@@ -80,7 +79,7 @@
                 <ul class="sub-menu close">
                     <li><a href="{{ route('departemen.index') }}">Bulanan</a></li>
                     <li><a href="{{ route('komputer.index') }}">Perusahaan</a></li>
-                    <li><a href="{{ route('laptop.index') }}">Departemen</a></li>
+                    <li><a href="{{ route('komputer.index') }}">Departemen</a></li>
                 </ul>
             </ul> -->
 

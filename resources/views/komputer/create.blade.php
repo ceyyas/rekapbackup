@@ -3,7 +3,7 @@
 @section('content')
 <section class="home">
     <div class="entry-style">
-        <h2>Tambah Data Komputer</h2>
+        <h2>Tambah Data</h2>
 
         <form action="{{ route('komputer.store') }}" method="POST">
             @csrf
@@ -51,6 +51,12 @@
                 </select>
             </div>
 
+            <div class="perusahaan-menu">
+                <select name="kategori" id="kategori" class="perusahaan" required>
+                    <option value="PC" {{ old('kategori') === 'PC' ? 'selected' : '' }}>PC</option>
+                    <option value="Laptop" {{ old('kategori') === 'Laptop' ? 'selected' : '' }}>Laptop</option>
+                </select>
+            </div>
 
             <div class="button-action">
                 <button type="submit" class="save">Save</button>

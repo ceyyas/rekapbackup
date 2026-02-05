@@ -4,7 +4,7 @@
 <section class="home">
     <div class="table-style">
         <div class="table-feature">
-            <h2>Detail Data Inventori Komputer</h2>
+            <h2>Detail Data Inventori</h2>
         </div>
 
         <table>
@@ -47,10 +47,7 @@
 
         <div class="button-place">
             <button class="show-back">
-                <a href="{{ route('komputer.index', [
-                    'perusahaan_id' => $komputer->perusahaan_id,
-                    'departemen_id' => $komputer->departemen_id
-                ]) }}" class="back">Kembali</a>
+                <a href="{{ route('komputer.index') }}" class="back">Kembali</a>
             </button>
         </div>
     </div>

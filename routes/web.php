@@ -6,7 +6,6 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\KomputerController;
-use App\Http\Controllers\LaptopController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\RekapBackupController;
 
@@ -25,14 +24,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/departemen/by-perusahaan', [DepartemenController::class, 'byPerusahaan']);
-    Route::get('/komputers/filter', [KomputerController::class, 'filter']);
-    Route::get('/laptop/filter', [LaptopController::class, 'filter']);
-
-
     // route master data
     Route::resource('departemen', DepartemenController::class);
     Route::resource('komputer', KomputerController::class);
-    Route::resource('laptop', LaptopController::class);
     Route::resource('stok', StokController::class);
 
     // route rekap backup

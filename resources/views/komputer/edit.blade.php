@@ -3,7 +3,7 @@
 @section('content')
 <section class="home">
     <div class="entry-style">
-        <h2>Edit Data Inventori Komputer</h2>
+        <h2>Edit Data Inventori</h2>
 
         <form action="{{ route('komputer.update', $komputer->id) }}" method="POST">
             @csrf
@@ -95,11 +95,7 @@
 
             <div class="button-back">
                 <button class="back">
-                    <a href="{{ route('komputer.index', [
-                        'perusahaan_id' => $komputer->perusahaan_id,
-                        'departemen_id' => $komputer->departemen_id
-                    ]) }}" class="back">Kembali</a>
-
+                    <a href="{{ route('komputer.index') }}" class="back">Kembali</a>
                 </button>
             </div>
         </form>

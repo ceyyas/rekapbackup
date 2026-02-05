@@ -13,10 +13,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // total inventori
-        $totalKomputer = Inventori::where('kategori', 'PC')->count();
-        $totalLaptop   = Inventori::where('kategori', 'Laptop')->count();
-        
+        $rekap = RekapBackup::orderByDesc('updated_at')->get();
+        $totalData = $rekap->sum('size_data');
+        $totalEmail = $rekap->sum('size_email');
+
         $stoks = Stok::orderByDesc('updated_at')->get();
         $totalTersisa = $stoks->sum('tersisa');
         $totalPemakaian = $stoks->sum('pemakaian');
@@ -44,6 +44,6 @@ class DashboardController extends Controller
             $dataChart[$labelBulan][$row->nama_perusahaan] = round($row->total_size / 1024, 2);
         }
 
-        return view('dashboard', compact('totalKomputer', 'totalLaptop','stoks','totalTersisa', 'totalPemakaian', 'dataChart'));
+        return view('dashboard', compact('totalData', 'totalEmail','stoks','totalTersisa', 'totalPemakaian', 'dataChart'));
     }
 }

@@ -22,6 +22,15 @@ return new class extends Migration
                 'partial',
                 'completed'
             ])->default('pending');
+            $table->enum('status_data', [
+                'data belum di backup',
+                'proses backup',
+                'file di main folder aman',
+                'file di cd aman'
+            ])->default('data belum di backup');
+            $table->integer('jumlah_cd700')->default(0)->after('status');
+            $table->integer('jumlah_dvd47')->default(0)->after('jumlah_cd700');
+            $table->integer('jumlah_dvd85')->default(0)->after('jumlah_dvd47');
             $table->timestamps();
 
         });

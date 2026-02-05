@@ -4,25 +4,29 @@
   <div class="dashboard">
     <div class="cards">
       <div class="big-card bg-komputer">
-        <div class="card-body">
-          <h3>Total Komputer</h3>
-          <p class="card-value">{{ $totalKomputer }}</p>
+        <div class="card-body" 
+         onclick="window.location='{{ url('/rekap-backup') }}'">
+          <h3>Total Backup Data Keseluruhan</h3>
+          <p class="card-value">{{ $totalData }} GB</p>
         </div>
       </div>
       <div class="big-card bg-laptop">
-        <div class="card-body">
-          <h3>Total Laptop</h3>
-          <p class="card-value">{{ $totalLaptop }}</p>
+        <div class="card-body"
+        onclick="window.location='{{ url('/rekap-backup') }}'">
+          <h3>Total Backup Email Keseluruhan</h3>
+          <p class="card-value">{{ $totalEmail }} GB</p>
         </div>
       </div>
       <div class="big-card bg-stoksisa">
-        <div class="card-body">
+        <div class="card-body"     
+        onclick="window.location='{{ route('stok.index') }}'">
           <h3>Sisa Stok CD/DVD</h3>
           <p class="card-value">{{ $totalTersisa }}</p>
         </div>
       </div>
       <div class="big-card bg-pemakaian">
-        <div class="card-body">
+        <div class="card-body"
+         onclick="window.location='{{ route('stok.index') }}'">
           <h3>Pemakaian CD/DVD</h3>
           <p class="card-value">{{ $totalPemakaian }}</p>
         </div>

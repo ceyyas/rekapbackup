@@ -30,7 +30,6 @@ class KomputerController extends Controller
 
         // data komputer selalu tampil, difilter jika ada request
         $komputers = Inventori::with(['perusahaan', 'departemen'])
-            ->where('kategori', 'PC')
             ->when($request->perusahaan_id, function ($query) use ($request) {
                 $query->where('perusahaan_id', $request->perusahaan_id);
             })
@@ -50,7 +49,6 @@ class KomputerController extends Controller
     public function filter(Request $request)
     {
         $komputers = Inventori::with(['perusahaan','departemen'])
-            ->where('kategori', 'PC')
             ->when($request->perusahaan_id, fn($q) => $q->where('perusahaan_id', $request->perusahaan_id))
             ->when($request->departemen_id, fn($q) => $q->where('departemen_id', $request->departemen_id))
             ->orderByDesc('updated_at')
@@ -64,14 +62,10 @@ class KomputerController extends Controller
      */
     public function create(Request $request)
     {
-        $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
-
-        // departemen kosong dulu
-        $departemens = collect();
-
-        if (old('perusahaan_id')) {
-            $departemens = Departemen::where('perusahaan_id', old('perusahaan_id'))->get();
-        }
+       $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
+        $departemens = old('perusahaan_id')
+            ? Departemen::where('perusahaan_id', old('perusahaan_id'))->get()
+            : collect();
 
         return view('komputer.create', compact('perusahaans', 'departemens'));
     }
@@ -93,16 +87,11 @@ class KomputerController extends Controller
             'hostname' => 'required|string|max:255',
             'username' => 'required|string|max:255',
             'email'    => 'nullable|email',
+            'kategori' => 'required|in:PC,Laptop',
+
         ]);
 
-        Inventori::create([
-            'perusahaan_id' => $request->perusahaan_id,
-            'departemen_id' => $request->departemen_id,
-            'hostname'      => $request->hostname,
-            'username'      => $request->username,
-            'email'         => $request->email,
-            'kategori'      => 'PC',
-        ]);
+        Inventori::create($request->all());
 
         return redirect()
             ->route('komputer.index')
@@ -115,7 +104,6 @@ class KomputerController extends Controller
     public function show(string $id)
     {
         $komputer = Inventori::with(['perusahaan', 'departemen'])
-            ->where('kategori', 'PC')
             ->findOrFail($id);
 
         return view('komputer.show', compact('komputer'));
@@ -126,7 +114,7 @@ class KomputerController extends Controller
      */
     public function edit(string $id)
     {
-        $komputer = Inventori::where('kategori', 'PC')->findOrFail($id);
+        $komputer = Inventori::findOrFail($id);
 
         $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
         $departemens = Departemen::where('perusahaan_id', $komputer->perusahaan_id)->get();
@@ -143,7 +131,7 @@ class KomputerController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $komputer = Inventori::where('kategori', 'PC')->findOrFail($id);
+        $komputer = Inventori::findOrFail($id);
 
         $request->validate([
             'perusahaan_id' => ['required', 'exists:perusahaan,id'],
@@ -159,16 +147,10 @@ class KomputerController extends Controller
             'username' => 'required|string|max:255',
             'email'    => 'nullable|email',
             'status'   => 'required|in:active,inactive',
+            'kategori' => 'required|in:PC,Laptop',
         ]);
 
-        $komputer->update([
-            'hostname'      => $request->hostname,
-            'username'      => $request->username,
-            'email'         => $request->email,
-            'perusahaan_id' => $request->perusahaan_id,
-            'departemen_id' => $request->departemen_id,
-            'status'        => $request->status,
-        ]);
+        $komputer->update($request->all());
 
         return redirect()
             ->route('komputer.index',
@@ -182,7 +164,7 @@ class KomputerController extends Controller
      */
     public function destroy(string $id)
     {
-        $komputer = Inventori::where('kategori', 'PC')->findOrFail($id);
+        $komputer = Inventori::findOrFail($id);
         $komputer->delete();
 
         return redirect()

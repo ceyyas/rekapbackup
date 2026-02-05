@@ -44,54 +44,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
 $(document).ready(function () {
     let table = $('#komputerTable').DataTable({
+        dom: 'lrtip' 
     });
 
-    function loadDepartemen(perusahaanId, departemenSelect) {
-        departemenSelect.html('<option>Loading...</option>');
-
-        if (!perusahaanId) {
-            departemenSelect.html('<option>-- Pilih Departemen --</option>');
-            return;
-        }
-
-        $.get('/departemen/by-perusahaan', { perusahaan_id: perusahaanId }, function (data) {
-            departemenSelect.html('<option>-- Pilih Departemen --</option>');
-            $.each(data, function (i, d) {
-                departemenSelect.append(`<option value="${d.id}">${d.nama_departemen}</option>`);
-            });
-        });
-    }
-
-    // === FILTER KOMPUTER ===
-    $('#perusahaan_id_komputer').on('change', function () {
-        let perusahaanId = $(this).val();
-        loadDepartemen(perusahaanId, $('#departemen_id_komputer'));
+    $('#customSearch').on('keyup', function () {
+        table.search(this.value).draw();
     });
 
-    $('#departemen_id_komputer').on('change', function () {
-        let perusahaanId = $('#perusahaan_id_komputer').val();
-        let departemenId = $(this).val();
-
-        $.get('/komputers/filter', { perusahaan_id: perusahaanId, departemen_id: departemenId }, function (html) {
-            $('#komputerTable tbody').html(html);
-        });
-    });
-
-    // === FILTER LAPTOP ===
-    $('#perusahaan_id_laptop').on('change', function () {
-        let perusahaanId = $(this).val();
-        loadDepartemen(perusahaanId, $('#departemen_id_laptop'));
-    });
-
-    $('#departemen_id_laptop').on('change', function () {
-        let perusahaanId = $('#perusahaan_id_laptop').val();
-        let departemenId = $(this).val();
-
-        $.get('/laptop/filter', { perusahaan_id: perusahaanId, departemen_id: departemenId }, function (html) {
-            $('#laptopTable tbody').html(html);
-        });
-    });
 });
+
 
 
 // edit data komputer 

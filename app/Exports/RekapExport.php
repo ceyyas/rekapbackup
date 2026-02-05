@@ -23,7 +23,7 @@ class RekapExport implements FromCollection, WithHeadings
             // baris ringkasan departemen
             $rows->push([
                 'Departemen'     => $dept->nama_departemen,
-                'Komputer/Laptop'=> '-', // kosong untuk ringkasan
+                'Komputer/Laptop'=> '-', 
                 'Size Data (MB)' => $dept->size_data,
                 'Size Email (MB)'=> $dept->size_email,
                 'Total Size (MB)'=> $dept->total_size,
