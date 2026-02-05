@@ -14,6 +14,7 @@ class RekapBackup extends Model
         'size_data',
         'size_email',
         'status',
+        'status_data',
         'jumlah_cd700',
         'jumlah_dvd47',
         'jumlah_dvd85'

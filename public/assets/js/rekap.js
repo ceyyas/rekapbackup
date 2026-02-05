@@ -43,6 +43,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 $(document).ready(function () {
+    let table = $('#komputerTable').DataTable({
+    });
+
     function loadDepartemen(perusahaanId, departemenSelect) {
         departemenSelect.html('<option>Loading...</option>');
 
@@ -176,14 +179,16 @@ function initIndexPage() {
                     + "?periode_id=" + periodeId
                     + "&perusahaan_id=" + perusahaanId;
 
-                let rowNode = table.row.add([
+                let rowNode = 
+                table.row.add([
                     d.nama_departemen,
                     formatSizeBoth(d.size_data),
                     formatSizeBoth(d.size_email),
                     formatSizeBoth(d.total_size),
-                    '<span class="status '+d.status_backup+'">'+d.status_backup+'</span>'
+                    '<span class="status '+d.status_backup+'">'+d.status_backup+'</span>',
+                    '<span class="status_data '+d.status_data+'">'+d.status_data+'</span>'
                 ]).draw(false).node();
-
+                    
                 $(rowNode).css('cursor','pointer').on('click', function() {
                     window.location = detailUrl;
                 });

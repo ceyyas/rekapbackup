@@ -42,6 +42,7 @@
                 <th>Size Email</th>
                 <th>Total Size</th>
                 <th>Status Backup</th>
+                <th>Status Data</th>
             </tr>
         </thead>
         <tbody>

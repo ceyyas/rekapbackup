@@ -158,6 +158,7 @@ class KomputerController extends Controller
             'hostname' => 'required|string|max:255',
             'username' => 'required|string|max:255',
             'email'    => 'nullable|email',
+            'status'   => 'required|in:active,inactive',
         ]);
 
         $komputer->update([
@@ -166,6 +167,7 @@ class KomputerController extends Controller
             'email'         => $request->email,
             'perusahaan_id' => $request->perusahaan_id,
             'departemen_id' => $request->departemen_id,
+            'status'        => $request->status,
         ]);
 
         return redirect()

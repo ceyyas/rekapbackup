@@ -38,6 +38,11 @@
                 <td>:</td>
                 <td>{{ $komputer->perusahaan->nama_perusahaan ?? '-' }}</td>
             </tr>
+            <tr>
+                <td>Status</td>
+                <td>:</td>
+                <td>{{ $komputer->status }}</td>
+            </tr>
         </table>
 
         <div class="button-place">

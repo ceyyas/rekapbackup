@@ -776,7 +776,7 @@ ul#customBarangDropdown li:hover {
 }
 
 /* hover */
-.sjumlah-cd:hover {
+.jumlah-cd:hover {
     border-color: #9ca3af;
 }
 
@@ -868,5 +868,23 @@ ul#customBarangDropdown li:hover {
     color: #333;
     transition: all 0.2s ease-in-out;
 }
+
+.status {
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-align: center;
+      display: inline-block;
+      min-width: 40px;
+    }
+
+    .status-active {
+      background-color: #3bc05a; 
+      color: white;
+    }
+
+    .status-inactive {
+      background-color: #dc3545; 
+      color: white;
+    }
 
 

@@ -80,6 +80,13 @@
                 @enderror
             </div>
 
+            <div class="perusahaan-menu">
+                <select name="status" id="status" class="perusahaan" required>
+                    <option value="active" {{ $komputer->status === 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ $komputer->status === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                </select>
+            </div>
+
             {{-- Tombol --}}
             <div class="button-action">
                 <button type="submit" class="save">Save</button>

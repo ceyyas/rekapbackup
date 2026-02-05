@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="table-style">
-    <h2>Detail Backup — {{ $departemen->nama_departemen }}</h2>
+    <h2>{{ $departemen->nama_departemen }} —   </h2>
 
     {{-- Hidden input untuk JS --}}
     <input type="hidden" id="departemen_id" value="{{ $departemen->id }}">

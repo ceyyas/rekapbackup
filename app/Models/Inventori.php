@@ -14,6 +14,7 @@ class Inventori extends Model
         'username',
         'email',
         'kategori',
+        'status'
     ];
     
     public function perusahaan() {

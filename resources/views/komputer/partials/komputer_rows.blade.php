@@ -8,6 +8,14 @@
                 <td>{{ $inventori->hostname }}</td>
                 <td>{{ $inventori->username }}</td>
                 <td>{{ $inventori->email }}</td>
+                <td>
+                    <span class="status 
+                        @if($inventori->status === 'active') status-active 
+                        @elseif($inventori->status === 'inactive') status-inactive
+                        @endif">
+                        {{ ucfirst($inventori->status) }}
+                    </span>
+                </td>
                 <!-- awal tombol aksi -->
                 <td class="text-center">
                     <!-- tombol show -->
