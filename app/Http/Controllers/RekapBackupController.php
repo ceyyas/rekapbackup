@@ -263,20 +263,20 @@ class RekapBackupController extends Controller
         return back()->with('success', 'Data backup berhasil disimpan');
     }
     
-    public function export(Request $request)
+public function export(Request $request)
     {
-        // Validasi filter
         $request->validate([
             'periode_id' => 'required|date_format:Y-m',
             'perusahaan_id' => 'required|exists:perusahaan,id'
         ]);
 
-        // Sesuaikan format periode dengan isi DB
-        $periode = $request->periode_id . '-01'; // kalau di DB tipe DATE (Y-m-d)
+        $perusahaanId = $request->input('perusahaan_id'); 
+        $periode = $request->periode_id . '-01'; 
+        
+        $perusahaan = Perusahaan::find($perusahaanId)->nama_perusahaan;
 
-        // Query agregasi rekap per departemen
         $rekap = Departemen::query()
-            ->where('departemen.perusahaan_id', $request->perusahaan_id)
+            ->where('departemen.perusahaan_id', $perusahaanId)
             ->leftJoin('inventori', 'inventori.departemen_id', '=', 'departemen.id')
             ->leftJoin('rekap_backup', function ($join) use ($periode) {
                 $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
@@ -315,18 +315,17 @@ class RekapBackupController extends Controller
             ->groupBy('departemen.id','departemen.nama_departemen')
             ->get();
 
-        // Query relasi inventori + rekap backup per inventori
         $departemens = Departemen::with(['inventori.rekap_backup' => function($q) use ($periode) {
             $q->where('periode', $periode);
         }])
-        ->where('perusahaan_id', $request->perusahaan_id)
+        ->where('perusahaan_id', $perusahaanId)
         ->get();
 
-        // Gabungkan keduanya di export
         return Excel::download(
-            new RekapExport($rekap, $departemens),
-            'rekap_backup_' . now()->format('Ymd_His') . '.ods'
+            new RekapExport($rekap, $departemens, $perusahaan, $periode),
+            'rekap_backup_' . now()->format('Ymd_His') . '.xlsx'
         );
     }
+
 
  }
