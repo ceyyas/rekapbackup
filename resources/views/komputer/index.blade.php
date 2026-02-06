@@ -11,11 +11,6 @@
         </a>
     </div>
 
-        <div class="filter-menu">
-             <input type="text" id="customSearch" class="filter" placeholder="Cari data...">
-        </div>
-    
-
     <table id="komputerTable" class="table">
         <thead>
             <tr>
@@ -25,6 +20,7 @@
                 <th>Hostname</th>
                 <th>Username</th>
                 <th>Email</th>
+                <th>Kategori</th>
                 <th>Status</th>
                 <th>Aksi</th>
             </tr>
@@ -38,6 +34,7 @@
                 <td>{{ $inventori->hostname }}</td>
                 <td>{{ $inventori->username }}</td>
                 <td>{{ $inventori->email }}</td>
+                <td>{{ $inventori->kategori }}</td>
                 <td>
                     <span class="status 
                         @if($inventori->status === 'active') status-active 

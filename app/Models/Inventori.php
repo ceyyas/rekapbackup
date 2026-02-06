@@ -13,8 +13,8 @@ class Inventori extends Model
         'hostname',
         'username',
         'email',
-        'kategori',
-        'status'
+        'status',
+        'kategori'
     ];
     
     public function perusahaan() {

@@ -153,8 +153,7 @@ class KomputerController extends Controller
         $komputer->update($request->all());
 
         return redirect()
-            ->route('komputer.index',
-            [ 'perusahaan_id' => $request->perusahaan_id, 'departemen_id' => $request->departemen_id ])
+            ->route('komputer.index')
             ->with('success', 'Komputer berhasil diperbarui');
              
     }

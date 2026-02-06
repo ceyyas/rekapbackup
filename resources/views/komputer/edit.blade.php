@@ -81,6 +81,14 @@
             </div>
 
             <div class="perusahaan-menu">
+                <select name="kategori" id="kategori" class="perusahaan" required>
+                    <option value="PC" {{ $komputer->kategori === 'PC' ? 'selected' : '' }}>PC</option>
+                    <option value="Laptop" {{ $komputer->kategori === 'Laptop' ? 'selected' : '' }}>Laptop</option>
+                </select>
+            </div>
+
+
+            <div class="perusahaan-menu">
                 <select name="status" id="status" class="perusahaan" required>
                     <option value="active" {{ $komputer->status === 'active' ? 'selected' : '' }}>Active</option>
                     <option value="inactive" {{ $komputer->status === 'inactive' ? 'selected' : '' }}>Inactive</option>

@@ -459,20 +459,6 @@ td button {
     background-color: var(--secondary-color-light);
 }
 
-.paginate {
-    display: flex;
-}
-
-.paginate button {
-    width: 35px;
-    height: 35px;
-    border: none;
-    padding: 5px;
-    font-size: 18px;
-    background-color: #D8AC9C;
-    color: #fff;
-}
-
 .arrow-left {
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
@@ -633,18 +619,18 @@ td button {
 }
 
 .form-select {
-    width: 100%; /* Pastikan select menempati lebar penuh dari container */
+    width: 100%; 
 }
 
 .is-invalid {
-    border-color: #dc3545; /* Mengubah border jika ada error */
+    border-color: #dc3545; 
 }
 
 .sub-kategori {
-    margin-top: 5px; /* Memberikan jarak antara dropdown dan elemen sebelumnya */
+    margin-top: 5px; 
     padding: 10px;
-    background-color: #f8d7da; /* Memberikan latar belakang merah muda untuk error */
-    color: #721c24; /* Warna teks error */
+    background-color: #f8d7da; 
+    color: #721c24; 
     border: 1px solid #f5c6cb;
     border-radius: 4px;
 }
@@ -671,15 +657,15 @@ ul#customBarangDropdown li:hover {
 }
 
 .profile-style {
-    width: calc(100% - 350px); /* Parent div takes full width */
+    width: calc(100% - 350px); 
     position: relative;
     overflow-x: auto; 
     background: #fff;
     padding: 20px;
     border-radius: 20px;
     margin-top: 10px;
-    -ms-overflow-style: none; /* Untuk Internet Explorer dan Edge */
-    scrollbar-width: none; /* Untuk Firefox */
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
 }
 
 .profile-info {
@@ -887,4 +873,74 @@ ul#customBarangDropdown li:hover {
       color: white;
     }
 
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    display: flex;
+    align-items: center;
+    gap: 12px; 
+    margin: 10px 0;
+}
 
+.dataTables_wrapper {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap; 
+    align-items: center;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #b7ba9f;
+    border-radius: 5px;
+    padding: 5px 10px;
+    
+}
+
+.dataTables_length label {
+    color: #0a0a0a;
+}
+
+.dataTables_length select {
+    border: 1px solid #b7ba9f;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+/* Styling untuk pagination */
+.dataTables_paginate {
+    margin-top: 10px;
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.dataTables_paginate .paginate_button {
+    background-color: #b7ba9f;
+    border: 1px solid #b7ba9f;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin: 2px;
+    cursor: pointer;
+}
+
+.dataTables_paginate .paginate_button.current {
+    background-color: #b7ba9f;
+    color: #f1e6e6 !important;
+    border:  #b7ba9f;
+}
+
+table.dataTable thead th {
+    color: #333; /* teks lebih gelap */
+    background-color: #f5f6fa; /* background header */
+}
+
+/* Warna ikon sort default */
+table.dataTable thead .sorting:after,
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_desc:after {
+    color: #555; /* warna ikon lebih gelap */
+    opacity: 1;  /* pastikan terlihat */
+}
+
+/* Kalau mau warna ikon saat hover */
+table.dataTable thead th:hover {
+    background-color: #e6e8ef;
+}

@@ -32,6 +32,7 @@
             filter: "{{ route('rekap.filter') }}",
             detail: "{{ route('rekap-backup.detail-page', ':id') }}",
             autoSave: "{{ route('rekap.autoSave') }}",
+            export: "{{ route('rekap-backup.export') }}",
             departemenByPerusahaan: "{{ url('/departemen/by-perusahaan') }}"
         };
     </script>

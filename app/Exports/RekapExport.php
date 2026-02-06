@@ -86,7 +86,7 @@ class RekapExport implements
         foreach ($this->departemens as $dept) {
         
             // heading nama departemen
-            $rows->push(['Detail Departemen: ' . $dept->nama_departemen]);
+            $rows->push([$dept->nama_departemen]);
             $this->headingRows[] = $rows->count() +1;
 
             // heading tabel detail
@@ -111,7 +111,7 @@ class RekapExport implements
                 $rows->push([
                     $noDetail++,
                     $inv->hostname,
-                    $inv->username ?? '-', // ambil salah satu atau kosongkan
+                    $inv->username ?? '-', 
                     $inv->email ?? '-',
                     $dataMb . ' MB',
                     round($dataMb/1024,2) . ' GB',
@@ -155,7 +155,7 @@ class RekapExport implements
                 foreach ($this->headingRows as $rowIndex) {
                     $sheet->mergeCells("A{$rowIndex}:J{$rowIndex}");
                     $sheet->getStyle("A{$rowIndex}")->getFont()->setBold(true);
-                    $sheet->getStyle("A{$rowIndex}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle("A{$rowIndex}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 }
 
                 // judul laporan di baris 1
@@ -173,8 +173,8 @@ class RekapExport implements
                         'startColor' => ['rgb' => '4E8BC9'], 
                     ],
                     'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                        'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical'   => Alignment::VERTICAL_CENTER,
                     ],
                 ]);
             },
