@@ -36,7 +36,8 @@
             departemenByPerusahaan: "{{ url('/departemen/by-perusahaan') }}",
             pivot: "{{ route('rekap-backup.laporan-perusahaan-pivot') }}",
             exportPerusahaan: "{{ route('rekap-backup.export-perusahaan') }}",
-            laporanBulanan: "{{ route('laporan-bulanan.data')}}"
+            laporanBulanan: "{{ route('laporan-bulanan.data')}}",
+            exportBulanan: "{{ route('rekap-backup.export-bulanan') }}"
         };
     </script>
 

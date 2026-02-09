@@ -12,6 +12,7 @@ use App\Models\Stok;
 
 use App\Exports\RekapExport;
 use App\Exports\RekapPerusahaanExport;
+use App\Exports\RekapBulananExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 
@@ -403,7 +404,6 @@ class RekapBackupController extends Controller
 
     public function laporanbulanandata(Request $request)
     {
-        \Log::info('periode param', [$request->all()]);
         $periode = $request->periode_bulanan;
 
         $perusahaans = Perusahaan::with(['departemen.inventori.rekap_backup' => function($q) use ($periode) {
@@ -430,4 +430,34 @@ class RekapBackupController extends Controller
 
         return response()->json($result);
     }
+
+    public function exportBulanan(Request $request) 
+    {
+        $periode = $request->periode_bulanan;
+
+        $perusahaans = Perusahaan::with(['departemen.inventori.rekap_backup' => function($q) use ($periode) {
+            $q->whereRaw("DATE_FORMAT(periode, '%Y-%m') = ?", [$periode]);
+        }])->get();
+
+        $result = [];
+        foreach ($perusahaans as $perusahaan) {
+            $rekap = $perusahaan->departemen->flatMap(function($dept) {
+                return $dept->inventori->flatMap->rekap_backup;
+            });
+
+            $dataSize = $rekap->sum('size_data');   
+            $emailSize = $rekap->sum('size_email'); 
+            $total = $dataSize + $emailSize;
+
+            $result[] = [
+                'perusahaan' => $perusahaan->nama_perusahaan,
+                'data' => $dataSize,
+                'email' => $emailSize,
+                'total' => $total,
+            ];
+        }
+
+        return Excel::download(new RekapBulananExport($result), 'laporan_bulanan_ALL_PT.xlsx');
+    }
+
 }

@@ -11,7 +11,7 @@
         <button id="btnExportBulanan" class="entry-button">Export Data</button>
     </div>
   
-    <table id="laporanTable" class="table mt-3">
+    <table id="laporanTable" class="display">
         <thead>
             <tr>
                 <th>Perusahaan</th>

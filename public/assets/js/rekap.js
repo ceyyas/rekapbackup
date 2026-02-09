@@ -436,7 +436,14 @@ function initLaporanBulanan() {
                 .fail(err => console.error("AJAX gagal:", err));
         });
     });
-    }
+
+        $('#btnExportBulanan').on('click', function() {
+            let periode = $('#periode_bulanan').val();
+            if (!periode) return;
+
+            window.location.href = window.rekapRoutes.exportBulanan + '?periode_bulanan=' + periode;
+        });
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     initIndexPage();

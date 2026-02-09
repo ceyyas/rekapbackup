@@ -17,7 +17,7 @@
         
         </div>
       
-        <table id="laporanPivot" class="table mt-3">
+        <table id="laporanPivot" class="display">
             <thead>
                 <tr>
                     <th>Departemen</th>

@@ -41,7 +41,7 @@ Route::middleware('auth')->group(function () {
     // export data
     Route::get('/rekap-backup/export', [RekapBackupController::class, 'export'])->name('rekap-backup.export');
 
-    // laporan 
+    // laporan perusahaan
     Route::get('/laporan/perusahaan', [RekapBackupController::class, 'laporanperusahaan'])
     ->name('rekap-backup.laporan-perusahaan');
     Route::get('/laporan/perusahaan/pivot', [RekapBackupController::class, 'laporanPerusahaanPivot'])
@@ -52,10 +52,11 @@ Route::middleware('auth')->group(function () {
     // laporan bulanan
     Route::get('/laporan/bulanan', [RekapBackupController::class, 'laporanbulanan'])
     ->name('rekap-backup.laporan-bulanan');
-
     Route::get('/laporan/bulanan/data', [RekapBackupController::class, 'laporanbulanandata'])
     ->name('laporan-bulanan.data');
-    
+    Route::get('/laporan/bulanan/export', [RekapBackupController::class, 'exportBulanan'])
+    ->name('rekap-backup.export-bulanan');
+
     // LOGOUT
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
