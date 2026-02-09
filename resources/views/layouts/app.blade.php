@@ -33,9 +33,12 @@
             detail: "{{ route('rekap-backup.detail-page', ':id') }}",
             autoSave: "{{ route('rekap.autoSave') }}",
             export: "{{ route('rekap-backup.export') }}",
-            departemenByPerusahaan: "{{ url('/departemen/by-perusahaan') }}"
+            departemenByPerusahaan: "{{ url('/departemen/by-perusahaan') }}",
+            pivot: "{{ route('rekap-backup.laporan-perusahaan-pivot') }}",
+            exportPerusahaan: "{{ route('rekap-backup.export-perusahaan') }}"
         };
     </script>
+
 
     <script src="{{ asset('assets/js/rekap.js') }}"></script>
     <script src="{{ asset('assets/js/script.js') }}"></script>

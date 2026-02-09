@@ -11,6 +11,7 @@ use App\Models\RekapBackup;
 use App\Models\Stok;
 
 use App\Exports\RekapExport;
+use App\Exports\RekapPerusahaanExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 
@@ -350,61 +351,85 @@ public function export(Request $request)
         return view('laporan.perusahaan.index', compact('perusahaans'));
     }
 
-    public function laporanPerusahaanData(Request $request)
-    {
-        $perusahaanId = $request->perusahaan_id;
-
-        $rekap = RekapBackup::select(
-                'departemen_id',
-                'periode_id',
-                DB::raw('SUM(size_data) as size_data'),
-                DB::raw('SUM(size_email) as size_email'),
-                DB::raw('SUM(total_size) as total_size')
-            )
-            ->whereHas('departemen', fn($q) => $q->where('perusahaan_id', $perusahaanId))
-            ->groupBy('departemen_id', 'periode_id')
-            ->with('departemen')
-            ->orderBy('departemen_id')
-            ->orderBy('periode_id')
-            ->get();
-
-        return response()->json($rekap);
-    }
-
     public function laporanPerusahaanPivot(Request $request)
     {
         $perusahaanId = $request->perusahaan_id;
-
-        // ambil semua periode unik
-        $periodes = RekapBackup::whereHas('departemen', fn($q) => $q->where('perusahaan_id', $perusahaanId))
-            ->select('periode_id')
+        $periodes = DB::table('rekap_backup')
+            ->join('inventori', 'rekap_backup.inventori_id', '=', 'inventori.id')
+            ->join('departemen', 'inventori.departemen_id', '=', 'departemen.id')
+            ->where('departemen.perusahaan_id', $perusahaanId)
+            ->select(DB::raw("DATE_FORMAT(rekap_backup.periode, '%b-%Y') as periode"))
             ->distinct()
-            ->orderBy('periode_id')
-            ->pluck('periode_id');
+            ->orderBy('periode')
+            ->pluck('periode')
+            ->toArray();
 
-        // ambil data rekap
-        $rekap = RekapBackup::select(
-                'departemen_id',
-                'periode_id',
-                DB::raw('SUM(total_size) as total_size')
+        $rekap = DB::table('rekap_backup')
+            ->join('inventori', 'rekap_backup.inventori_id', '=', 'inventori.id')
+            ->join('departemen', 'inventori.departemen_id', '=', 'departemen.id')
+            ->where('departemen.perusahaan_id', $perusahaanId)
+            ->select(
+                'departemen.nama_departemen',
+                DB::raw("DATE_FORMAT(rekap_backup.periode, '%b-%Y') as periode"),
+                DB::raw('COALESCE(SUM(rekap_backup.size_data),0) as size_data'),
+                DB::raw('COALESCE(SUM(rekap_backup.size_email),0) as size_email'),
+                DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email),0) as total_size')
             )
-            ->whereHas('departemen', fn($q) => $q->where('perusahaan_id', $perusahaanId))
-            ->groupBy('departemen_id','periode_id')
-            ->with('departemen')
+            ->groupBy('departemen.nama_departemen','periode')
+            ->orderBy('departemen.nama_departemen')
+            ->orderBy('periode')
             ->get();
 
-        // bentuk pivot: departemen => [periode => total_size]
         $pivot = [];
         foreach ($rekap as $r) {
-            $dept = $r->departemen->nama_departemen;
-            $pivot[$dept][$r->periode_id] = $r->total_size;
+            $pivot[$r->nama_departemen][$r->periode] = number_format($r->total_size, 0, ',', '.') . ' MB';
         }
 
         return response()->json([
             'periodes' => $periodes,
-            'pivot' => $pivot
+            'pivot' => $pivot 
         ]);
     }
 
+    public function exportPerusahaan(Request $request)
+    {
+        $perusahaanId = $request->perusahaan_id;
+
+        $periodes = RekapBackup::join('inventori','rekap_backup.inventori_id','=','inventori.id')
+            ->join('departemen','inventori.departemen_id','=','departemen.id')
+            ->where('departemen.perusahaan_id',$perusahaanId)
+            ->selectRaw("DATE_FORMAT(rekap_backup.periode,'%b-%Y') as periode")
+            ->distinct()
+            ->orderBy('periode')
+            ->pluck('periode')
+            ->toArray();
+         
+        $rekap = DB::table('rekap_backup')
+            ->join('inventori', 'rekap_backup.inventori_id', '=', 'inventori.id')
+            ->join('departemen', 'inventori.departemen_id', '=', 'departemen.id')
+            ->where('departemen.perusahaan_id', $perusahaanId)
+            ->select(
+                'departemen.nama_departemen',
+                DB::raw("DATE_FORMAT(rekap_backup.periode, '%b-%Y') as periode"),
+                DB::raw('COALESCE(SUM(rekap_backup.size_data),0) as size_data'),
+                DB::raw('COALESCE(SUM(rekap_backup.size_email),0) as size_email'),
+                DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email),0) as total_size')
+            )
+            ->groupBy('departemen.nama_departemen','periode')
+            ->orderBy('departemen.nama_departemen')
+            ->orderBy('periode')
+            ->get();
+
+        $pivot = [];
+        foreach ($rekap as $r) {
+            $pivot[$r->nama_departemen][$r->periode] = number_format($r->total_size, 0, ',', '.') . ' MB';
+        }
+        
+        $rekap = []; 
+        $rekap['periodes'] = $periodes;
+        $rekap['pivot'] = $pivot; 
+
+        return Excel::download(new RekapPerusahaanExport($rekap), 'laporan_perusahaan.xlsx');
+    }
 
  }

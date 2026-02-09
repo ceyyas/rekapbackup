@@ -310,4 +310,86 @@ document.addEventListener('DOMContentLoaded', function () {
     initDetailPage();
 });
 
+// laporan perusahaan
+let chartInstance = null;
+
+    $('#perusahaan_id').on('change', function() {
+        let perusahaanId = $(this).val();
+        if (!perusahaanId) return;
+
+        $.get(window.rekapRoutes.pivot, { perusahaan_id: perusahaanId }, function(res) {
+            console.log(res); // cek isi JSON
+
+            // pastikan periodes array
+            let periodes = Array.isArray(res.periodes) ? res.periodes : [];
+            let pivot = res.pivot || {};
+
+            // rebuild header
+            let thead = '<tr><th>Departemen</th>';
+            periodes.forEach(p => { thead += '<th>'+p+'</th>'; });
+            thead += '</tr>';
+            $('#laporanPivot thead').html(thead);
+
+            // rebuild body
+            let tbody = '';
+            Object.keys(pivot).forEach(dept => {
+                tbody += '<tr><td>'+dept+'</td>';
+                periodes.forEach(p => {
+                    let val = pivot[dept][p] ?? '-';
+                    tbody += '<td>'+val+'</td>';
+                });
+                tbody += '</tr>';
+            });
+            $('#laporanPivot tbody').html(tbody);
+
+            // data grafik: total per departemen (akumulasi semua periode)
+            let labels = [];
+            let data = [];
+            Object.keys(pivot).forEach(dept => {
+                labels.push(dept);
+                let total = 0;
+                periodes.forEach(p => {
+                    let val = pivot[dept][p];
+                    if (val) {
+                        // hapus " MB" lalu parse angka
+                        total += parseInt(val.toString().replace(/\D/g,'')) || 0;
+                    }
+                });
+                data.push(total);
+            });
+
+            // buat grafik bar
+            if (chartInstance) chartInstance.destroy();
+            let ctx = document.getElementById('laporanChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Size (MB)',
+                        data: data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Total Size per Departemen' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        });
+    });
+
+    $('#btnExportPerusahaan').on('click', function() {
+        let perusahaanId = $('#perusahaan_id').val();
+        if (!perusahaanId) return;
+        window.location.href = window.rekapRoutes.exportPerusahaan + '?perusahaan_id=' + perusahaanId;
+    });
+
+
 

@@ -14,6 +14,9 @@
                     </option>
                 @endforeach
             </select>
+
+            <button id="btnExportPerusahaan" class="entry-button">Export Data</button>
+        
         </div>
       
         <table id="laporanPivot" class="table mt-3">
@@ -25,39 +28,9 @@
             </thead>
             <tbody></tbody>
         </table>
+        <canvas id="laporanChart" height="100"></canvas>
 
     </section>
 </div>
 @endsection
 
-@push('scripts')
-<script>
-$('#perusahaan_id').on('change', function() {
-    let perusahaanId = $(this).val();
-    if (!perusahaanId) return;
-
-    $.get("{{ route('rekap-backup.laporan-perusahaan-pivot') }}", { perusahaan_id: perusahaanId }, function(res) {
-        let periodes = res.periodes;
-        let pivot = res.pivot;
-
-        // rebuild header
-        let thead = '<tr><th>Departemen</th>';
-        periodes.forEach(p => { thead += '<th>'+p+'</th>'; });
-        thead += '</tr>';
-        $('#laporanPivot thead').html(thead);
-
-        // rebuild body
-        let tbody = '';
-        Object.keys(pivot).forEach(dept => {
-            tbody += '<tr><td>'+dept+'</td>';
-            periodes.forEach(p => {
-                tbody += '<td>'+(pivot[dept][p] ?? '-')+'</td>';
-            });
-            tbody += '</tr>';
-        });
-        $('#laporanPivot tbody').html(tbody);
-    });
-});
-
-</script>
-@endpush
