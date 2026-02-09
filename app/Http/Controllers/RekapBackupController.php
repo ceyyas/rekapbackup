@@ -43,14 +43,15 @@ class RekapBackupController extends Controller
                             THEN 'pending'
                         WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rekap_backup.id)
                             AND COALESCE(SUM(rekap_backup.size_data),0) > 0
-                            AND COALESCE(SUM(rekap_backup.size_email),0) > 0
+                            AND (
+                                (SUM(CASE WHEN rekap_backup.size_email IS NOT NULL THEN 1 ELSE 0 END) > 0 
+                                AND COALESCE(SUM(rekap_backup.size_email),0) > 0)
+                                OR SUM(CASE WHEN rekap_backup.size_email IS NOT NULL THEN 1 ELSE 0 END) = 0
+                            )
                             THEN 'completed'
-                        WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rekap_backup.id)
-                            AND (COALESCE(SUM(rekap_backup.size_data),0) = 0 
-                                OR COALESCE(SUM(rekap_backup.size_email),0) = 0)
-                            THEN 'partial'
                         ELSE 'partial'
                     END AS status_backup
+
                 "),
                 DB::raw("
                     CASE
@@ -349,6 +350,7 @@ class RekapBackupController extends Controller
     public function exportPerusahaan(Request $request)
     {
         $perusahaanId = $request->perusahaan_id;
+        $perusahaan = Perusahaan::find($perusahaanId)->nama_perusahaan;
 
         $periodes = RekapBackup::join('inventori','rekap_backup.inventori_id','=','inventori.id')
             ->join('departemen','inventori.departemen_id','=','departemen.id')
@@ -383,7 +385,7 @@ class RekapBackupController extends Controller
         $rekap['periodes'] = $periodes;
         $rekap['pivot'] = $pivot; 
 
-        return Excel::download(new RekapPerusahaanExport($rekap), 'laporan_perusahaan.xlsx');
+        return Excel::download(new RekapPerusahaanExport($rekap, $perusahaan), 'laporan_perusahaan.xlsx');
     }
 
     public function laporanbulanan(Request $request)
@@ -457,7 +459,7 @@ class RekapBackupController extends Controller
             ];
         }
 
-        return Excel::download(new RekapBulananExport($result), 'laporan_bulanan_ALL_PT.xlsx');
+        return Excel::download(new RekapBulananExport($result, $periode), 'laporan_bulanan_ALL_PT.xlsx');
     }
 
 }

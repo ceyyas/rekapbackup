@@ -11,20 +11,27 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 
 class RekapPerusahaanExport implements 
     FromCollection, 
     WithStyles, 
     WithColumnWidths, 
-    WithEvents
+    WithEvents, 
+    WithCustomStartCell
 {
     protected $rekap;
     protected $perusahaan;
     protected $headingRows = [];
 
-    public function __construct($rekap)
+    public function __construct($rekap, $perusahaan)
     {
         $this->rekap = $rekap;
+        $this->perusahaan = $perusahaan; 
+    }
+
+    public function startCell(): string { 
+        return 'A2'; 
     }
 
     public function collection()
@@ -105,11 +112,12 @@ class RekapPerusahaanExport implements
                     $sheet->getStyle("A{$rowIndex}")->getFont()->setBold(true);
                     $sheet->getStyle("A{$rowIndex}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 }
-
-                $judul = "Laporan Rekap Backup Data - {$this->perusahaan}}";                
+                $highestColumn = $sheet->getHighestColumn();
+                
+                $judul = "Laporan Rekap Backup Data - {$this->perusahaan}";                
                 $event->sheet->setCellValue('A1', $judul);
-                $event->sheet->mergeCells('A1:J1');          
-                $event->sheet->getStyle('A1:J1')->applyFromArray([
+                $event->sheet->mergeCells("A1:{$highestColumn}1");        
+                $event->sheet->getStyle("A1:{$highestColumn}1")->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF'], 
