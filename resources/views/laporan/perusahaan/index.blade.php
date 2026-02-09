@@ -2,9 +2,7 @@
 
 @section('content')
 <div class="table-style">
-    <section class="laporan">
         <h2>Laporan Perusahaan</h2>
-
         <div class="filter-menu">
             <select id="perusahaan_id" class="filter" name="perusahaan_id">
                 <option value="">-- Pilih Perusahaan --</option>
@@ -29,8 +27,6 @@
             <tbody></tbody>
         </table>
         <canvas id="laporanChart" height="100"></canvas>
-
-    </section>
 </div>
 @endsection
 

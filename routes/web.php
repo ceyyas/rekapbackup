@@ -52,9 +52,10 @@ Route::middleware('auth')->group(function () {
     // laporan bulanan
     Route::get('/laporan/bulanan', [RekapBackupController::class, 'laporanbulanan'])
     ->name('rekap-backup.laporan-bulanan');
-    Route::get('/laporan/bulanan/data', [RekapBackupController::class, 'laporanbulananData'])
-        ->name('rekap-backup.laporan-bulanan-data');
 
+    Route::get('/laporan/bulanan/data', [RekapBackupController::class, 'laporanbulanandata'])
+    ->name('laporan-bulanan.data');
+    
     // LOGOUT
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 

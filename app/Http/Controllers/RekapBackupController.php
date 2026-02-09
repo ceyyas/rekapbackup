@@ -114,39 +114,9 @@ class RekapBackupController extends Controller
 
         if ($request->filled(['perusahaan_id', 'periode_id'])) {
             $periode = $request->periode_id . '-01';
+            $departemens = $this->getDepartemenQuery($request->perusahaan_id, $periode)->get();
 
-            $departemens = DB::table('departemen')
-                ->leftJoin('inventori', 'inventori.departemen_id', '=', 'departemen.id')
-                ->leftJoin('rekap_backup', function ($join) use ($periode) {
-                    $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
-                        ->where('rekap_backup.periode', $periode);
-                })
-                ->where('departemen.perusahaan_id', $request->perusahaan_id)
-                ->select(
-                    'departemen.id',
-                    'departemen.nama_departemen',
-                    'inventori.id as inventori_id',
-                    DB::raw('COALESCE(SUM(rekap_backup.size_data), 0) AS size_data'),
-                    DB::raw('COALESCE(SUM(rekap_backup.size_email), 0) AS size_email'),
-                    DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size'),
-                    DB::raw('COALESCE(SUM(rekap_backup.jumlah_cd700), 0) AS jumlah_cd700'),
-                    DB::raw('COALESCE(SUM(rekap_backup.jumlah_dvd47), 0) AS jumlah_dvd47'),
-                    DB::raw('COALESCE(SUM(rekap_backup.jumlah_dvd85), 0) AS jumlah_dvd85'),
-                    DB::raw("
-                        CASE
-                            WHEN COUNT(rekap_backup.id) = 0 THEN 'pending'
-                            WHEN SUM(rekap_backup.status = 'completed') = COUNT(rekap_backup.id)
-                                THEN 'completed'
-                            ELSE 'partial'
-                        END AS status_backup
-                    ")
-                )
-                ->groupBy('departemen.id','departemen.nama_departemen')
-                ->orderBy('departemen.nama_departemen')
-                ->get();
-
-        }
-            
+        }   
         return view('rekap.cd_dvd', compact('perusahaans','departemens'));
     }
 
@@ -264,7 +234,7 @@ class RekapBackupController extends Controller
         return back()->with('success', 'Data backup berhasil disimpan');
     }
     
-public function export(Request $request)
+    public function export(Request $request)
     {
         $request->validate([
             'periode_id' => 'required|date_format:Y-m',
@@ -326,22 +296,6 @@ public function export(Request $request)
             new RekapExport($rekap, $departemens, $perusahaan, $periode),
             'rekap_backup_' . now()->format('Ymd_His') . '.xlsx'
         );
-    }
-    
-    public function laporanbulanan(Request $request)
-    {
-        $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
-        $departemens = collect();
-
-        if ($request->filled('perusahaan_id') && $request->filled('periode_id')) {
-            $departemens = Departemen::where('perusahaan_id', $request->perusahaan_id)
-                ->with(['rekapBackup' => function($q) use ($request) {
-                    $q->where('periode_id', $request->periode_id);
-                }])
-                ->get();
-        }
-
-        return view('laporan.bulanan.index', compact('perusahaans', 'departemens'));
     }
 
     public function laporanperusahaan(Request $request)
@@ -419,12 +373,11 @@ public function export(Request $request)
             ->orderBy('departemen.nama_departemen')
             ->orderBy('periode')
             ->get();
-
+            
         $pivot = [];
         foreach ($rekap as $r) {
             $pivot[$r->nama_departemen][$r->periode] = number_format($r->total_size, 0, ',', '.') . ' MB';
         }
-        
         $rekap = []; 
         $rekap['periodes'] = $periodes;
         $rekap['pivot'] = $pivot; 
@@ -432,4 +385,49 @@ public function export(Request $request)
         return Excel::download(new RekapPerusahaanExport($rekap), 'laporan_perusahaan.xlsx');
     }
 
- }
+    public function laporanbulanan(Request $request)
+    {
+        $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
+        $departemens = collect();
+
+        if ($request->filled('perusahaan_id') && $request->filled('periode_bulanan')) {
+            $departemens = Departemen::where('perusahaan_id', $request->perusahaan_id)
+                ->with(['rekap_backup' => function($q) use ($request) {
+                    $q->where('periode', $request->periode_bulanan);
+                }])
+                ->get();
+        }
+
+        return view('laporan.bulanan.index', compact('perusahaans', 'departemens'));
+    }
+
+    public function laporanbulanandata(Request $request)
+    {
+        \Log::info('periode param', [$request->all()]);
+        $periode = $request->periode_bulanan;
+
+        $perusahaans = Perusahaan::with(['departemen.inventori.rekap_backup' => function($q) use ($periode) {
+            $q->whereRaw("DATE_FORMAT(periode, '%Y-%m') = ?", [$periode]);
+        }])->get();
+
+        $result = [];
+        foreach ($perusahaans as $perusahaan) {
+            $rekap = $perusahaan->departemen->flatMap(function($dept) {
+                return $dept->inventori->flatMap->rekap_backup;
+            });
+
+            $dataSize = $rekap->sum('size_data');   
+            $emailSize = $rekap->sum('size_email'); 
+            $total = $dataSize + $emailSize;
+
+            $result[] = [
+                'perusahaan' => $perusahaan->nama_perusahaan,
+                'data' => $dataSize,
+                'email' => $emailSize,
+                'total' => $total,
+            ];
+        }
+
+        return response()->json($result);
+    }
+}

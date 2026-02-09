@@ -303,34 +303,28 @@ function initDetailPage() {
         });
 }
 
-// --- Panggil sesuai halaman ---
-document.addEventListener('DOMContentLoaded', function () {
-    initIndexPage();
-    initCdDvdPage();
-    initDetailPage();
-});
-
-// laporan perusahaan
-let chartInstance = null;
-
+// laporan per perusahaan
+function initLaporanPerusahaan() {
+    if (!document.getElementById('perusahaan_id') ||
+        !document.getElementById('laporanPivot') ||
+        !document.getElementById('laporanChart')) {
+        return; 
+    }
+    let chartInstance = null;
     $('#perusahaan_id').on('change', function() {
         let perusahaanId = $(this).val();
         if (!perusahaanId) return;
 
         $.get(window.rekapRoutes.pivot, { perusahaan_id: perusahaanId }, function(res) {
-            console.log(res); // cek isi JSON
-
-            // pastikan periodes array
+            console.log(res); 
             let periodes = Array.isArray(res.periodes) ? res.periodes : [];
             let pivot = res.pivot || {};
 
-            // rebuild header
             let thead = '<tr><th>Departemen</th>';
             periodes.forEach(p => { thead += '<th>'+p+'</th>'; });
             thead += '</tr>';
             $('#laporanPivot thead').html(thead);
 
-            // rebuild body
             let tbody = '';
             Object.keys(pivot).forEach(dept => {
                 tbody += '<tr><td>'+dept+'</td>';
@@ -342,7 +336,6 @@ let chartInstance = null;
             });
             $('#laporanPivot tbody').html(tbody);
 
-            // data grafik: total per departemen (akumulasi semua periode)
             let labels = [];
             let data = [];
             Object.keys(pivot).forEach(dept => {
@@ -351,14 +344,12 @@ let chartInstance = null;
                 periodes.forEach(p => {
                     let val = pivot[dept][p];
                     if (val) {
-                        // hapus " MB" lalu parse angka
                         total += parseInt(val.toString().replace(/\D/g,'')) || 0;
                     }
                 });
                 data.push(total);
             });
 
-            // buat grafik bar
             if (chartInstance) chartInstance.destroy();
             let ctx = document.getElementById('laporanChart').getContext('2d');
             chartInstance = new Chart(ctx, {
@@ -390,6 +381,70 @@ let chartInstance = null;
         if (!perusahaanId) return;
         window.location.href = window.rekapRoutes.exportPerusahaan + '?perusahaan_id=' + perusahaanId;
     });
+}
+
+// laporan bulanan
+function initLaporanBulanan() {
+    if (
+        !document.getElementById('laporanTable') ||
+        !document.getElementById('laporanChart')) {
+        return; 
+    }
+    $(document).ready(function() {
+        let chartInstance = null;
+
+        $('#periode_bulanan').on('change', function() {
+            let periode = $(this).val();
+            if (!periode) return;
+
+            $.get(window.rekapRoutes.laporanBulanan, { periode_bulanan: periode })
+                .done(res => {
+                    console.log("AJAX sukses:", res);
+
+                    let tbody = '';
+                    let labels = [];
+                    let totals = [];
+                    res.forEach(r => {
+                        tbody += `<tr>
+                            <td>${r.perusahaan ?? '-'}</td>
+                            <td>${(r.data/1024).toFixed(2)} GB</td>
+                            <td>${(r.email/1024).toFixed(2)} GB</td>
+                            <td>${(r.total/1024).toFixed(2)} GB</td>
+                        </tr>`;
+                        labels.push(r.perusahaan ?? '-');
+                        totals.push(r.total/1024);
+                    });
+                    $('#laporanTable tbody').html(tbody);
+
+                    if (chartInstance) chartInstance.destroy();
+                    let canvas = document.getElementById('laporanChart');
+                    if (canvas) {
+                        let ctx = canvas.getContext('2d');
+                        chartInstance = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Total Size (GB)',
+                                    data: totals,
+                                    backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                                }]
+                            }
+                        });
+                    }
+                })
+                .fail(err => console.error("AJAX gagal:", err));
+        });
+    });
+    }
+
+document.addEventListener('DOMContentLoaded', function () {
+    initIndexPage();
+    initCdDvdPage();
+    initDetailPage();
+    initLaporanPerusahaan();
+    initLaporanBulanan();
+});
 
 
 
