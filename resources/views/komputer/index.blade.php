@@ -9,6 +9,27 @@
         <a href="{{ route('komputer.create') }}" class="entry-button">
             + Tambah Data
         </a>
+
+        <form method="GET" action="{{ route('komputer.index') }}">
+            <div class="filter-menu">
+
+
+                <select id="perusahaan_id_komputer" name="perusahaan_id_komputer" class="filter">
+                    <option value="">-- Pilih Perusahaan --</option>
+                    @foreach ($perusahaans as $perusahaan)
+                        <option value="{{ $perusahaan->id }}"
+                            {{ request('perusahaan_id') == $perusahaan->id ? 'selected' : '' }}>
+                            {{ $perusahaan->nama_perusahaan }}
+                        </option>
+                    @endforeach
+                </select>
+
+
+                <select id="departemen_id_komputer" name="departemen_id_komputer" class="filter">
+                    <option value="">-- Pilih Departemen --</option>
+                </select>
+            </div>
+        </form>
     </div>
 
     <table id="komputerTable" class="table">

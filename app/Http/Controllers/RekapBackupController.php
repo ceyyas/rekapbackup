@@ -326,6 +326,85 @@ public function export(Request $request)
             'rekap_backup_' . now()->format('Ymd_His') . '.xlsx'
         );
     }
+    
+    public function laporanbulanan(Request $request)
+    {
+        $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
+        $departemens = collect();
+
+        if ($request->filled('perusahaan_id') && $request->filled('periode_id')) {
+            $departemens = Departemen::where('perusahaan_id', $request->perusahaan_id)
+                ->with(['rekapBackup' => function($q) use ($request) {
+                    $q->where('periode_id', $request->periode_id);
+                }])
+                ->get();
+        }
+
+        return view('laporan.bulanan.index', compact('perusahaans', 'departemens'));
+    }
+
+    public function laporanperusahaan(Request $request)
+    {
+        $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
+
+        return view('laporan.perusahaan.index', compact('perusahaans'));
+    }
+
+    public function laporanPerusahaanData(Request $request)
+    {
+        $perusahaanId = $request->perusahaan_id;
+
+        $rekap = RekapBackup::select(
+                'departemen_id',
+                'periode_id',
+                DB::raw('SUM(size_data) as size_data'),
+                DB::raw('SUM(size_email) as size_email'),
+                DB::raw('SUM(total_size) as total_size')
+            )
+            ->whereHas('departemen', fn($q) => $q->where('perusahaan_id', $perusahaanId))
+            ->groupBy('departemen_id', 'periode_id')
+            ->with('departemen')
+            ->orderBy('departemen_id')
+            ->orderBy('periode_id')
+            ->get();
+
+        return response()->json($rekap);
+    }
+
+    public function laporanPerusahaanPivot(Request $request)
+    {
+        $perusahaanId = $request->perusahaan_id;
+
+        // ambil semua periode unik
+        $periodes = RekapBackup::whereHas('departemen', fn($q) => $q->where('perusahaan_id', $perusahaanId))
+            ->select('periode_id')
+            ->distinct()
+            ->orderBy('periode_id')
+            ->pluck('periode_id');
+
+        // ambil data rekap
+        $rekap = RekapBackup::select(
+                'departemen_id',
+                'periode_id',
+                DB::raw('SUM(total_size) as total_size')
+            )
+            ->whereHas('departemen', fn($q) => $q->where('perusahaan_id', $perusahaanId))
+            ->groupBy('departemen_id','periode_id')
+            ->with('departemen')
+            ->get();
+
+        // bentuk pivot: departemen => [periode => total_size]
+        $pivot = [];
+        foreach ($rekap as $r) {
+            $dept = $r->departemen->nama_departemen;
+            $pivot[$dept][$r->periode_id] = $r->total_size;
+        }
+
+        return response()->json([
+            'periodes' => $periodes,
+            'pivot' => $pivot
+        ]);
+    }
 
 
  }

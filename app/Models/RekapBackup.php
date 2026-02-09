@@ -25,4 +25,10 @@ class RekapBackup extends Model
         return $this->belongsTo(Inventori::class);
     }
 
+    public function departemen()
+    {
+        return $this->belongsTo(Departemen::class);
+    }
+
+
 }

@@ -77,8 +77,8 @@
 
 
                 <ul class="sub-menu close">
-                    <li><a href="{{ route('departemen.index') }}">Bulanan</a></li>
-                    <li><a href="{{ route('komputer.index') }}">Perusahaan</a></li>
+                    <li><a href="{{ route('rekap-backup.laporan-bulanan') }}">Bulanan</a></li>
+                    <li><a href="{{ route('rekap-backup.laporan-perusahaan') }}">Perusahaan</a></li>
                 </ul>
             </ul>
 
