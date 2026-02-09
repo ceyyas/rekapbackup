@@ -264,13 +264,16 @@ class RekapBackupController extends Controller
             ->selectRaw('ROUND(COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email),0)/1024, 2) as total_size_gb')
             ->selectRaw("
                 CASE
-                    WHEN COUNT(rekap_backup.id) = 0 THEN 'pending'
-                    WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rekap_backup.id)
-                        AND COALESCE(SUM(rekap_backup.size_data),0) > 0
-                        AND COALESCE(SUM(rekap_backup.size_email),0) > 0
-                        THEN 'completed'
+                    WHEN COUNT(rb.id) = 0 THEN 'pending'
+                    WHEN SUM(CASE WHEN rb.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rb.id)
+                        AND COALESCE(SUM(rb.size_data), 0) > 0
+                        AND (
+                            SUM(CASE WHEN rb.inventori.email IS NOT NULL AND rb.inventori.email <> '' THEN 1 ELSE 0 END) = 0
+                            OR COALESCE(SUM(rb.size_email), 0) > 0
+                        )
+                    THEN 'completed'
                     ELSE 'partial'
-                END as status_backup
+                END AS status_backup
             ")
             ->selectRaw("
                 CASE

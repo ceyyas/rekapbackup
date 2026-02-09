@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('hostname');
             $table->string('username');
             $table->string('email');
+            $table->enum('status',['active','inactive'])->default('active');
             $table->enum('kategori',['PC','Laptop'])->default('PC');
             $table->timestamps();
 
