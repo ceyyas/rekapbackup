@@ -24,9 +24,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/departemen/by-perusahaan', [DepartemenController::class, 'byPerusahaan']);
+   
     // route master data
     Route::resource('departemen', DepartemenController::class);
     Route::resource('komputer', KomputerController::class);
+    Route::get('/komputer/data', [KomputerController::class, 'data'])->name('komputer.data');
+    
     Route::resource('stok', StokController::class);
 
     // route rekap backup

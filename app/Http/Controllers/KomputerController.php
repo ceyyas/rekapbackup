@@ -7,6 +7,7 @@ use App\Models\Departemen;
 use App\Models\Perusahaan;
 use App\Models\Inventori;
 use Illuminate\Validation\Rule;
+use Yajra\DataTables\Facades\DataTables;
 
 class KomputerController extends Controller
 {
@@ -15,46 +16,58 @@ class KomputerController extends Controller
      */
     public function index(Request $request)
     {
-        // dropdown perusahaan
         $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
+        $departemens = Departemen::orderBy('nama_departemen')->get();
 
-        // dropdown departemen (kosong dulu)
-        $departemens = collect();
-
-        // isi departemen hanya jika perusahaan dipilih
-        if ($request->perusahaan_id) {
-            $departemens = Departemen::where('perusahaan_id', $request->perusahaan_id)
-                ->orderBy('nama_departemen')
-                ->get();
-        }
-
-        // data komputer selalu tampil, difilter jika ada request
         $komputers = Inventori::with(['perusahaan', 'departemen'])
-            ->when($request->perusahaan_id, function ($query) use ($request) {
-                $query->where('perusahaan_id', $request->perusahaan_id);
-            })
-            ->when($request->departemen_id, function ($query) use ($request) {
-                $query->where('departemen_id', $request->departemen_id);
-            })
-            ->orderByDesc('updated_at') 
-            ->get();
-
-        return view('komputer.index', compact(
-            'komputers',
-            'perusahaans',
-            'departemens'
-        ));
-    }
-
-    public function filter(Request $request)
-    {
-        $komputers = Inventori::with(['perusahaan','departemen'])
             ->when($request->perusahaan_id, fn($q) => $q->where('perusahaan_id', $request->perusahaan_id))
             ->when($request->departemen_id, fn($q) => $q->where('departemen_id', $request->departemen_id))
+            ->when($request->kategori_id, fn($q) => $q->where('kategori', $request->kategori_id))
+            ->when($request->search, function ($q) use ($request) {
+                $q->where(function ($sub) use ($request) {
+                    $sub->where('hostname', 'like', "%{$request->search}%")
+                        ->orWhere('username', 'like', "%{$request->search}%")
+                        ->orWhere('email', 'like', "%{$request->search}%");
+                });
+            })
             ->orderByDesc('updated_at')
             ->get();
 
-        return view('komputer.partials.komputer_rows', compact('komputers'));
+        return view('komputer.index', compact('perusahaans','departemens','komputers'));
+    }
+
+    public function data(Request $request)
+    {
+        $query = Inventori::with(['perusahaan','departemen'])
+            ->when($request->perusahaan_id, fn($q) => $q->where('perusahaan_id', $request->perusahaan_id))
+            ->when($request->departemen_id, fn($q) => $q->where('departemen_id', $request->departemen_id))
+            ->when($request->kategori_id, fn($q) => $q->where('kategori', $request->kategori_id))
+            ->when($request->search, function ($q) use ($request) {
+                $q->where(function ($sub) use ($request) {
+                    $sub->where('hostname', 'like', "%{$request->search}%")
+                        ->orWhere('username', 'like', "%{$request->search}%")
+                        ->orWhere('email', 'like', "%{$request->search}%");
+                });
+            });
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('aksi', function($row){
+                return '
+                    <button class="aksi-show">
+                        <a href="'.route('komputer.show',$row->id).'"><i class="bx bx-show"></i></a>
+                    </button>
+                    <button class="aksi-edit">
+                        <a href="'.route('komputer.edit',$row->id).'"><i class="bx bx-edit-alt"></i></a>
+                    </button>
+                    <form action="'.route('komputer.destroy',$row->id).'" method="POST" style="display:inline;" onsubmit="return confirm(\'Are you sure?\')">
+                        '.csrf_field().method_field('DELETE').'
+                        <button type="submit" class="aksi-delete"><i class="bx bx-trash"></i></button>
+                    </form>
+                ';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
 
     /**

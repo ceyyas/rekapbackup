@@ -67,21 +67,33 @@ $(document).ready(function () {
         });
     }
 
-    // === FILTER KOMPUTER ===
+    function applyFilter() {
+        let perusahaanId = $('#perusahaan_id_komputer').val();
+        let departemenId = $('#departemen_id_komputer').val();
+        let kategoriId   = $('#kategori_id_komputer').val();
+
+        $.get('/komputers/filter', { 
+            perusahaan_id: perusahaanId, 
+            departemen_id: departemenId, 
+            kategori_id: kategoriId 
+        }, function (html) {
+            $('#komputerTable tbody').html(html);
+        });
+    }
+
+    // Event listener untuk semua filter
     $('#perusahaan_id_komputer').on('change', function () {
         let perusahaanId = $(this).val();
         loadDepartemen(perusahaanId, $('#departemen_id_komputer'));
+        applyFilter();
     });
 
-    $('#departemen_id_komputer').on('change', function () {
-        let perusahaanId = $('#perusahaan_id_komputer').val();
-        let departemenId = $(this).val();
+    $('#departemen_id_komputer').on('change', applyFilter);
+    $('#kategori_id_komputer').on('change', applyFilter);
 
-        $.get('/komputers/filter', { perusahaan_id: perusahaanId, departemen_id: departemenId }, function (html) {
-            $('#komputerTable tbody').html(html);
-        });
-    });
 });
+
+
 
 
 // edit data komputer 
@@ -106,7 +118,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
 });
-
 
 // create data 
 $('#perusahaan_id').on('change', function () {

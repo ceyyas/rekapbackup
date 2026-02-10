@@ -9,12 +9,12 @@
         <a href="{{ route('komputer.create') }}" class="entry-button">
             + Tambah Data
         </a>
+    </div>
 
         <form method="GET" action="{{ route('komputer.index') }}">
             <div class="filter-menu">
 
-
-                <select id="perusahaan_id_komputer" name="perusahaan_id_komputer" class="filter">
+                <select id="perusahaan_id" name="perusahaan_id" class="filter">
                     <option value="">-- Pilih Perusahaan --</option>
                     @foreach ($perusahaans as $perusahaan)
                         <option value="{{ $perusahaan->id }}"
@@ -24,14 +24,26 @@
                     @endforeach
                 </select>
 
-
-                <select id="departemen_id_komputer" name="departemen_id_komputer" class="filter">
+                <select id="departemen_id" name="departemen_id" class="filter">
                     <option value="">-- Pilih Departemen --</option>
                 </select>
+
+                <select id="kategori_id" name="kategori_id" class="filter">
+                    <option value="">-- Pilih Kategori --</option>
+                    <option value="PC">PC</option>
+                    <option value="Laptop">Laptop</option>
+                </select>
+                <button type="submit">Terapkan</button>
+                <button type="submit">
+                <a href="{{ route('komputer.index') }}" 
+                    id="resetFilter" 
+                    class="btn btn-secondary">
+                    Reset Filter
+                </a>
+                </button>
             </div>
         </form>
-    </div>
-
+    
     <table id="komputerTable" class="table">
         <thead>
             <tr>
