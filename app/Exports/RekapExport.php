@@ -72,17 +72,16 @@ class RekapExport implements
         $rows->push([
             '',
             'TOTAL',
-            $this->rekap->sum('size_data_mb') . ' MB',
-            round($this->rekap->sum('size_data_mb')/1024,2).' GB',
-            $this->rekap->sum('size_email_mb') . ' MB',
-            round($this->rekap->sum('size_email_mb')/1024,2).' GB',
-            $this->rekap->sum('total_size_mb') . ' MB',
-            round($this->rekap->sum('total_size_mb')/1024,2).' GB',
+            $this->rekap->sum('size_data') . ' MB',
+            round($this->rekap->sum('size_data')/1024,2).' GB',
+            $this->rekap->sum('size_email') . ' MB',
+            round($this->rekap->sum('size_email')/1024,2).' GB',
+            $this->rekap->sum('total_size') . ' MB',
+            round($this->rekap->sum('total_size')/1024,2).' GB',
             '',
             ''
         ]);
 
-        // --- Detail per Departemen (per inventori) ---
         foreach ($this->departemens as $dept) {
         
             // heading nama departemen
@@ -103,7 +102,6 @@ class RekapExport implements
             $totalBurningMb = 0;
 
             foreach ($dept->inventori as $inv) {
-                // jumlahkan semua backup milik inventori ini
                 $dataMb   = $inv->rekap_backup->sum('size_data');
                 $emailMb  = $inv->rekap_backup->sum('size_email');
                 $burningMb = $dataMb + $emailMb;
@@ -139,6 +137,8 @@ class RekapExport implements
                 $totalBurningMb . ' MB',
                 round($totalBurningMb/1024,2) . ' GB',
             ]);
+
+            $rows[] = ['', '', '', '', '', '', ''];
         }
 
         return $rows;
@@ -150,12 +150,26 @@ class RekapExport implements
         return [
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
+                $highestRow = $sheet->getHighestRow();
 
-                // merge semua baris heading departemen
-                foreach ($this->headingRows as $rowIndex) {
-                    $sheet->mergeCells("A{$rowIndex}:J{$rowIndex}");
-                    $sheet->getStyle("A{$rowIndex}")->getFont()->setBold(true);
-                    $sheet->getStyle("A{$rowIndex}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                for ($row = 1; $row <= $highestRow; $row++) {
+                    $value = $sheet->getCell("A{$row}")->getValue();
+                    $colB  = $sheet->getCell("B{$row}")->getValue();
+
+                    if (!empty($value) && empty($colB)) {
+                        $sheet->mergeCells("A{$row}:J{$row}");
+                        $sheet->getStyle("A{$row}:J{$row}")->applyFromArray([
+                            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                            'fill' => [
+                                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                                'startColor' => ['rgb' => '2a6099'],
+                            ],
+                            'alignment' => [
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical'   => Alignment::VERTICAL_CENTER,
+                            ],
+                        ]);
+                    }
                 }
 
                 // judul laporan di baris 1
