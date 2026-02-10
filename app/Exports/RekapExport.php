@@ -55,17 +55,17 @@ class RekapExport implements
         // --- Isi Global ---
         foreach ($this->rekap as $dept) {
             $rows->push([
-                $no++,
-                $dept->nama_departemen,
-                $dept->size_data_mb . ' MB',
-                $dept->size_data_gb . ' GB',
-                $dept->size_email_mb . ' MB',
-                $dept->size_email_gb . ' GB',
-                $dept->total_size_mb . ' MB',
-                $dept->total_size_gb . ' GB',
-                $dept->status_backup,
-                $dept->status_data,
-            ]);
+            $no++,
+            $dept->nama_departemen,
+            $dept->size_data . ' MB',
+            round($dept->size_data / 1024, 2) . ' GB',
+            $dept->size_email . ' MB',
+            round($dept->size_email / 1024, 2) . ' GB',
+            $dept->total_size . ' MB',
+            round($dept->total_size / 1024, 2) . ' GB',
+            $dept->status_backup,
+            $dept->status_data,
+        ]);
         }
 
         // --- Total Global ---

@@ -12,6 +12,8 @@ use App\Models\Stok;
 
 use App\Exports\RekapExport;
 use App\Exports\RekapPerusahaanExport;
+use App\Exports\RekapPerusahaanMultiExport;
+
 use App\Exports\RekapBulananExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
@@ -27,10 +29,15 @@ class RekapBackupController extends Controller
                     ->where('rekap_backup.periode', $periode);
             })
             ->where('departemen.perusahaan_id', $perusahaanId)
+            ->where(function($q) use ($periode) {
+                $periodeDate = DB::raw("STR_TO_DATE('$periode','%Y-%m-%d')");
+                $q->where('inventori.status', 'active')
+                ->orWhere($periodeDate, '<', DB::raw('inventori.updated_at'));
+            })
             ->select(
                 'departemen.id',
                 'departemen.nama_departemen',
-                DB::raw('MAX(inventori.id) as inventori_id'), 
+                DB::raw('MAX(inventori.id) as inventori_id'),
                 DB::raw('COALESCE(SUM(rekap_backup.size_data), 0) AS size_data'),
                 DB::raw('COALESCE(SUM(rekap_backup.size_email), 0) AS size_email'),
                 DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size'),
@@ -39,24 +46,21 @@ class RekapBackupController extends Controller
                 DB::raw('COALESCE(SUM(rekap_backup.jumlah_dvd85), 0) AS jumlah_dvd85'),
                 DB::raw("
                     CASE
-                        WHEN COUNT(rekap_backup.id) = 0 
-                            THEN 'pending'
+                        WHEN COUNT(rekap_backup.id) = 0 THEN 'pending'
                         WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rekap_backup.id)
                             AND COALESCE(SUM(rekap_backup.size_data),0) > 0
                             AND (
-                                (SUM(CASE WHEN rekap_backup.size_email IS NOT NULL THEN 1 ELSE 0 END) > 0 
+                                (SUM(CASE WHEN inventori.email IS NOT NULL AND inventori.email <> '' THEN 1 ELSE 0 END) > 0
                                 AND COALESCE(SUM(rekap_backup.size_email),0) > 0)
-                                OR SUM(CASE WHEN rekap_backup.size_email IS NOT NULL THEN 1 ELSE 0 END) = 0
+                                OR SUM(CASE WHEN inventori.email IS NOT NULL AND inventori.email <> '' THEN 1 ELSE 0 END) = 0
                             )
-                            THEN 'completed'
+                        THEN 'completed'
                         ELSE 'partial'
                     END AS status_backup
-
                 "),
                 DB::raw("
                     CASE
-                        WHEN COUNT(rekap_backup.id) = 0 
-                            THEN 'data belum di backup'
+                        WHEN COUNT(rekap_backup.id) = 0 THEN 'data belum di backup'
                         WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) < COUNT(rekap_backup.id) 
                             THEN 'proses backup'
                         WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rekap_backup.id) 
@@ -64,17 +68,15 @@ class RekapBackupController extends Controller
                                 AND COALESCE(SUM(rekap_backup.jumlah_dvd47),0) = 0 
                                 AND COALESCE(SUM(rekap_backup.jumlah_dvd85),0) = 0)
                             THEN 'file di main folder aman'
-                        WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rekap_backup.id) 
-                            AND (COALESCE(SUM(rekap_backup.jumlah_cd700),0) > 0 
-                                OR COALESCE(SUM(rekap_backup.jumlah_dvd47),0) > 0 
-                                OR COALESCE(SUM(rekap_backup.jumlah_dvd85),0) > 0)
-                            THEN 'file di cd aman'
+                        ELSE 'file di cd aman'
                     END AS status_data
                 ")
             )
             ->groupBy('departemen.id','departemen.nama_departemen')
             ->orderBy('departemen.nama_departemen');
     }
+
+
 
     public function index(Request $request)
     {
@@ -183,6 +185,12 @@ class RekapBackupController extends Controller
                      ->where('rekap_backup.periode', $periode);
             })
             ->where('inventori.departemen_id', $departemenId)
+            ->where(function($q) use ($periode) {
+                $periodeDate = DB::raw("STR_TO_DATE('$periode','%Y-%m-%d')");
+                $q->where('inventori.status', 'active')
+                ->orWhere($periodeDate, '<', DB::raw('inventori.updated_at'));
+            })
+
             ->select(
                 'inventori.id',
                 'inventori.hostname',
@@ -230,7 +238,6 @@ class RekapBackupController extends Controller
                     ) > 0 ? 'completed' : 'pending'
                 ]
             );
-
         }
 
         return back()->with('success', 'Data backup berhasil disimpan');
@@ -245,52 +252,13 @@ class RekapBackupController extends Controller
 
         $perusahaanId = $request->input('perusahaan_id'); 
         $periode = $request->periode_id . '-01'; 
-        
+
         $perusahaan = Perusahaan::find($perusahaanId)->nama_perusahaan;
 
-        $rekap = Departemen::query()
-            ->where('departemen.perusahaan_id', $perusahaanId)
-            ->leftJoin('inventori', 'inventori.departemen_id', '=', 'departemen.id')
-            ->leftJoin('rekap_backup', function ($join) use ($periode) {
-                $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
-                    ->where('rekap_backup.periode', $periode);
-            })
-            ->select('departemen.id','departemen.nama_departemen')
-            ->selectRaw('COALESCE(SUM(rekap_backup.size_data),0) as size_data_mb')
-            ->selectRaw('ROUND(COALESCE(SUM(rekap_backup.size_data),0)/1024, 2) as size_data_gb')
-            ->selectRaw('COALESCE(SUM(rekap_backup.size_email),0) as size_email_mb')
-            ->selectRaw('ROUND(COALESCE(SUM(rekap_backup.size_email),0)/1024, 2) as size_email_gb')
-            ->selectRaw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email),0) as total_size_mb')
-            ->selectRaw('ROUND(COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email),0)/1024, 2) as total_size_gb')
-            ->selectRaw("
-                CASE
-                    WHEN COUNT(rb.id) = 0 THEN 'pending'
-                    WHEN SUM(CASE WHEN rb.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rb.id)
-                        AND COALESCE(SUM(rb.size_data), 0) > 0
-                        AND (
-                            SUM(CASE WHEN rb.inventori.email IS NOT NULL AND rb.inventori.email <> '' THEN 1 ELSE 0 END) = 0
-                            OR COALESCE(SUM(rb.size_email), 0) > 0
-                        )
-                    THEN 'completed'
-                    ELSE 'partial'
-                END AS status_backup
-            ")
-            ->selectRaw("
-                CASE
-                    WHEN COUNT(rekap_backup.id) = 0 THEN 'data belum di backup'
-                    WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) < COUNT(rekap_backup.id)
-                        THEN 'proses backup'
-                    WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rekap_backup.id)
-                        AND (COALESCE(SUM(rekap_backup.jumlah_cd700),0) = 0 
-                            AND COALESCE(SUM(rekap_backup.jumlah_dvd47),0) = 0 
-                            AND COALESCE(SUM(rekap_backup.jumlah_dvd85),0) = 0)
-                        THEN 'file di main folder aman'
-                    ELSE 'file di cd aman'
-                END as status_data
-            ")
-            ->groupBy('departemen.id','departemen.nama_departemen')
-            ->get();
+        // gunakan fungsi getDepartemenQuery
+        $rekap = $this->getDepartemenQuery($perusahaanId, $periode)->get();
 
+        // ambil relasi departemen + inventori + rekap_backup untuk detail
         $departemens = Departemen::with(['inventori.rekap_backup' => function($q) use ($periode) {
             $q->where('periode', $periode);
         }])
@@ -302,6 +270,7 @@ class RekapBackupController extends Controller
             'rekap_backup_' . now()->format('Ymd_His') . '.xlsx'
         );
     }
+
 
     public function laporanperusahaan(Request $request)
     {
@@ -352,10 +321,12 @@ class RekapBackupController extends Controller
 
     public function exportPerusahaan(Request $request)
     {
-        $perusahaanId = $request->perusahaan_id;
-        $perusahaan = Perusahaan::find($perusahaanId)->nama_perusahaan;
+        $perusahaanId   = $request->perusahaan_id;
+        $perusahaanNama = Perusahaan::find($perusahaanId)->nama_perusahaan;
 
-        $periodes = RekapBackup::join('inventori','rekap_backup.inventori_id','=','inventori.id')
+        // Global pivot (Departemen × Periode)
+        $periodes = DB::table('rekap_backup')
+            ->join('inventori','rekap_backup.inventori_id','=','inventori.id')
             ->join('departemen','inventori.departemen_id','=','departemen.id')
             ->where('departemen.perusahaan_id',$perusahaanId)
             ->selectRaw("DATE_FORMAT(rekap_backup.periode,'%b-%Y') as periode")
@@ -363,7 +334,7 @@ class RekapBackupController extends Controller
             ->orderBy('periode')
             ->pluck('periode')
             ->toArray();
-         
+
         $rekap = DB::table('rekap_backup')
             ->join('inventori', 'rekap_backup.inventori_id', '=', 'inventori.id')
             ->join('departemen', 'inventori.departemen_id', '=', 'departemen.id')
@@ -371,24 +342,62 @@ class RekapBackupController extends Controller
             ->select(
                 'departemen.nama_departemen',
                 DB::raw("DATE_FORMAT(rekap_backup.periode, '%b-%Y') as periode"),
-                DB::raw('COALESCE(SUM(rekap_backup.size_data),0) as size_data'),
-                DB::raw('COALESCE(SUM(rekap_backup.size_email),0) as size_email'),
-                DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email),0) as total_size')
+                DB::raw('SUM(rekap_backup.size_data) as size_data'),
+                DB::raw('SUM(rekap_backup.size_email) as size_email'),
+                DB::raw('SUM(rekap_backup.size_data + rekap_backup.size_email) as total_size')
             )
             ->groupBy('departemen.nama_departemen','periode')
             ->orderBy('departemen.nama_departemen')
             ->orderBy('periode')
             ->get();
-            
+
         $pivot = [];
         foreach ($rekap as $r) {
-            $pivot[$r->nama_departemen][$r->periode] = number_format($r->total_size, 0, ',', '.') . ' MB';
+            $pivot[$r->nama_departemen][$r->periode] = $r->total_size.' MB';
         }
-        $rekap = []; 
-        $rekap['periodes'] = $periodes;
-        $rekap['pivot'] = $pivot; 
+        $globalPivot = [
+            'periodes' => $periodes,
+            'pivot'    => $pivot,
+        ];
 
-        return Excel::download(new RekapPerusahaanExport($rekap, $perusahaan), 'laporan_perusahaan.xlsx');
+        // Detail per periode
+        $detailPeriodes = [];
+        foreach ($periodes as $p) {
+            $rekapDetail = DB::table('rekap_backup')
+                ->join('inventori', 'rekap_backup.inventori_id', '=', 'inventori.id')
+                ->join('departemen', 'inventori.departemen_id', '=', 'departemen.id')
+                ->where('departemen.perusahaan_id', $perusahaanId)
+                ->whereRaw("DATE_FORMAT(rekap_backup.periode,'%b-%Y') = ?", [$p])
+                ->select(
+                    'departemen.nama_departemen as departemen',
+                    'inventori.hostname',
+                    'inventori.username',
+                    'inventori.email',
+                    'rekap_backup.size_data',
+                    'rekap_backup.size_email'
+                )
+                ->get()
+                ->map(function($row) {
+                    return [
+                        'departemen' => $row->departemen,
+                        'hostname'   => $row->hostname,
+                        'username'   => $row->username,
+                        'email'      => $row->email,
+                        'size_data'  => $row->size_data,
+                        'size_email' => $row->size_email,
+                    ];
+                })
+                ->toArray();
+
+            $detailPeriodes[$p] = $rekapDetail;
+
+
+        }
+
+        return Excel::download(
+            new RekapPerusahaanMultiExport($globalPivot, $detailPeriodes, $perusahaanNama),
+            "laporan_perusahaan_{$perusahaanNama}.xlsx"
+        );
     }
 
     public function laporanbulanan(Request $request)
