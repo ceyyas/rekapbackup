@@ -37,8 +37,16 @@ class RekapBulananExport implements
 
     public function collection()
     {
-        return collect($this->data);
+        return collect(array_map(function($row) {
+            return [
+                'Perusahaan' => $row['perusahaan'],
+                'Size Data' => number_format($row['data'], 0, ',', '.') . ' MB',
+                'Size Email' => number_format($row['email'], 0, ',', '.') . ' MB',
+                'Total Size' => number_format($row['total'], 0, ',', '.') . ' MB',
+            ];
+        }, $this->data));
     }
+
 
     public function headings(): array
     {
