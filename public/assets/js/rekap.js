@@ -1,8 +1,7 @@
 // dashboard
 document.addEventListener("DOMContentLoaded", function() {
     const chartElement = document.getElementById('backupChart');
-    if (!chartElement) return; // keluar kalau bukan di dashboard
-
+    if (!chartElement) return; 
     const rawData = window.dashboardData.rawData;
     const labels = window.dashboardData.labels;
 
