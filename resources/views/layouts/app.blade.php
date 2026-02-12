@@ -38,7 +38,8 @@
             exportPerusahaan: "{{ route('rekap-backup.export-perusahaan') }}",
             laporanBulanan: "{{ route('laporan-bulanan.data')}}",
             exportBulanan: "{{ route('rekap-backup.export-bulanan') }}",
-            komputerData: "{{ route('komputer.data') }}"
+            komputerData: "{{ route('komputer.data') }}",
+
         };
     </script>
 

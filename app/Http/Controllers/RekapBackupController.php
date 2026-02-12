@@ -136,6 +136,20 @@ class RekapBackupController extends Controller
 
         $periode = $request->periode_id . '-01';
 
+        $stokCd   = Stok::where('nama_barang', 'CD 700 MB')->first();
+        $stokDvd47 = Stok::where('nama_barang', 'DVD 4.7 GB')->first();
+        $stokDvd85 = Stok::where('nama_barang', 'DVD 8.5 GB')->first();
+
+        if ($request->cd700 !== null && $request->cd700 > $stokCd->tersisa) {
+            return response()->json(['error' => 'Stok CD 700 MB tidak mencukupi'], 422);
+        }
+        if ($request->dvd47 !== null && $request->dvd47 > $stokDvd47->tersisa) {
+            return response()->json(['error' => 'Stok DVD 4.7 GB tidak mencukupi'], 422);
+        }
+        if ($request->dvd85 !== null && $request->dvd85 > $stokDvd85->tersisa) {
+            return response()->json(['error' => 'Stok DVD 8.5 GB tidak mencukupi'], 422);
+        }
+
         $rekap = RekapBackup::firstOrNew([
             'inventori_id' => $request->inventori_id,
             'periode'      => $periode,
@@ -254,11 +268,8 @@ class RekapBackupController extends Controller
         $periode = $request->periode_id . '-01'; 
 
         $perusahaan = Perusahaan::find($perusahaanId)->nama_perusahaan;
-
-        // gunakan fungsi getDepartemenQuery
         $rekap = $this->getDepartemenQuery($perusahaanId, $periode)->get();
 
-        // ambil relasi departemen + inventori + rekap_backup untuk detail
         $departemens = Departemen::with(['inventori.rekap_backup' => function($q) use ($periode) {
             $q->where('periode', $periode);
         }])

@@ -905,7 +905,6 @@ ul#customBarangDropdown li:hover {
     padding: 5px;
 }
 
-/* Styling untuk pagination */
 .dataTables_paginate {
     margin-top: 10px;
     text-align: right;
@@ -928,19 +927,36 @@ ul#customBarangDropdown li:hover {
 }
 
 table.dataTable thead th {
-    color: #333; /* teks lebih gelap */
-    background-color: #f5f6fa; /* background header */
+    color: #333; 
+    background-color: #f5f6fa; 
 }
 
-/* Warna ikon sort default */
-table.dataTable thead .sorting:after,
-table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting:after {
+    content: "⇅";      
+    color: #b7ba9f;
+    margin-left: 5px;
+    font-size: 0.8em;
+}
+
+table.dataTable thead .sorting_asc:after {
+    content: "▲";      
+    color: #b7ba9f;    
+    margin-left: 5px;
+    font-size: 0.8em;
+}
+
+
 table.dataTable thead .sorting_desc:after {
-    color: #555; /* warna ikon lebih gelap */
-    opacity: 1;  /* pastikan terlihat */
+    content: "▼";       
+    color: #b7ba9f;
+    margin-left: 5px;
+    font-size: 0.8em;
 }
 
-/* Kalau mau warna ikon saat hover */
-table.dataTable thead th:hover {
-    background-color: #e6e8ef;
+
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc {
+    background-color: #f0f4ff;
 }
+
+

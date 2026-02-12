@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('rekap_backup', function (Blueprint $table) {
             $table->id(); 
-            $table->foreignId('inventori_id');
+            $table->foreignId('inventori_id')
+                ->references('id')->on('inventori')
+                ->onDelete('cascade');
             $table->date('periode');
             $table->bigInteger('size_data')->default(0);
             $table->bigInteger('size_email')->default(0);
@@ -32,7 +34,6 @@ return new class extends Migration
             $table->integer('jumlah_dvd47')->default(0);
             $table->integer('jumlah_dvd85')->default(0);
             $table->timestamps();
-
         });
     }
 

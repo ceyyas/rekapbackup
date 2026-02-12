@@ -4,11 +4,13 @@ const toggle = document.querySelector(".toggle");
 const profile = document.querySelector(".profile");
 const subkategori = document.querySelector(".sub-kategori");
 
-if (toggle) {
-    toggle.addEventListener("click", () => {
-        sidebar.classList.toggle("close");
-    });
-}
+sidebar.addEventListener("mouseenter", () => {
+    sidebar.classList.remove("close");
+});
+
+sidebar.addEventListener("mouseleave", () => {
+    sidebar.classList.add("close");
+});
 
 document.querySelectorAll(".data-induk").forEach(menu => {
     menu.addEventListener("click", function (e) {
@@ -56,5 +58,3 @@ document.addEventListener('click', function(event) {
         dropdown.classList.add('close');
     }
 });
-
-

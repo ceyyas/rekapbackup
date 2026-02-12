@@ -19,6 +19,14 @@
 
             <label for="periode_id">Pilih Periode:</label>
             <input type="month" id="periode_id" name="periode_id" class="date-picker" value="{{ request('periode_id') }}">
+
+            <a id="btnExport" 
+                href="{{ route('rekap-backup.export') }}?perusahaan_id={{ request('perusahaan_id') }}&periode_id={{ request('periode_id') }}"     
+                class="entry-button"
+                style="display:none;">
+                    Export Excel
+            </a>
+
         </div>
     </form>
 

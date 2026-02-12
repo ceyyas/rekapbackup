@@ -288,8 +288,13 @@ function initCdDvdPage() {
             }
          })
          .fail(function(xhr) {
-            console.error('Auto-save gagal:', xhr.responseText);
-         });
+            let res = xhr.responseJSON;
+            if (res && res.error) {
+                alert(res.error); 
+            } else {
+                console.error('Auto-save gagal:', xhr.responseText);
+            }
+        });
     });
 }
 

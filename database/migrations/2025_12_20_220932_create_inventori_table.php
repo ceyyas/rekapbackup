@@ -13,15 +13,18 @@ return new class extends Migration
     {
         Schema::create('inventori', function (Blueprint $table) {
             $table->id(); 
-            $table->foreignId('perusahaan_id');
-            $table->foreignId('departemen_id');
+            $table->foreignId('perusahaan_id')
+                ->references('id')->on('perusahaan')
+                ->onDelete('cascade');
+            $table->foreignId('departemen_id')
+                ->references('id')->on('departemen')
+                ->onDelete('cascade');
             $table->string('hostname');
             $table->string('username');
             $table->string('email');
             $table->enum('status',['active','inactive'])->default('active');
             $table->enum('kategori',['PC','Laptop'])->default('PC');
             $table->timestamps();
-
         });
     }
 

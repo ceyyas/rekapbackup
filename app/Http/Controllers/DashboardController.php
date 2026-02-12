@@ -25,7 +25,6 @@ class DashboardController extends Controller
         $totalTersisa = $stoks->sum('tersisa');
         $totalPemakaian = $stoks->sum('pemakaian');
 
-        // Rekap backup per bulan per perusahaan
         $rekapBackup = DB::table('rekap_backup as rb')
             ->join('inventori as i', 'rb.inventori_id', '=', 'i.id')
             ->join('perusahaan as p', 'i.perusahaan_id', '=', 'p.id')
@@ -44,7 +43,6 @@ class DashboardController extends Controller
                 $dataChart[$labelBulan] = [];
             }
 
-            // konversi ke GB (asumsi size dalam MB)
             $dataChart[$labelBulan][$row->nama_perusahaan] = round($row->total_size / 1024, 2);
         }
 

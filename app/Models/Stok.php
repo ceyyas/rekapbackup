@@ -12,7 +12,6 @@ class Stok extends Model
     protected $table = 'rekapburning';
     protected $fillable = ['nomor_sppb', 'nama_barang', 'jumlah_barang'];
 
-    public $timestamps = false;
     public function getPemakaianAttribute()
     {
         return match ($this->nama_barang) {
@@ -25,6 +24,7 @@ class Stok extends Model
     public function getTersisaAttribute()
     {
         return $this->jumlah_barang - $this->pemakaian;
+        return max(0, $stok);
     }
-
+    
 }

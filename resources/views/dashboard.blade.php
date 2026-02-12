@@ -26,7 +26,7 @@
       </div>
       <div class="big-card bg-pemakaian">
         <div class="card-body"
-         onclick="window.location='{{ route('stok.index') }}'">
+         onclick="window.location='{{ route('rekap-backup.cd-dvd') }}'">
           <h3>Pemakaian CD/DVD</h3>
           <p class="card-value">{{ $totalPemakaian }}</p>
         </div>
