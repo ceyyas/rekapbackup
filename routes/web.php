@@ -22,14 +22,14 @@ Route::middleware('guest')->group(function () {
 // Semua route yang butuh login
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
+       
     Route::get('/departemen/by-perusahaan', [DepartemenController::class, 'byPerusahaan']);
-   
+
     // route master data
     Route::resource('departemen', DepartemenController::class);
     Route::resource('komputer', KomputerController::class);
     Route::get('/komputer/data', [KomputerController::class, 'data'])->name('komputer.data');
-    
+
     Route::resource('stok', StokController::class);
 
     // route rekap backup
@@ -39,7 +39,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/rekap-backup/save', [RekapBackupController::class, 'saveDetail'])->name('rekap-backup.save');
     Route::post('/rekap-backup/auto-save', [RekapBackupController::class, 'autoSave'])->name('rekap.autoSave');
     Route::get('/rekap-backup/filter', [RekapBackupController::class, 'filter'])->name('rekap.filter');
-    Route::get('/rekap-backup/cd-dvd', [RekapBackupController::class, 'cdDvd'])->name('rekap-backup.cd-dvd');
 
     // export data
     Route::get('/rekap-backup/export', [RekapBackupController::class, 'export'])->name('rekap-backup.export');
@@ -59,6 +58,11 @@ Route::middleware('auth')->group(function () {
     ->name('laporan-bulanan.data');
     Route::get('/laporan/bulanan/export', [RekapBackupController::class, 'exportBulanan'])
     ->name('rekap-backup.export-bulanan');
+
+    // input penggunaan CD DVD
+    Route::get('/rekap-backup/cd-dvd', [RekapBackupController::class, 'cdDvd'])->name('rekap-backup.cd-dvd');
+    Route::get('/laporanburning/export', [RekapBackupController::class, 'exportBurning'])
+    ->name('rekap-backup.export-burning');
 
     // LOGOUT
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

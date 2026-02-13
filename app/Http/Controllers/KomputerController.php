@@ -48,27 +48,12 @@ class KomputerController extends Controller
                         ->orWhere('username', 'like', "%{$request->search}%")
                         ->orWhere('email', 'like', "%{$request->search}%");
                 });
-            });
-
-        return DataTables::of($query)
-            ->addIndexColumn()
-            ->addColumn('aksi', function($row){
-                return '
-                    <button class="aksi-show">
-                        <a href="'.route('komputer.show',$row->id).'"><i class="bx bx-show"></i></a>
-                    </button>
-                    <button class="aksi-edit">
-                        <a href="'.route('komputer.edit',$row->id).'"><i class="bx bx-edit-alt"></i></a>
-                    </button>
-                    <form action="'.route('komputer.destroy',$row->id).'" method="POST" style="display:inline;" onsubmit="return confirm(\'Are you sure?\')">
-                        '.csrf_field().method_field('DELETE').'
-                        <button type="submit" class="aksi-delete"><i class="bx bx-trash"></i></button>
-                    </form>
-                ';
             })
-            ->rawColumns(['aksi'])
-            ->make(true);
+            ->get();
+
+        return view('komputer.partials.table_rows', compact('query'));
     }
+
 
     /**
      * Show the form for creating a new resource.

@@ -40,38 +40,41 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-
 $(document).ready(function () {
+    // Inisialisasi DataTable (tanpa serverSide)
     let table = $('#komputerTable').DataTable({
-        dom: 'lfrtip' 
+        dom: 'lfrtip'
     });
 
+    // Custom search tetap jalan
     $('#customSearch').on('keyup', function () {
         table.search(this.value).draw();
     });
 
+    // Load departemen berdasarkan perusahaan
     function loadDepartemen(perusahaanId, departemenSelect) {
-        departemenSelect.html('<option>Loading...</option>');
+        departemenSelect.html('<option value="">Loading...</option>');
 
         if (!perusahaanId) {
-            departemenSelect.html('<option>-- Pilih Departemen --</option>');
+            departemenSelect.html('<option value="">-- Pilih Departemen --</option>');
             return;
         }
 
-        $.get('/departemen/by-perusahaan', { perusahaan_id: perusahaanId }, function (data) {
-            departemenSelect.html('<option>-- Pilih Departemen --</option>');
+        $.get(window.rekapRoutes.departemenByPerusahaan, { perusahaan_id: perusahaanId }, function (data) {
+            departemenSelect.html('<option value="">-- Pilih Departemen --</option>');
             $.each(data, function (i, d) {
                 departemenSelect.append(`<option value="${d.id}">${d.nama_departemen}</option>`);
             });
         });
     }
 
+    // Apply filter: panggil route data, replace tbody
     function applyFilter() {
-        let perusahaanId = $('#perusahaan_id_komputer').val();
-        let departemenId = $('#departemen_id_komputer').val();
-        let kategoriId   = $('#kategori_id_komputer').val();
+        let perusahaanId = $('#perusahaan_id').val() || null;
+        let departemenId = $('#departemen_id').val() || null;
+        let kategoriId   = $('#kategori_id').val() || null;
 
-        $.get('/komputers/filter', { 
+        $.get(window.rekapRoutes.data, { 
             perusahaan_id: perusahaanId, 
             departemen_id: departemenId, 
             kategori_id: kategoriId 
@@ -80,18 +83,17 @@ $(document).ready(function () {
         });
     }
 
-    // Event listener untuk semua filter
-    $('#perusahaan_id_komputer').on('change', function () {
+
+    // Event listener filter
+    $('#perusahaan_id').on('change', function () {
         let perusahaanId = $(this).val();
-        loadDepartemen(perusahaanId, $('#departemen_id_komputer'));
+        loadDepartemen(perusahaanId, $('#departemen_id'));
         applyFilter();
     });
 
-    $('#departemen_id_komputer').on('change', applyFilter);
-    $('#kategori_id_komputer').on('change', applyFilter);
-
+    $('#departemen_id').on('change', applyFilter);
+    $('#kategori_id').on('change', applyFilter);
 });
-
 
 
 
@@ -255,6 +257,12 @@ function initCdDvdPage() {
                 ]).draw(false);
             });
         });
+
+        $('#btnExportBurning')
+            .attr('href', window.rekapRoutes.exportBurning + 
+                '?perusahaan_id=' + perusahaanId + 
+                '&periode_id=' + periodeId)
+            .show();
     }
 
     // auto save

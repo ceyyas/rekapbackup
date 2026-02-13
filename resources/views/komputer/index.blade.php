@@ -33,14 +33,6 @@
                     <option value="PC">PC</option>
                     <option value="Laptop">Laptop</option>
                 </select>
-                <button type="submit">Terapkan</button>
-                <button type="submit">
-                <a href="{{ route('komputer.index') }}" 
-                    id="resetFilter" 
-                    class="btn btn-secondary">
-                    Reset Filter
-                </a>
-                </button>
             </div>
         </form>
     

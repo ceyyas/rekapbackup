@@ -195,8 +195,7 @@ class RekapExport implements
         ];
     }
 
-    
-      public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet)
     {
         // Header bold + background
         $sheet->getStyle('A2:J2')->applyFromArray([

@@ -13,6 +13,7 @@ use App\Models\Stok;
 use App\Exports\RekapExport;
 use App\Exports\RekapPerusahaanExport;
 use App\Exports\RekapPerusahaanMultiExport;
+use App\Exports\CdDvdExport;
 
 use App\Exports\RekapBulananExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -110,7 +111,6 @@ class RekapBackupController extends Controller
         return response()->json($departemens);
     }
 
-
     public function cdDvd(Request $request)
     {
         $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
@@ -170,6 +170,43 @@ class RekapBackupController extends Controller
         return response()->json(['success' => true]);
     }
 
+    private function getCdDvdQuery($perusahaanId, $periode)
+    {
+        return Departemen::query()
+            ->where('departemen.perusahaan_id', $perusahaanId)
+            ->leftJoin('inventori', 'inventori.departemen_id', '=', 'departemen.id')
+            ->leftJoin('rekap_backup', function ($join) use ($periode) {
+                $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
+                     ->where('rekap_backup.periode', $periode);
+            })
+            ->select('departemen.id','departemen.nama_departemen')
+            ->selectRaw('COALESCE(SUM(rekap_backup.size_data),0) as size_data')
+            ->selectRaw('COALESCE(SUM(rekap_backup.size_email),0) as size_email')
+            ->selectRaw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email),0) as total_size')
+            ->selectRaw('COALESCE(SUM(rekap_backup.jumlah_cd700),0) as total_cd700')
+            ->selectRaw('COALESCE(SUM(rekap_backup.jumlah_dvd47),0) as total_dvd47')
+            ->selectRaw('COALESCE(SUM(rekap_backup.jumlah_dvd85),0) as total_dvd85')
+            ->groupBy('departemen.id','departemen.nama_departemen');
+    }
+
+    public function exportBurning(Request $request)
+    {
+        $request->validate([
+            'periode_id' => 'required|date_format:Y-m',
+            'perusahaan_id' => 'required|exists:perusahaan,id'
+        ]);
+
+        $periode = $request->periode_id . '-01';
+
+        // ambil data rekap cd/dvd + size
+        $rekapCdDvd = $this->getCdDvdQuery($request->perusahaan_id, $periode)->get();
+
+        // kirim ke export class
+        return Excel::download(
+            new CdDvdExport($rekapCdDvd),
+            'penggunaan_cd_dvd_' . now()->format('Ymd_His') . '.xlsx'
+        );
+    }
 
     public function detailPage(Request $request, $departemenId)
     {
