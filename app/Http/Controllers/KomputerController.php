@@ -38,6 +38,7 @@ class KomputerController extends Controller
 
     public function data(Request $request)
     {
+        
         $query = Inventori::with(['perusahaan','departemen'])
             ->when($request->perusahaan_id, fn($q) => $q->where('perusahaan_id', $request->perusahaan_id))
             ->when($request->departemen_id, fn($q) => $q->where('departemen_id', $request->departemen_id))
@@ -50,7 +51,7 @@ class KomputerController extends Controller
                 });
             })
             ->get();
-
+            
         return view('komputer.partials.table_rows', compact('query'));
     }
 

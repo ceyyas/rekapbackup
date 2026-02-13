@@ -40,108 +40,99 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-$(document).ready(function () {
-    // Inisialisasi DataTable (tanpa serverSide)
-    let table = $('#komputerTable').DataTable({
-        dom: 'lfrtip'
-    });
+function initKomputerPage() {
+    $(document).ready(function () {
+        // =========================
+        // INDEX PAGE (tabel + filter)
+        // =========================
+        if ($('#komputerTable').length) {
+            let table = $('#komputerTable').DataTable({ dom: 'lfrtip' });
 
-    // Custom search tetap jalan
-    $('#customSearch').on('keyup', function () {
-        table.search(this.value).draw();
-    });
+            $('#customSearch').on('keyup', function () {
+                table.search(this.value).draw();
+            });
 
-    // Load departemen berdasarkan perusahaan
-    function loadDepartemen(perusahaanId, departemenSelect) {
-        departemenSelect.html('<option value="">Loading...</option>');
+            function loadDepartemen(perusahaanId, departemenSelect) {
+                departemenSelect.html('<option value="">Loading...</option>');
+                if (!perusahaanId) {
+                    departemenSelect.html('<option value="">-- Pilih Departemen --</option>');
+                    return;
+                }
+                $.get(window.rekapRoutes.departemenByPerusahaan, { perusahaan_id: perusahaanId }, function (data) {
+                    departemenSelect.html('<option value="">-- Pilih Departemen --</option>');
+                    $.each(data, function (i, d) {
+                        departemenSelect.append(`<option value="${d.id}">${d.nama_departemen}</option>`);
+                    });
+                });
+            }
 
-        if (!perusahaanId) {
-            departemenSelect.html('<option value="">-- Pilih Departemen --</option>');
-            return;
+            function applyFilter() {
+                $.get(window.rekapRoutes.data, {
+                    perusahaan_id: $('#perusahaan_id').val() || null,
+                    departemen_id: $('#departemen_id').val() || null,
+                    kategori_id: $('#kategori_id').val() || null
+                }, function (html) {
+                    $('#komputerTable tbody').html(html);
+                });
+            }
+
+            $('#perusahaan_id').on('change', function () {
+                loadDepartemen($(this).val(), $('#departemen_id'));
+                applyFilter();
+            });
+            $('#departemen_id').on('change', applyFilter);
+            $('#kategori_id').on('change', applyFilter);
         }
 
-        $.get(window.rekapRoutes.departemenByPerusahaan, { perusahaan_id: perusahaanId }, function (data) {
-            departemenSelect.html('<option value="">-- Pilih Departemen --</option>');
-            $.each(data, function (i, d) {
-                departemenSelect.append(`<option value="${d.id}">${d.nama_departemen}</option>`);
-            });
-        });
-    }
+        // =========================
+        // CREATE PAGE (dropdown perusahaan → departemen)
+        // =========================
+        if ($('#createForm').length) {
+            $('#perusahaan_id').on('change', function () {
+                let perusahaanId = $(this).val();
+                let departemen = $('#departemen_id');
 
-    // Apply filter: panggil route data, replace tbody
-    function applyFilter() {
-        let perusahaanId = $('#perusahaan_id').val() || null;
-        let departemenId = $('#departemen_id').val() || null;
-        let kategoriId   = $('#kategori_id').val() || null;
+                departemen.html('<option>Loading...</option>');
+                if (!perusahaanId) {
+                    departemen.html('<option>-- Pilih Departemen --</option>');
+                    return;
+                }
 
-        $.get(window.rekapRoutes.data, { 
-            perusahaan_id: perusahaanId, 
-            departemen_id: departemenId, 
-            kategori_id: kategoriId 
-        }, function (html) {
-            $('#komputerTable tbody').html(html);
-        });
-    }
-
-
-    // Event listener filter
-    $('#perusahaan_id').on('change', function () {
-        let perusahaanId = $(this).val();
-        loadDepartemen(perusahaanId, $('#departemen_id'));
-        applyFilter();
-    });
-
-    $('#departemen_id').on('change', applyFilter);
-    $('#kategori_id').on('change', applyFilter);
-});
-
-
-
-// edit data komputer 
-document.addEventListener('DOMContentLoaded', function () {
-    let perusahaanSelect = document.getElementById('perusahaan_id');
-    let departemenSelect = document.getElementById('departemen_id');
-
-    if (!perusahaanSelect || !departemenSelect) return;
-
-    perusahaanSelect.addEventListener('change', function () {
-        let perusahaanId = this.value;
-
-        departemenSelect.innerHTML = '<option>Loading...</option>';
-
-        fetch(`/departemen/by-perusahaan?perusahaan_id=${perusahaanId}`)
-            .then(res => res.json())
-            .then(data => {
-                departemenSelect.innerHTML = '<option>-- Pilih Departemen --</option>';
-                data.forEach(d => {
-                    departemenSelect.innerHTML += `<option value="${d.id}">${d.nama_departemen}</option>`;
+                $.get('/departemen/by-perusahaan', { perusahaan_id: perusahaanId }, function (data) {
+                    departemen.html('<option>-- Pilih Departemen --</option>');
+                    $.each(data, function (i, d) {
+                        departemen.append(`<option value="${d.id}">${d.nama_departemen}</option>`);
+                    });
                 });
             });
+        }
+
+        // =========================
+        // EDIT PAGE (dropdown perusahaan → departemen)
+        // =========================
+        if ($('#editForm').length) {
+            let perusahaanSelect = document.getElementById('perusahaan_id');
+            let departemenSelect = document.getElementById('departemen_id');
+
+            if (perusahaanSelect && departemenSelect) {
+                perusahaanSelect.addEventListener('change', function () {
+                    let perusahaanId = this.value;
+                    departemenSelect.innerHTML = '<option>Loading...</option>';
+
+                    fetch(`/departemen/by-perusahaan?perusahaan_id=${perusahaanId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            departemenSelect.innerHTML = '<option>-- Pilih Departemen --</option>';
+                            data.forEach(d => {
+                                departemenSelect.innerHTML += `<option value="${d.id}">${d.nama_departemen}</option>`;
+                            });
+                        });
+                });
+            }
+        }
     });
-});
+}
 
-// create data 
-$('#perusahaan_id').on('change', function () {
-    let perusahaanId = $(this).val();
-    let departemen = $('#departemen_id');
-
-    departemen.html('<option>Loading...</option>');
-
-    if (!perusahaanId) {
-        departemen.html('<option>-- Pilih Departemen --</option>');
-        return;
-    }
-
-    $.get('/departemen/by-perusahaan', { perusahaan_id: perusahaanId }, function (data) {
-        departemen.html('<option>-- Pilih Departemen --</option>');
-
-        $.each(data, function (i, d) {
-            departemen.append(
-                `<option value="${d.id}">${d.nama_departemen}</option>`
-            );
-        });
-    });
-});
 
 // rekap backup global
 function initIndexPage() {
@@ -469,6 +460,7 @@ function initLaporanBulanan() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    initKomputerPage();
     initIndexPage();
     initCdDvdPage();
     initDetailPage();

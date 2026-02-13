@@ -177,7 +177,7 @@ class RekapBackupController extends Controller
             ->leftJoin('inventori', 'inventori.departemen_id', '=', 'departemen.id')
             ->leftJoin('rekap_backup', function ($join) use ($periode) {
                 $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
-                     ->where('rekap_backup.periode', $periode);
+                    ->where('rekap_backup.periode', $periode);
             })
             ->select('departemen.id','departemen.nama_departemen')
             ->selectRaw('COALESCE(SUM(rekap_backup.size_data),0) as size_data')
@@ -196,14 +196,13 @@ class RekapBackupController extends Controller
             'perusahaan_id' => 'required|exists:perusahaan,id'
         ]);
 
-        $periode = $request->periode_id . '-01';
+        $perusahaanId = $request->input('perusahaan_id'); 
+        $periode = $request->periode_id . '-01'; 
+        $perusahaan = Perusahaan::find($perusahaanId)->nama_perusahaan;
+        $rekapCdDvd = $this->getCdDvdQuery($perusahaanId, $periode)->get();
 
-        // ambil data rekap cd/dvd + size
-        $rekapCdDvd = $this->getCdDvdQuery($request->perusahaan_id, $periode)->get();
-
-        // kirim ke export class
         return Excel::download(
-            new CdDvdExport($rekapCdDvd),
+            new CdDvdExport($periode, $perusahaan, $rekapCdDvd),
             'penggunaan_cd_dvd_' . now()->format('Ymd_His') . '.xlsx'
         );
     }

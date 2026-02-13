@@ -5,7 +5,7 @@
     <div class="entry-style">
         <h2>Edit Data Inventori</h2>
 
-        <form action="{{ route('komputer.update', $komputer->id) }}" method="POST">
+        <form id ="editForm" action="{{ route('komputer.update', $komputer->id) }}" method="POST">
             @csrf
             @method('PUT')
 

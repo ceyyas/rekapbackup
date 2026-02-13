@@ -5,7 +5,7 @@
     <div class="entry-style">
         <h2>Tambah Data</h2>
 
-        <form action="{{ route('komputer.store') }}" method="POST">
+        <form id ="createForm" action="{{ route('komputer.store') }}" method="POST">
             @csrf
 
             {{-- Hostname --}}

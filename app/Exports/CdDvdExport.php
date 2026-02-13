@@ -3,15 +3,14 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Carbon\Carbon;
 
 class CdDvdExport implements 
@@ -22,10 +21,14 @@ class CdDvdExport implements
     WithColumnWidths,
     WithStyles
 {
+    protected $perusahaan;
+    protected $periode;
     protected $rekap;
 
-    public function __construct($rekap)
+    public function __construct($perusahaan, $periode, $rekap)
     {
+        $this->perusahaan = $perusahaan; 
+        $this->periode = $periode;
         $this->rekap = $rekap;
     }
 
@@ -42,9 +45,9 @@ class CdDvdExport implements
             $rows->push([
                 'No' => $no++,
                 'Departemen' => $dept->nama_departemen,
-                'Size Data GB' => round($dept->size_data / 1024, 2) . ' GB',
-                'Size Email GB' => round($dept->size_email / 1024, 2) . ' GB',
-                'Total Size GB' => round($dept->total_size / 1024, 2) . ' GB',
+                'Size Data MB' => $dept->size_data . ' MB',
+                'Size Email MB' => $dept->size_email . ' MB',
+                'Total Size MB' => $dept->total_size . ' MB',
                 'CD 700 MB' => $dept->total_cd700,
                 'DVD 4.7 GB' => $dept->total_dvd47,
                 'DVD 8.5 GB' => $dept->total_dvd85,
@@ -53,14 +56,14 @@ class CdDvdExport implements
 
         // total keseluruhan
         $rows->push([
-            'No' => '',
-            'Departemen' => 'TOTAL',
-            'Size Data GB' => round($this->rekap->sum('size_data')/1024, 2) . ' GB',
-            'Size Email GB' => round($this->rekap->sum('size_email')/1024, 2) . ' GB',
-            'Total Size GB' => round($this->rekap->sum('total_size')/1024, 2) . ' GB',
-            'CD 700 MB' => $this->rekap->sum('total_cd700'),
-            'DVD 4.7 GB' => $this->rekap->sum('total_dvd47'),
-            'DVD 8.5 GB' => $this->rekap->sum('total_dvd85'),
+            '',
+            'TOTAL',
+            round($this->rekap->sum('size_data')) . ' MB',
+            round($this->rekap->sum('size_email')) . ' MB',
+            round($this->rekap->sum('total_size')) . ' MB',
+            $this->rekap->sum('total_cd700'),
+            $this->rekap->sum('total_dvd47'),
+            $this->rekap->sum('total_dvd85'),
         ]);
 
         return $rows;
@@ -109,7 +112,7 @@ class CdDvdExport implements
 
                 // judul laporan di baris 1
                 $periodeFormat = \Carbon\Carbon::parse($this->periode)->translatedFormat('F Y');
-                $judul = "Laporan Rekap Backup Data - {$this->perusahaan} - Periode {$periodeFormat}";                
+                $judul = "Laporan Penggunaan CD DVD - {$this->perusahaan} - Periode {$periodeFormat}";                
                 $event->sheet->setCellValue('A1', $judul);
                 $event->sheet->mergeCells('A1:H1');          
                 $event->sheet->getStyle('A1:H1')->applyFromArray([
