@@ -34,11 +34,11 @@
             autoSave: "{{ route('rekap.autoSave') }}",
             export: "{{ route('rekap-backup.export') }}",
             departemenByPerusahaan: "{{ url('/departemen/by-perusahaan') }}",
+            data: "{{ route('komputer.data') }}",
             pivot: "{{ route('rekap-backup.laporan-perusahaan-pivot') }}",
             exportPerusahaan: "{{ route('rekap-backup.export-perusahaan') }}",
             laporanBulanan: "{{ route('laporan-bulanan.data')}}",
             exportBulanan: "{{ route('rekap-backup.export-bulanan') }}",
-            data: "{{ route('komputer.data') }}",
             exportBurning: "{{ route('rekap-backup.export-burning') }}"
         };
     </script>

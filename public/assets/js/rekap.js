@@ -42,9 +42,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 function initKomputerPage() {
     $(document).ready(function () {
-        // =========================
-        // INDEX PAGE (tabel + filter)
-        // =========================
         if ($('#komputerTable').length) {
             let table = $('#komputerTable').DataTable({ dom: 'lfrtip' });
 
@@ -70,7 +67,7 @@ function initKomputerPage() {
                 $.get(window.rekapRoutes.data, {
                     perusahaan_id: $('#perusahaan_id').val() || null,
                     departemen_id: $('#departemen_id').val() || null,
-                    kategori_id: $('#kategori_id').val() || null
+                    kategori: $('#kategori_id').val() || null
                 }, function (html) {
                     $('#komputerTable tbody').html(html);
                 });
@@ -84,9 +81,6 @@ function initKomputerPage() {
             $('#kategori_id').on('change', applyFilter);
         }
 
-        // =========================
-        // CREATE PAGE (dropdown perusahaan → departemen)
-        // =========================
         if ($('#createForm').length) {
             $('#perusahaan_id').on('change', function () {
                 let perusahaanId = $(this).val();
@@ -107,9 +101,6 @@ function initKomputerPage() {
             });
         }
 
-        // =========================
-        // EDIT PAGE (dropdown perusahaan → departemen)
-        // =========================
         if ($('#editForm').length) {
             let perusahaanSelect = document.getElementById('perusahaan_id');
             let departemenSelect = document.getElementById('departemen_id');

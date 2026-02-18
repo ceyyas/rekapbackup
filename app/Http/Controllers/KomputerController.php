@@ -38,11 +38,10 @@ class KomputerController extends Controller
 
     public function data(Request $request)
     {
-        
         $query = Inventori::with(['perusahaan','departemen'])
             ->when($request->perusahaan_id, fn($q) => $q->where('perusahaan_id', $request->perusahaan_id))
             ->when($request->departemen_id, fn($q) => $q->where('departemen_id', $request->departemen_id))
-            ->when($request->kategori_id, fn($q) => $q->where('kategori', $request->kategori_id))
+            ->when($request->kategori, fn($q) => $q->where('kategori', $request->kategori))
             ->when($request->search, function ($q) use ($request) {
                 $q->where(function ($sub) use ($request) {
                     $sub->where('hostname', 'like', "%{$request->search}%")
