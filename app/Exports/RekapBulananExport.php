@@ -99,20 +99,12 @@ class RekapBulananExport implements
         return [
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
-
-                foreach ($this->headingRows as $rowIndex) {
-                    $sheet->mergeCells("A{$rowIndex}:F{$rowIndex}");
-                    $sheet->getStyle("A{$rowIndex}")->getFont()->setBold(true);
-                    $sheet->getStyle("A{$rowIndex}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                }
-                $highestColumn = $sheet->getHighestColumn();
-
                 $periodeFormat = \Carbon\Carbon::parse($this->periode)->translatedFormat('F Y');
                 $judul = "Laporan Rekap Backup Data ALL PT - Periode {$periodeFormat}";
                      
-                $event->sheet->setCellValue('A1', $judul);
-                $event->sheet->mergeCells("A1:D1");        
-                $event->sheet->getStyle("A1:D1")->applyFromArray([
+                $sheet->setCellValue('A1', $judul);
+                $sheet->mergeCells("A1:D1");        
+                $sheet->getStyle("A1:D1")->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF'], 

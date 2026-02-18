@@ -3,9 +3,9 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\AfterSheet;
+use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -21,19 +21,15 @@ class CdDvdExport implements
     WithColumnWidths,
     WithStyles
 {
-    protected $perusahaan;
     protected $periode;
+    protected $perusahaan;
     protected $rekap;
 
-    public function __construct($perusahaan, $periode, $rekap)
+    public function __construct($periode, $perusahaan, $rekap)
     {
-        $this->perusahaan = $perusahaan; 
         $this->periode = $periode;
+        $this->perusahaan = $perusahaan; 
         $this->rekap = $rekap;
-    }
-
-    public function startCell(): string { 
-        return 'A2'; 
     }
 
     public function collection()
@@ -83,39 +79,21 @@ class CdDvdExport implements
         ];
     }
 
+    public function startCell(): string { 
+        return 'A2'; 
+    }
+
     public function registerEvents(): array    
     {
-         return [
+        return [
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
-                $highestRow = $sheet->getHighestRow();
-
-                for ($row = 1; $row <= $highestRow; $row++) {
-                    $value = $sheet->getCell("A{$row}")->getValue();
-                    $colB  = $sheet->getCell("B{$row}")->getValue();
-
-                    if (!empty($value) && empty($colB)) {
-                        $sheet->mergeCells("A{$row}:H{$row}");
-                        $sheet->getStyle("A{$row}:H{$row}")->applyFromArray([
-                            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                            'fill' => [
-                                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => '2a6099'],
-                            ],
-                            'alignment' => [
-                                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                                'vertical'   => Alignment::VERTICAL_CENTER,
-                            ],
-                        ]);
-                    }
-                }
-
-                // judul laporan di baris 1
                 $periodeFormat = \Carbon\Carbon::parse($this->periode)->translatedFormat('F Y');
                 $judul = "Laporan Penggunaan CD DVD - {$this->perusahaan} - Periode {$periodeFormat}";                
-                $event->sheet->setCellValue('A1', $judul);
-                $event->sheet->mergeCells('A1:H1');          
-                $event->sheet->getStyle('A1:H1')->applyFromArray([
+                
+                $sheet->setCellValue('A1', $judul);
+                $sheet->mergeCells('A1:H1');          
+                $sheet->getStyle('A1:H1')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF'], 

@@ -14,8 +14,8 @@ use App\Exports\RekapExport;
 use App\Exports\RekapPerusahaanExport;
 use App\Exports\RekapPerusahaanMultiExport;
 use App\Exports\CdDvdExport;
-
 use App\Exports\RekapBulananExport;
+
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 
@@ -201,9 +201,12 @@ class RekapBackupController extends Controller
         $perusahaan = Perusahaan::find($perusahaanId)->nama_perusahaan;
         $rekapCdDvd = $this->getCdDvdQuery($perusahaanId, $periode)->get();
 
+        $periodeFormat = \Carbon\Carbon::parse($periode)->translatedFormat('F_Y'); 
+        $fileName = "penggunaan_cd_dvd_{$perusahaan}_{$periodeFormat}.xlsx";
+
         return Excel::download(
             new CdDvdExport($periode, $perusahaan, $rekapCdDvd),
-            'penggunaan_cd_dvd_' . now()->format('Ymd_His') . '.xlsx'
+            $fileName
         );
     }
 
@@ -294,29 +297,33 @@ class RekapBackupController extends Controller
     }
     
     public function export(Request $request)
-    {
-        $request->validate([
-            'periode_id' => 'required|date_format:Y-m',
-            'perusahaan_id' => 'required|exists:perusahaan,id'
-        ]);
+{
+    $request->validate([
+        'periode_id' => 'required|date_format:Y-m',
+        'perusahaan_id' => 'required|exists:perusahaan,id'
+    ]);
 
-        $perusahaanId = $request->input('perusahaan_id'); 
-        $periode = $request->periode_id . '-01'; 
+    $perusahaanId = $request->input('perusahaan_id'); 
+    $periode = $request->periode_id . '-01'; 
 
-        $perusahaan = Perusahaan::find($perusahaanId)->nama_perusahaan;
-        $rekap = $this->getDepartemenQuery($perusahaanId, $periode)->get();
+    $perusahaan = Perusahaan::find($perusahaanId)->nama_perusahaan;
+    $rekap = $this->getDepartemenQuery($perusahaanId, $periode)->get();
 
-        $departemens = Departemen::with(['inventori.rekap_backup' => function($q) use ($periode) {
-            $q->where('periode', $periode);
-        }])
-        ->where('perusahaan_id', $perusahaanId)
-        ->get();
+    $departemens = Departemen::with(['inventori.rekap_backup' => function($q) use ($periode) {
+        $q->where('periode', $periode);
+    }])
+    ->where('perusahaan_id', $perusahaanId)
+    ->get();
 
-        return Excel::download(
-            new RekapExport($rekap, $departemens, $perusahaan, $periode),
-            'rekap_backup_' . now()->format('Ymd_His') . '.xlsx'
-        );
-    }
+    $periodeFormat = \Carbon\Carbon::parse($periode)->translatedFormat('F Y');
+    $fileName = "rekap_backup_{$perusahaan}_{$periodeFormat}.xlsx";
+
+    return Excel::download(
+        new RekapExport($rekap, $departemens, $perusahaan, $periode),
+        $fileName
+    );
+}
+
 
 
     public function laporanperusahaan(Request $request)
