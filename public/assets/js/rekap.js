@@ -43,12 +43,45 @@ document.addEventListener("DOMContentLoaded", function() {
 function initKomputerPage() {
     $(document).ready(function () {
         if ($('#komputerTable').length) {
-            let table = $('#komputerTable').DataTable({ dom: 'lfrtip' });
-
-            $('#customSearch').on('keyup', function () {
-                table.search(this.value).draw();
+            let table = $('#komputerTable').DataTable({
+                dom: '<"datatable-controls"lfr>t<"bottom"ip>',
+                responsive: true,
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: window.rekapRoutes.data,
+                    data: function (d) {
+                        d.perusahaan_id = $('#perusahaan_id').val();
+                        d.departemen_id = $('#departemen_id').val();
+                        d.kategori = $('#kategori_id').val();
+                    }
+                },
+                columns: [
+                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                    { data: 'perusahaan.nama_perusahaan', name: 'perusahaan.nama_perusahaan' },
+                    { data: 'departemen.nama_departemen', name: 'departemen.nama_departemen' },
+                    { data: 'hostname', name: 'hostname' },
+                    { data: 'username', name: 'username' },
+                    { data: 'email', name: 'email' },
+                    { data: 'kategori', name: 'kategori' },
+                    { data: 'status', name: 'status' },
+                    { data: 'aksi', name: 'aksi', orderable: false, searchable: false }
+                ],
+            });
+            
+            // reload data saat filter berubah
+            $('#perusahaan_id').on('change', function () {
+                loadDepartemen($(this).val(), $('#departemen_id'));
+                table.ajax.reload();
+            });
+            $('#departemen_id').on('change', function () {
+                table.ajax.reload();
+            });
+            $('#kategori_id').on('change', function () {
+                table.ajax.reload();
             });
 
+            // fungsi load departemen
             function loadDepartemen(perusahaanId, departemenSelect) {
                 departemenSelect.html('<option value="">Loading...</option>');
                 if (!perusahaanId) {
@@ -62,25 +95,11 @@ function initKomputerPage() {
                     });
                 });
             }
-
-            function applyFilter() {
-                $.get(window.rekapRoutes.data, {
-                    perusahaan_id: $('#perusahaan_id').val() || null,
-                    departemen_id: $('#departemen_id').val() || null,
-                    kategori: $('#kategori_id').val() || null
-                }, function (html) {
-                    $('#komputerTable tbody').html(html);
-                });
-            }
-
-            $('#perusahaan_id').on('change', function () {
-                loadDepartemen($(this).val(), $('#departemen_id'));
-                applyFilter();
-            });
-            $('#departemen_id').on('change', applyFilter);
-            $('#kategori_id').on('change', applyFilter);
         }
 
+        // =========================
+        // CREATE PAGE (dropdown perusahaan → departemen)
+        // =========================
         if ($('#createForm').length) {
             $('#perusahaan_id').on('change', function () {
                 let perusahaanId = $(this).val();
@@ -101,6 +120,9 @@ function initKomputerPage() {
             });
         }
 
+        // =========================
+        // EDIT PAGE (dropdown perusahaan → departemen)
+        // =========================
         if ($('#editForm').length) {
             let perusahaanSelect = document.getElementById('perusahaan_id');
             let departemenSelect = document.getElementById('departemen_id');

@@ -41,17 +41,19 @@ class KomputerController extends Controller
         $query = Inventori::with(['perusahaan','departemen'])
             ->when($request->perusahaan_id, fn($q) => $q->where('perusahaan_id', $request->perusahaan_id))
             ->when($request->departemen_id, fn($q) => $q->where('departemen_id', $request->departemen_id))
-            ->when($request->kategori, fn($q) => $q->where('kategori', $request->kategori))
-            ->when($request->search, function ($q) use ($request) {
-                $q->where(function ($sub) use ($request) {
-                    $sub->where('hostname', 'like', "%{$request->search}%")
-                        ->orWhere('username', 'like', "%{$request->search}%")
-                        ->orWhere('email', 'like', "%{$request->search}%");
-                });
+            ->when($request->kategori, fn($q) => $q->where('kategori', $request->kategori));
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('aksi', function($row){
+                return view('komputer.partials.actions', compact('row'))->render();
             })
-            ->get();
-            
-        return view('komputer.partials.table_rows', compact('query'));
+            ->editColumn('status', function($row){
+                    $class = $row->status === 'active' ? 'status-active' : 'status-inactive';
+                    return '<span class="status '.$class.'">'.ucfirst($row->status).'</span>';
+                })
+            ->rawColumns(['aksi','status'])
+            ->make(true);
     }
 
 

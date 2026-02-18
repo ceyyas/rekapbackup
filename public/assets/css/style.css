@@ -385,53 +385,53 @@ header .image-text .header-text {
 }
 
 .table-style {
-    width: calc(100% - 250px); /* Parent div takes full width */
+    width: calc(100% - 250px); 
     position: relative;
     overflow-x: auto; 
     background: #fff;
     padding: 20px;
     border-radius: 20px;
     margin-top: 10px;
-    -ms-overflow-style: none; /* Untuk Internet Explorer dan Edge */
-    scrollbar-width: none; /* Untuk Firefox */
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
 }
 
 .table-style::-webkit-scrollbar {
-    display: none; /* Untuk Chrome, Safari, dan Opera */
+    display: none; 
 }
 
 .table-style table {
     margin-top: 20px;
     margin-bottom: 20px;
     font-size: 20px;
-    width: 100%; /* Table will take full width of parent */
+    width: 100%; 
     border-collapse: collapse;
 }
 
 .table-style th, .table-style td {
     padding: 10px 0 10px 10px;
-    border: 1px solid #ddd; /* Optional: Adds border to table cells */
+    border: 1px solid #ddd; 
     border-left: none;
     border-right: none;
-    text-align: left; /* Align text to the left */
+    text-align: left; 
 }
 
 /* ===== Entry button ===== */
 
 .entry-style {
-    width: calc(100% - 350px); /* Parent div takes full width */
+    width: calc(100% - 350px); 
     position: relative;
     overflow-x: auto; 
     background: #fff;
     padding: 20px;
     border-radius: 20px;
     margin-top: 10px;
-    -ms-overflow-style: none; /* Untuk Internet Explorer dan Edge */
-    scrollbar-width: none; /* Untuk Firefox */
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
 }
 
 .table-style::-webkit-scrollbar {
-    display: none; /* Untuk Chrome, Safari, dan Opera */
+    display: none; 
 }
 
 /* ===== button ===== */
@@ -873,19 +873,25 @@ ul#customBarangDropdown li:hover {
       color: white;
     }
 
+.dataTables_wrapper {
+    justify-content: space-between;
+    flex-wrap: wrap; 
+    align-items: center;
+}
+
+.datatable-controls {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
 .dataTables_wrapper .dataTables_length,
 .dataTables_wrapper .dataTables_filter {
     display: flex;
     align-items: center;
     gap: 12px; 
     margin: 10px 0;
-}
-
-.dataTables_wrapper {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap; 
-    align-items: center;
 }
 
 .dataTables_wrapper .dataTables_filter input {
@@ -945,14 +951,12 @@ table.dataTable thead .sorting_asc:after {
     font-size: 0.8em;
 }
 
-
 table.dataTable thead .sorting_desc:after {
     content: "▼";       
     color: #b7ba9f;
     margin-left: 5px;
     font-size: 0.8em;
 }
-
 
 table.dataTable thead .sorting_asc,
 table.dataTable thead .sorting_desc {
