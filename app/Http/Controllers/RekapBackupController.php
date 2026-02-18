@@ -284,8 +284,8 @@ class RekapBackupController extends Controller
                     'periode' => $periode
                 ],
                 [
-                    'size_data' => $val['size_data'] ?? 0,
-                    'size_email' => $val['size_email'] ?? 0,
+                    'size_data'  => number_format($val['size_data'] ?? 0, 2) . ' MB',
+                    'size_email' => number_format($val['size_email'] ?? 0, 2) . ' MB',
                     'status' => (
                         ($val['size_data'] ?? 0) + ($val['size_email'] ?? 0)
                     ) > 0 ? 'completed' : 'pending'
@@ -297,34 +297,32 @@ class RekapBackupController extends Controller
     }
     
     public function export(Request $request)
-{
-    $request->validate([
-        'periode_id' => 'required|date_format:Y-m',
-        'perusahaan_id' => 'required|exists:perusahaan,id'
-    ]);
+    {
+        $request->validate([
+            'periode_id' => 'required|date_format:Y-m',
+            'perusahaan_id' => 'required|exists:perusahaan,id'
+        ]);
 
-    $perusahaanId = $request->input('perusahaan_id'); 
-    $periode = $request->periode_id . '-01'; 
+        $perusahaanId = $request->input('perusahaan_id'); 
+        $periode = $request->periode_id . '-01'; 
 
-    $perusahaan = Perusahaan::find($perusahaanId)->nama_perusahaan;
-    $rekap = $this->getDepartemenQuery($perusahaanId, $periode)->get();
+        $perusahaan = Perusahaan::find($perusahaanId)->nama_perusahaan;
+        $rekap = $this->getDepartemenQuery($perusahaanId, $periode)->get();
 
-    $departemens = Departemen::with(['inventori.rekap_backup' => function($q) use ($periode) {
-        $q->where('periode', $periode);
-    }])
-    ->where('perusahaan_id', $perusahaanId)
-    ->get();
+        $departemens = Departemen::with(['inventori.rekap_backup' => function($q) use ($periode) {
+            $q->where('periode', $periode);
+        }])
+        ->where('perusahaan_id', $perusahaanId)
+        ->get();
 
-    $periodeFormat = \Carbon\Carbon::parse($periode)->translatedFormat('F Y');
-    $fileName = "rekap_backup_{$perusahaan}_{$periodeFormat}.xlsx";
+        $periodeFormat = \Carbon\Carbon::parse($periode)->translatedFormat('F Y');
+        $fileName = "rekap_backup_{$perusahaan}_{$periodeFormat}.xlsx";
 
-    return Excel::download(
-        new RekapExport($rekap, $departemens, $perusahaan, $periode),
-        $fileName
-    );
-}
-
-
+        return Excel::download(
+            new RekapExport($rekap, $departemens, $perusahaan, $periode),
+            $fileName
+        );
+    }
 
     public function laporanperusahaan(Request $request)
     {
