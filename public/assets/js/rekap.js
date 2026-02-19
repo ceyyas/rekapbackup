@@ -40,6 +40,30 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+function initDepartemenPage() {
+    let table = $('#departemenTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: window.rekapRoutes.dataDepartemen,
+            data: function (d) {
+                d.perusahaan_id = $('#perusahaan_id').val(); 
+            }
+        },
+        dom: 'lfrtip',
+        columns: [
+            { data: 'DT_RowIndex', orderable: false, searchable: false },
+            { data: 'perusahaan', name: 'perusahaan.nama_perusahaan' },
+            { data: 'nama_departemen', name: 'nama_departemen' },
+            { data: 'aksi', orderable: false, searchable: false }
+        ]
+    });
+
+    $('#perusahaan_id').on('change', function () {
+        table.ajax.reload(); 
+    });
+}
+
 function initKomputerPage() {
     $(document).ready(function () {
         if ($('#komputerTable').length) {
@@ -456,6 +480,7 @@ function initLaporanBulanan() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    initDepartemenPage();
     initKomputerPage();
     initIndexPage();
     initCdDvdPage();

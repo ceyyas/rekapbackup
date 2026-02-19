@@ -14,15 +14,10 @@
     <form method="GET" action="{{ route('departemen.index') }}">
         <div class="filter-menu">
 
-            <select name="perusahaan_id"
-                    class="filter"
-                    onchange="this.form.submit()">
+            <select id="perusahaan_id" class="filter">
                 <option value="">-- Pilih Perusahaan --</option>
                 @foreach ($perusahaans as $perusahaan)
-                    <option value="{{ $perusahaan->id }}"
-                        {{ request('perusahaan_id') == $perusahaan->id ? 'selected' : '' }}>
-                        {{ $perusahaan->nama_perusahaan }}
-                    </option>
+                    <option value="{{ $perusahaan->id }}">{{ $perusahaan->nama_perusahaan }}</option>
                 @endforeach
             </select>
         </div>
@@ -39,33 +34,6 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($departemens as $index => $departemen)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $departemen->perusahaan->nama_perusahaan }}</td>
-                <td>{{ $departemen->nama_departemen }}</td>
-                <!-- awal tombol aksi -->
-                <td class="text-center">
-                    <!-- tombol show -->
-                    <button class="aksi-show"><a href="{{ route('departemen.show', $departemen->id) }}"><i class='bx bx-show'></i></a></button>
-                            
-                    <!-- tombol edit -->
-                    <button class="aksi-edit"><a href="{{ route('departemen.edit', $departemen->id) }}"><i class='bx bx-edit-alt'></i></a></button>
-
-                    <!-- form untuk tombol delete -->
-                    <form action="{{ route('departemen.destroy', $departemen->id) }}"
-                        method="POST"
-                        onsubmit="return confirm('Are you sure?')"
-                        style="display: inline;">
-                        @csrf <!-- hidden token -->
-                        @method('DELETE') <!-- tambahlan untuk delete form method post -->
-                                
-                        <!-- tombol delete -->
-                        <button type="submit" class="aksi-delete"><i class='bx bx-trash'></i></button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
         </tbody>
     </table>
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Departemen;
 use App\Models\Perusahaan;
+use Yajra\DataTables\Facades\DataTables;
 
 class DepartemenController extends Controller
 {
@@ -14,16 +15,22 @@ class DepartemenController extends Controller
     public function index(Request $request)
     {
         $perusahaans = Perusahaan::all();
-        $departemens = Departemen::with('perusahaan')
-            ->when($request->perusahaan_id, function ($query) use ($request) {
-                $query->where('perusahaan_id', $request->perusahaan_id);
-            })
-            ->orderByDesc('updated_at')
-            ->get();
-
-        return view('departemen.index', compact('departemens', 'perusahaans'));
+        return view('departemen.index', compact('perusahaans'));
     }
 
+    public function data(Request $request)
+    {
+        $query = Departemen::with('perusahaan')
+            ->when($request->perusahaan_id, fn($q) => 
+                $q->where('departemen.perusahaan_id', $request->perusahaan_id));
+
+        return datatables()->eloquent($query)
+            ->addIndexColumn()
+            ->addColumn('perusahaan', fn($d) => $d->perusahaan->nama_perusahaan ?? '-')
+            ->addColumn('aksi', fn($d) => view('departemen.partials.actions', ['departemen' => $d])->render())
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -50,7 +57,7 @@ class DepartemenController extends Controller
         ]);
 
         return redirect()->route('departemen.index')
-                        ->with('success', 'Departemen berhasil ditambahkan');
+            ->with('success', 'Departemen berhasil ditambahkan');
     }
 
     /**

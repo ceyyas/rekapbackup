@@ -37,6 +37,7 @@
             detail: "{{ route('rekap-backup.detail-page', ':id') }}",
             autoSave: "{{ route('rekap.autoSave') }}",
             export: "{{ route('rekap-backup.export') }}",
+            dataDepartemen: "{{ route('departemen.data')}}",
             departemenByPerusahaan: "{{ url('/departemen/by-perusahaan') }}",
             data: "{{ route('komputer.data') }}",
             pivot: "{{ route('rekap-backup.laporan-perusahaan-pivot') }}",

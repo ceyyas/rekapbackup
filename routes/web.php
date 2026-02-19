@@ -25,9 +25,9 @@ Route::middleware('auth')->group(function () {
     
     Route::get('/komputer/data', [KomputerController::class, 'data'])->name('komputer.data');
     Route::get('/departemen/by-perusahaan', [DepartemenController::class, 'byPerusahaan']);
+    Route::get('/departemen/data', [DepartemenController::class, 'data'])->name('departemen.data');
     Route::resource('departemen', DepartemenController::class);
     Route::resource('komputer', KomputerController::class);
-   
     
     Route::resource('stok', StokController::class);
 
