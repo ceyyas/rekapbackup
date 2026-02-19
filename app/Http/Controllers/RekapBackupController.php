@@ -140,34 +140,46 @@ class RekapBackupController extends Controller
         $stokDvd47 = Stok::where('nama_barang', 'DVD 4.7 GB')->first();
         $stokDvd85 = Stok::where('nama_barang', 'DVD 8.5 GB')->first();
 
-        if ($request->cd700 !== null && $request->cd700 > $stokCd->tersisa) {
-            return response()->json(['error' => 'Stok CD 700 MB tidak mencukupi'], 422);
-        }
-        if ($request->dvd47 !== null && $request->dvd47 > $stokDvd47->tersisa) {
-            return response()->json(['error' => 'Stok DVD 4.7 GB tidak mencukupi'], 422);
-        }
-        if ($request->dvd85 !== null && $request->dvd85 > $stokDvd85->tersisa) {
-            return response()->json(['error' => 'Stok DVD 8.5 GB tidak mencukupi'], 422);
-        }
-
         $rekap = RekapBackup::firstOrNew([
-            'inventori_id' => $request->inventori_id,
-            'periode'      => $periode,
-        ]);
+                'inventori_id' => $request->inventori_id,
+                'periode'      => $periode,
+            ]);
 
-        if ($request->cd700 !== null) {
-            $rekap->jumlah_cd700 = (int) $request->cd700;
-        }
-        if ($request->dvd47 !== null) {
-            $rekap->jumlah_dvd47 = (int) $request->dvd47;
-        }
-        if ($request->dvd85 !== null) {
-            $rekap->jumlah_dvd85 = (int) $request->dvd85;
-        }
+            // Ambil nilai lama dari rekap
+            $oldCd700  = $rekap->jumlah_cd700 ?? 0;
+            $oldDvd47  = $rekap->jumlah_dvd47 ?? 0;
+            $oldDvd85  = $rekap->jumlah_dvd85 ?? 0;
 
-        $rekap->save();
+            // Hitung selisih perubahan
+            $newCd700  = $request->cd700 !== null ? (int) $request->cd700 : $oldCd700;
+            $diffCd700 = $newCd700 - $oldCd700;
 
-        return response()->json(['success' => true]);
+            $newDvd47  = $request->dvd47 !== null ? (int) $request->dvd47 : $oldDvd47;
+            $diffDvd47 = $newDvd47 - $oldDvd47;
+
+            $newDvd85  = $request->dvd85 !== null ? (int) $request->dvd85 : $oldDvd85;
+            $diffDvd85 = $newDvd85 - $oldDvd85;
+
+            // Validasi stok berdasarkan selisih
+            if ($diffCd700 > 0 && $diffCd700 > $stokCd->tersisa) {
+                return response()->json(['error' => 'Stok CD 700 MB tidak mencukupi'], 422);
+            }
+            if ($diffDvd47 > 0 && $diffDvd47 > $stokDvd47->tersisa) {
+                return response()->json(['error' => 'Stok DVD 4.7 GB tidak mencukupi'], 422);
+            }
+            if ($diffDvd85 > 0 && $diffDvd85 > $stokDvd85->tersisa) {
+                return response()->json(['error' => 'Stok DVD 8.5 GB tidak mencukupi'], 422);
+            }
+
+            // Update nilai rekap
+            $rekap->jumlah_cd700 = $newCd700;
+            $rekap->jumlah_dvd47 = $newDvd47;
+            $rekap->jumlah_dvd85 = $newDvd85;
+
+            $rekap->save();
+
+            return response()->json(['success' => true]);
+
     }
 
     private function getCdDvdQuery($perusahaanId, $periode)
@@ -284,8 +296,8 @@ class RekapBackupController extends Controller
                     'periode' => $periode
                 ],
                 [
-                    'size_data'  => number_format($val['size_data'] ?? 0, 2) . ' MB',
-                    'size_email' => number_format($val['size_email'] ?? 0, 2) . ' MB',
+                    'size_data' => $val['size_data'] ?? 0,
+                    'size_email' => $val['size_email'] ?? 0,
                     'status' => (
                         ($val['size_data'] ?? 0) + ($val['size_email'] ?? 0)
                     ) > 0 ? 'completed' : 'pending'

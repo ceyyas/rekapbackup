@@ -291,20 +291,11 @@ function initCdDvdPage() {
             payload.dvd85 = parseInt($input.val());
         }
 
-        console.log('Payload autosave:', payload);
-
         $.post(window.rekapRoutes.autoSave, payload)
-         .done(function(res) {
-            if (res.success) {
-                console.log('Auto-save berhasil untuk inventori ' + inventoriId);
-            }
-         })
          .fail(function(xhr) {
             let res = xhr.responseJSON;
             if (res && res.error) {
                 alert(res.error); 
-            } else {
-                console.error('Auto-save gagal:', xhr.responseText);
             }
         });
     });
