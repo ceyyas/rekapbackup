@@ -31,10 +31,7 @@
         </div>
     </form>
 
-    <table id="rekapTable" class="display"
-        data-filter-url="{{ route('rekap.filter') }}"
-        data-detail-url="{{ route('rekap-backup.detail-page', ':id') }}">
-        
+    <table id="rekapTable" class="display">
        <thead>
             <tr>
                 <th>Departemen</th>

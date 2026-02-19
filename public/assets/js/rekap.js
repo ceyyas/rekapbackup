@@ -190,6 +190,13 @@ function initIndexPage() {
 
         if (!perusahaanId || !periodeId) return;
 
+        let params = new URLSearchParams(window.location.search);
+        params.set('periode_id', periodeId);
+        params.set('perusahaan_id', perusahaanId);
+
+        let newUrl = window.location.pathname + '?' + params.toString();
+        window.history.replaceState(null, '', newUrl);
+
         let filterUrl = window.rekapRoutes.filter;
         let detailUrlTemplate = window.rekapRoutes.detail;
 
@@ -197,9 +204,7 @@ function initIndexPage() {
             table.clear();
 
             $.each(data, function(i, d) {
-                let detailUrl = detailUrlTemplate.replace(':id', d.id)
-                    + "?periode_id=" + periodeId
-                    + "&perusahaan_id=" + perusahaanId;
+                let detailUrl = detailUrlTemplate.replace(':id', d.id) + '?' + params.toString();
 
                 let rowNode = table.row.add([
                     d.nama_departemen,
@@ -216,10 +221,8 @@ function initIndexPage() {
             });
 
             $('#btnExport')
-            .attr('href', window.rekapRoutes.export + 
-                '?perusahaan_id=' + perusahaanId + 
-                '&periode_id=' + periodeId)
-            .show();
+                .attr('href', window.rekapRoutes.export + '?' + params.toString())
+                .show();
         });
     }
 
