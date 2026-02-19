@@ -39,9 +39,12 @@ class KomputerController extends Controller
     public function data(Request $request)
     {
         $query = Inventori::with(['perusahaan','departemen'])
-            ->when($request->perusahaan_id, fn($q) => $q->where('perusahaan_id', $request->perusahaan_id))
-            ->when($request->departemen_id, fn($q) => $q->where('departemen_id', $request->departemen_id))
-            ->when($request->kategori, fn($q) => $q->where('kategori', $request->kategori));
+            ->when($request->perusahaan_id, fn($q) => 
+                $q->where('inventori.perusahaan_id', $request->perusahaan_id))
+            ->when($request->departemen_id, fn($q) => 
+                $q->where('inventori.departemen_id', $request->departemen_id))
+            ->when($request->kategori, fn($q) => 
+                $q->where('inventori.kategori', $request->kategori));
 
         return DataTables::of($query)
             ->addIndexColumn()

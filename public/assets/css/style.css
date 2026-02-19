@@ -879,13 +879,6 @@ ul#customBarangDropdown li:hover {
     align-items: center;
 }
 
-.datatable-controls {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-
 .dataTables_wrapper .dataTables_length,
 .dataTables_wrapper .dataTables_filter {
     display: flex;

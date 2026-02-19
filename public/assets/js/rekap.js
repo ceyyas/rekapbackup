@@ -44,7 +44,7 @@ function initKomputerPage() {
     $(document).ready(function () {
         if ($('#komputerTable').length) {
             let table = $('#komputerTable').DataTable({
-                dom: '<"datatable-controls"lfr>t<"bottom"ip>',
+                dom: 'lfrtip',
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -69,7 +69,6 @@ function initKomputerPage() {
                 ],
             });
             
-            // reload data saat filter berubah
             $('#perusahaan_id').on('change', function () {
                 loadDepartemen($(this).val(), $('#departemen_id'));
                 table.ajax.reload();
@@ -81,7 +80,6 @@ function initKomputerPage() {
                 table.ajax.reload();
             });
 
-            // fungsi load departemen
             function loadDepartemen(perusahaanId, departemenSelect) {
                 departemenSelect.html('<option value="">Loading...</option>');
                 if (!perusahaanId) {
@@ -97,9 +95,6 @@ function initKomputerPage() {
             }
         }
 
-        // =========================
-        // CREATE PAGE (dropdown perusahaan → departemen)
-        // =========================
         if ($('#createForm').length) {
             $('#perusahaan_id').on('change', function () {
                 let perusahaanId = $(this).val();
@@ -120,9 +115,6 @@ function initKomputerPage() {
             });
         }
 
-        // =========================
-        // EDIT PAGE (dropdown perusahaan → departemen)
-        // =========================
         if ($('#editForm').length) {
             let perusahaanSelect = document.getElementById('perusahaan_id');
             let departemenSelect = document.getElementById('departemen_id');
@@ -153,8 +145,8 @@ function initIndexPage() {
 
     let table = $('#rekapTable').DataTable({
         paging: false,
-        info: false,
-        searching: false,
+        info: true,
+        searching: true,
         lengthChange: false,
         destroy: true
     });
@@ -215,8 +207,8 @@ function initCdDvdPage() {
 
     let table = $('#cdDvdTable').DataTable({
         paging: false,
-        info: false,
-        searching: false,
+        info: true,
+        searching: true,
         lengthChange: false,
         destroy: true
     });

@@ -36,7 +36,7 @@
             </div>
         </form>
     
-    <table id="komputerTable" class="table">
+    <table id="komputerTable" class="display">
         <thead>
             <tr>
                 <th>No</th>
