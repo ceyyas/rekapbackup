@@ -15,7 +15,7 @@ class DepartemenSeeder extends Seeder
                 'Sales', 'RND', 'PE', 'CI', 'PPC', 'Produksi', 'QC',
                 'Gudang', 'Utility', 'HRD', 'GA', 'Management Development',
                 'Accounting Pabrik', 'TS', 'Care', 'K3',
-                'Accounting Bintaro', 'Purchasing Bintaro'
+                'Accounting Bintaro', 'Purchasing Bintaro', 'Marketing'
             ],
 
             'Mega Karya Mandiri' => [
@@ -23,20 +23,20 @@ class DepartemenSeeder extends Seeder
                 'Produksi', 'Management Development', 'RND Admin',
                 'RND Desain', 'Gudang', 'Injection & Hardcoat',
                 'HRD-GA', 'CI', 'Maintenance',
-                'Accounting Bintaro', 'Purchasing Bintaro'
+                'Accounting Bintaro', 'Purchasing Bintaro', 'Marketing'
             ],
 
             'Mekar Karya Pratama' => [
                 'Accfin', 'Accfin-adm', 'Gudang', 'HRDGA', 'Painting',
                 'Sales', 'Service & Sparepart', 'MKP Cibinong',
                 'Accounting Bintaro', 'Purchasing Bintaro',
-                'Service & Sparepart Bintaro'
+                'Service & Sparepart Bintaro', 'Kacab Bogor & Cibinong'
             ],
 
             'Putra Prima Grosia' => [
                 'Accounting Pabrik', 'Gudang', 'Management Development',
                 'Sales', 'Paint & Care',
-                'Accounting Bintaro', 'Purchasing Bintaro'
+                'Accounting Bintaro', 'Purchasing Bintaro', 'Marketing'
             ],
 
             'Prima Panca Murya' => [

@@ -76,8 +76,6 @@ class StokController extends Controller
      */
     public function show($id)
     {
-        $stok = Stok::findOrFail($id);
-        return view('stok.show', compact('stok'));
     }
 
     /**
@@ -86,6 +84,13 @@ class StokController extends Controller
     public function edit($id)
     {
         $stok = Stok::findOrFail($id);
+
+        // Cek apakah stok sudah ada pemakaian
+        if ($stok->pemakaian > 0) {
+            return redirect()
+                ->route('stok.index')
+                ->with('error', 'Data stok sudah terpakai dan tidak bisa diedit.');
+        }
 
         $mediaList = [
             'CD 700 MB',

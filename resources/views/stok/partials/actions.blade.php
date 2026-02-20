@@ -1,5 +1,4 @@
 <td class="text-center">
-    <button class="aksi-show"><a href="{{ route('stok.show', $stok->id) }}"><i class='bx bx-show'></i></a></button>                       
     <button class="aksi-edit"><a href="{{ route('stok.edit', $stok->id) }}"><i class='bx bx-edit-alt'></i></a></button>
 
     <form action="{{ route('stok.destroy', $stok->id) }}"

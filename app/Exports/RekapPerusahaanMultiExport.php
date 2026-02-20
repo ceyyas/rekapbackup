@@ -20,11 +20,7 @@ class RekapPerusahaanMultiExport implements WithMultipleSheets
     public function sheets(): array
     {
         $sheets = [];
-
-        // Sheet 1: Global pivot
         $sheets[] = new RekapPerusahaanExport($this->globalPivot, $this->namaPerusahaan);
-
-        // Sheet 2,3,...: Detail per periode
         foreach ($this->detailPeriodes as $periode => $data) {
             $sheets[] = new RekapPeriodeExport($data, $periode, $this->namaPerusahaan);
         }
