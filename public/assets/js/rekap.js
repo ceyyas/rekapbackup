@@ -162,7 +162,6 @@ function initKomputerPage() {
     });
 }
 
-
 // rekap backup global
 function initIndexPage() {
     if (!document.getElementById('rekapTable')) return;

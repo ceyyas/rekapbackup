@@ -28,7 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/departemen/data', [DepartemenController::class, 'data'])->name('departemen.data');
     Route::resource('departemen', DepartemenController::class);
     Route::resource('komputer', KomputerController::class);
-    
+    Route::get('/stok/data', [StokController::class, 'data'])->name('stok.data');
     Route::resource('stok', StokController::class);
 
     // route rekap backup

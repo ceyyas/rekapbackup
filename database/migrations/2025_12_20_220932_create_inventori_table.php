@@ -20,8 +20,8 @@ return new class extends Migration
                 ->references('id')->on('departemen')
                 ->onDelete('cascade');
             $table->string('hostname');
-            $table->string('username');
-            $table->string('email');
+            $table->string('username')->nullable();
+            $table->string('email')->nullable();
             $table->enum('status',['active','inactive'])->default('active');
             $table->enum('kategori',['PC','Laptop'])->default('PC');
             $table->timestamps();

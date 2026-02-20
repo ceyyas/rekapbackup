@@ -10,21 +10,18 @@ class Stok extends Model
     use HasFactory;
 
     protected $table = 'rekapburning';
-    protected $fillable = ['nomor_sppb', 'nama_barang', 'jumlah_barang'];
 
-    public function getPemakaianAttribute()
-    {
-        return match ($this->nama_barang) {
-            'CD 700 MB' => \App\Models\RekapBackup::sum('jumlah_cd700'),
-            'DVD 4.7 GB' => \App\Models\RekapBackup::sum('jumlah_dvd47'),
-            'DVD 8.5 GB' => \App\Models\RekapBackup::sum('jumlah_dvd85'),
-        };
-    }
+    // pastikan kolom 'pemakaian' sudah ada di tabel rekapburning
+    protected $fillable = [
+        'nomor_sppb',
+        'nama_barang',
+        'jumlah_barang',
+        'pemakaian',
+    ];
 
+    // accessor tersisa dihitung dari jumlah_barang - pemakaian
     public function getTersisaAttribute()
     {
-        return $this->jumlah_barang - $this->pemakaian;
-        return max(0, $stok);
+        return max(0, $this->jumlah_barang - $this->pemakaian);
     }
-    
 }

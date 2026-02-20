@@ -12,7 +12,7 @@ class StokController extends Controller
      */
     public function index()
     {
-        $stoks = Stok::orderByDesc('updated_at')->get();
+        $stoks = Stok::orderByDesc('created_at')->get();
 
         foreach ($stoks as $stok) {
             $stok->pemakaian = $stok->pemakaian; 

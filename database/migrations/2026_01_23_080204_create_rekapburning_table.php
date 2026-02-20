@@ -19,6 +19,7 @@ return new class extends Migration
                 'DVD 4.7 GB',
                 'DVD 8.5 GB']);
             $table->tinyInteger('jumlah_barang');
+            $table->integer('pemakaian')->default(0);
             $table->timestamps();
         });
     }
