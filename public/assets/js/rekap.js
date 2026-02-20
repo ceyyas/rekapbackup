@@ -162,6 +162,25 @@ function initKomputerPage() {
     });
 }
 
+// master data stok 
+function initStokPage() {
+    $('#stokTable').DataTable({
+        processing: true,
+        serverSide: false,
+        ajax: window.rekapRoutes.dataStok,
+        dom: 'lfrtip',
+        columns: [
+            { data: 'id' },
+            { data: 'nomor_sppb' },
+            { data: 'nama_barang' },
+            { data: 'jumlah_barang' },
+            { data: 'pemakaian' },
+            { data: 'tersisa' },
+            { data: 'aksi' }
+        ]
+    });
+}
+
 // rekap backup global
 function initIndexPage() {
     if (!document.getElementById('rekapTable')) return;
@@ -482,6 +501,7 @@ function initLaporanBulanan() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    initStokPage();
     initDepartemenPage();
     initKomputerPage();
     initIndexPage();

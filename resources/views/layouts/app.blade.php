@@ -40,6 +40,7 @@
             dataDepartemen: "{{ route('departemen.data')}}",
             departemenByPerusahaan: "{{ url('/departemen/by-perusahaan') }}",
             data: "{{ route('komputer.data') }}",
+            dataStok: "{{ route('stok.data') }}",
             pivot: "{{ route('rekap-backup.laporan-perusahaan-pivot') }}",
             exportPerusahaan: "{{ route('rekap-backup.export-perusahaan') }}",
             laporanBulanan: "{{ route('laporan-bulanan.data')}}",

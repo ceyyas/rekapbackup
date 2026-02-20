@@ -13,15 +13,27 @@ class StokController extends Controller
     public function index()
     {
         $stoks = Stok::orderByDesc('created_at')->get();
-
-        foreach ($stoks as $stok) {
-            $stok->pemakaian = $stok->pemakaian; 
-            $stok->tersisa   = $stok->tersisa;  
-        }
-
         return view('stok.index', compact('stoks'));
     }
 
+     public function data()
+    {
+        $stoks = Stok::orderByDesc('created_at')->get();
+
+        $data = $stoks->map(function($stok){
+            return [
+                'id'            => $stok->id,
+                'nomor_sppb'    => $stok->nomor_sppb,
+                'nama_barang'   => $stok->nama_barang,
+                'jumlah_barang' => $stok->jumlah_barang,
+                'pemakaian'     => $stok->pemakaian, 
+                'tersisa'       => $stok->tersisa,
+                'aksi'          => view('stok.partials.actions', compact('stok'))->render()
+            ];
+        });
+
+        return response()->json(['data' => $data]);
+    }
 
     /**
      * Show the form for creating a new resource.
