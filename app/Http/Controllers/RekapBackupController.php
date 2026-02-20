@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Perusahaan;
 use App\Models\Departemen;
 use App\Models\Inventori;
+use App\Models\InventoriHistory;
 use App\Models\RekapBackup;
 use App\Models\Stok;
 
@@ -25,6 +26,20 @@ class RekapBackupController extends Controller
     {
         return DB::table('departemen')
             ->leftJoin('inventori', 'inventori.departemen_id', '=', 'departemen.id')
+            ->leftJoin(DB::raw("
+                (
+                    SELECT ih.*
+                    FROM inventori_history ih
+                    JOIN (
+                        SELECT inventori_id, MAX(effective_date) as last_date
+                        FROM inventori_history
+                        WHERE effective_date <= STR_TO_DATE('$periode','%Y-%m-%d')
+                        GROUP BY inventori_id
+                    ) latest
+                    ON ih.inventori_id = latest.inventori_id
+                    AND ih.effective_date = latest.last_date
+                ) as snapshot
+            "), 'snapshot.inventori_id', '=', 'inventori.id')
             ->leftJoin('rekap_backup', function ($join) use ($periode) {
                 $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
                     ->where('rekap_backup.periode', $periode);
@@ -51,9 +66,9 @@ class RekapBackupController extends Controller
                         WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rekap_backup.id)
                             AND COALESCE(SUM(rekap_backup.size_data),0) > 0
                             AND (
-                                (SUM(CASE WHEN inventori.email IS NOT NULL AND inventori.email <> '' THEN 1 ELSE 0 END) > 0
+                                (SUM(CASE WHEN snapshot.email IS NOT NULL AND snapshot.email <> '' THEN 1 ELSE 0 END) > 0
                                 AND COALESCE(SUM(rekap_backup.size_email),0) > 0)
-                                OR SUM(CASE WHEN inventori.email IS NOT NULL AND inventori.email <> '' THEN 1 ELSE 0 END) = 0
+                                OR SUM(CASE WHEN snapshot.email IS NOT NULL AND snapshot.email <> '' THEN 1 ELSE 0 END) = 0
                             )
                         THEN 'completed'
                         ELSE 'partial'
@@ -71,12 +86,16 @@ class RekapBackupController extends Controller
                             THEN 'file di main folder aman'
                         ELSE 'file di cd aman'
                     END AS status_data
-                ")
+                "),
+                DB::raw('snapshot.hostname as hostname'),
+                DB::raw('snapshot.username as username'),
+                DB::raw('snapshot.email as email'),
+                DB::raw('snapshot.status as status'),
+                DB::raw('snapshot.kategori as kategori')
             )
             ->groupBy('departemen.id','departemen.nama_departemen')
             ->orderBy('departemen.nama_departemen');
     }
-
 
 
     public function index(Request $request)
