@@ -19,21 +19,7 @@ class KomputerController extends Controller
         $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
         $departemens = Departemen::orderBy('nama_departemen')->get();
 
-        $komputers = Inventori::with(['perusahaan', 'departemen'])
-            ->when($request->perusahaan_id, fn($q) => $q->where('perusahaan_id', $request->perusahaan_id))
-            ->when($request->departemen_id, fn($q) => $q->where('departemen_id', $request->departemen_id))
-            ->when($request->kategori_id, fn($q) => $q->where('kategori', $request->kategori_id))
-            ->when($request->search, function ($q) use ($request) {
-                $q->where(function ($sub) use ($request) {
-                    $sub->where('hostname', 'like', "%{$request->search}%")
-                        ->orWhere('username', 'like', "%{$request->search}%")
-                        ->orWhere('email', 'like', "%{$request->search}%");
-                });
-            })
-            ->orderByDesc('updated_at')
-            ->get();
-
-        return view('komputer.index', compact('perusahaans','departemens','komputers'));
+        return view('komputer.index', compact('perusahaans','departemens'));
     }
 
     public function data(Request $request)
@@ -44,7 +30,8 @@ class KomputerController extends Controller
             ->when($request->departemen_id, fn($q) => 
                 $q->where('inventori.departemen_id', $request->departemen_id))
             ->when($request->kategori, fn($q) => 
-                $q->where('inventori.kategori', $request->kategori));
+                $q->where('inventori.kategori', $request->kategori))
+            ->orderBy('updated_at', 'desc'); 
 
         return DataTables::of($query)
             ->addIndexColumn()
