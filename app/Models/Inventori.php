@@ -37,7 +37,7 @@ class Inventori extends Model
                 'hostname' => $inventori->hostname,
                 'username' => $inventori->username,
                 'email' => $inventori->email,
-                'status' => $inventori->status,
+                'status' => $inventori->status ?? 'active',
                 'kategori' => $inventori->kategori,
                 'effective_date' => $inventori->created_at,
             ]);

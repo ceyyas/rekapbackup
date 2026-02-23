@@ -33,7 +33,7 @@ class RekapBackupController extends Controller
                     JOIN (
                         SELECT inventori_id, MAX(effective_date) as last_date
                         FROM inventori_history
-                        WHERE effective_date <= STR_TO_DATE('$periode','%Y-%m-%d')
+                        WHERE effective_date >= STR_TO_DATE('$periode','%Y-%m-%d')
                         GROUP BY inventori_id
                     ) latest
                     ON ih.inventori_id = latest.inventori_id
@@ -60,6 +60,37 @@ class RekapBackupController extends Controller
                 DB::raw('COALESCE(SUM(rekap_backup.jumlah_cd700), 0) AS jumlah_cd700'),
                 DB::raw('COALESCE(SUM(rekap_backup.jumlah_dvd47), 0) AS jumlah_dvd47'),
                 DB::raw('COALESCE(SUM(rekap_backup.jumlah_dvd85), 0) AS jumlah_dvd85'),
+                DB::raw("MAX(CASE 
+                            WHEN snapshot.id IS NOT NULL 
+                                AND STR_TO_DATE('$periode','%Y-%m-%d') < snapshot.effective_date 
+                            THEN snapshot.hostname 
+                            ELSE inventori.hostname 
+                        END) as hostname"),
+                DB::raw("MAX(CASE 
+                            WHEN snapshot.id IS NOT NULL 
+                                AND STR_TO_DATE('$periode','%Y-%m-%d') < snapshot.effective_date 
+                            THEN snapshot.username 
+                            ELSE inventori.username 
+                        END) as username"),
+                DB::raw("MAX(CASE 
+                            WHEN snapshot.id IS NOT NULL 
+                                AND STR_TO_DATE('$periode','%Y-%m-%d') < snapshot.effective_date 
+                            THEN snapshot.email 
+                            ELSE inventori.email 
+                        END) as email"),
+                DB::raw("MAX(CASE 
+                            WHEN snapshot.id IS NOT NULL 
+                                AND STR_TO_DATE('$periode','%Y-%m-%d') < snapshot.effective_date 
+                            THEN snapshot.status 
+                            ELSE inventori.status 
+                        END) as status"),
+                DB::raw("MAX(CASE 
+                            WHEN snapshot.id IS NOT NULL 
+                                AND STR_TO_DATE('$periode','%Y-%m-%d') < snapshot.effective_date 
+                            THEN snapshot.kategori 
+                            ELSE inventori.kategori 
+                        END) as kategori"),
+
                 DB::raw("
                     CASE
                         WHEN COUNT(rekap_backup.id) = 0 THEN 'pending'
@@ -86,17 +117,11 @@ class RekapBackupController extends Controller
                             THEN 'file di main folder aman'
                         ELSE 'file di cd aman'
                     END AS status_data
-                "),
-                DB::raw('snapshot.hostname as hostname'),
-                DB::raw('snapshot.username as username'),
-                DB::raw('snapshot.email as email'),
-                DB::raw('snapshot.status as status'),
-                DB::raw('snapshot.kategori as kategori')
+                ")
             )
             ->groupBy('departemen.id','departemen.nama_departemen')
             ->orderBy('departemen.nama_departemen');
     }
-
 
     public function index(Request $request)
     {
@@ -319,33 +344,74 @@ class RekapBackupController extends Controller
         $periode = $request->periode_id . '-01';
 
         $inventoris = DB::table('inventori')
+            ->leftJoin(DB::raw("
+                (
+                    SELECT ih.*
+                    FROM inventori_history ih
+                    JOIN (
+                        SELECT inventori_id, MIN(effective_date) as last_date
+                        FROM inventori_history
+                        WHERE effective_date >= STR_TO_DATE('$periode','%Y-%m-%d')
+                        GROUP BY inventori_id
+                    ) latest
+                    ON ih.inventori_id = latest.inventori_id
+                    AND ih.effective_date = latest.last_date
+                ) as snapshot
+            "), 'snapshot.inventori_id', '=', 'inventori.id')
             ->leftJoin('rekap_backup', function ($join) use ($periode) {
                 $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
-                     ->where('rekap_backup.periode', $periode);
+                    ->where('rekap_backup.periode', $periode);
             })
+
             ->where('inventori.departemen_id', $departemenId)
             ->where(function($q) use ($periode) {
                 $periodeDate = DB::raw("STR_TO_DATE('$periode','%Y-%m-%d')");
                 $q->where('inventori.status', 'active')
                 ->orWhere($periodeDate, '<', DB::raw('inventori.updated_at'));
             })
-
             ->select(
                 'inventori.id',
-                'inventori.hostname',
-                'inventori.username',
-                'inventori.email',
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.hostname 
+                    ELSE inventori.hostname 
+                END as hostname"),
+
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.username 
+                    ELSE inventori.username 
+                END as username"),
+
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.email 
+                    ELSE inventori.email 
+                END as email"),
+
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.status 
+                    ELSE inventori.status 
+                END as status"),
+
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.kategori 
+                    ELSE inventori.kategori 
+                END as kategori"),
+
                 DB::raw('COALESCE(SUM(rekap_backup.size_data), 0) AS size_data'),
                 DB::raw('COALESCE(SUM(rekap_backup.size_email), 0) AS size_email'),
                 DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size')
             )
-            ->groupBy(
-                'inventori.id',
-                'inventori.hostname',
-                'inventori.username',
-                'inventori.email'
-            )
-            ->orderBy('inventori.hostname')
+            ->groupBy('inventori.id','hostname','username','email', 'status', 'kategori')
+            ->orderBy('hostname')
             ->get();
 
         return view('rekap.detail-table', [
