@@ -33,7 +33,7 @@ class RekapBackupController extends Controller
                     JOIN (
                         SELECT inventori_id, MAX(effective_date) as last_date
                         FROM inventori_history
-                        WHERE effective_date >= STR_TO_DATE('$periode','%Y-%m-%d')
+                        WHERE effective_date <= STR_TO_DATE('$periode','%Y-%m-%d')
                         GROUP BY inventori_id
                     ) latest
                     ON ih.inventori_id = latest.inventori_id
@@ -47,8 +47,11 @@ class RekapBackupController extends Controller
             ->where('departemen.perusahaan_id', $perusahaanId)
             ->where(function($q) use ($periode) {
                 $periodeDate = DB::raw("STR_TO_DATE('$periode','%Y-%m-%d')");
-                $q->where('inventori.status', 'active')
-                ->orWhere($periodeDate, '<', DB::raw('inventori.updated_at'));
+                $q->where(function($sub) use ($periodeDate) {
+                    $sub->where('inventori.status', 'active')
+                        ->orWhere($periodeDate, '<', DB::raw('inventori.updated_at'));
+                })
+                ->where($periodeDate, '>=', DB::raw('inventori.created_at')); 
             })
             ->select(
                 'departemen.id',
@@ -60,7 +63,7 @@ class RekapBackupController extends Controller
                 DB::raw('COALESCE(SUM(rekap_backup.jumlah_cd700), 0) AS jumlah_cd700'),
                 DB::raw('COALESCE(SUM(rekap_backup.jumlah_dvd47), 0) AS jumlah_dvd47'),
                 DB::raw('COALESCE(SUM(rekap_backup.jumlah_dvd85), 0) AS jumlah_dvd85'),
-                DB::raw("MAX(CASE 
+                 DB::raw("MAX(CASE 
                             WHEN snapshot.id IS NOT NULL 
                                 AND STR_TO_DATE('$periode','%Y-%m-%d') < snapshot.effective_date 
                             THEN snapshot.hostname 
@@ -78,12 +81,6 @@ class RekapBackupController extends Controller
                             THEN snapshot.email 
                             ELSE inventori.email 
                         END) as email"),
-                DB::raw("MAX(CASE 
-                            WHEN snapshot.id IS NOT NULL 
-                                AND STR_TO_DATE('$periode','%Y-%m-%d') < snapshot.effective_date 
-                            THEN snapshot.status 
-                            ELSE inventori.status 
-                        END) as status"),
                 DB::raw("MAX(CASE 
                             WHEN snapshot.id IS NOT NULL 
                                 AND STR_TO_DATE('$periode','%Y-%m-%d') < snapshot.effective_date 
@@ -185,12 +182,10 @@ class RekapBackupController extends Controller
             'periode'      => $periode,
         ]);
 
-        // Ambil nilai lama dari rekap
         $oldCd700  = $rekap->jumlah_cd700 ?? 0;
         $oldDvd47  = $rekap->jumlah_dvd47 ?? 0;
         $oldDvd85  = $rekap->jumlah_dvd85 ?? 0;
 
-        // Hitung selisih perubahan
         $newCd700  = $request->cd700 !== null ? (int) $request->cd700 : $oldCd700;
         $diffCd700 = $newCd700 - $oldCd700;
 
@@ -200,7 +195,6 @@ class RekapBackupController extends Controller
         $newDvd85  = $request->dvd85 !== null ? (int) $request->dvd85 : $oldDvd85;
         $diffDvd85 = $newDvd85 - $oldDvd85;
 
-        // Helper untuk tambah pemakaian (FIFO)
         $tambahPemakaian = function($namaBarang, $jumlahInput) {
             $stokList = Stok::where('nama_barang', $namaBarang)
                 ->orderBy('created_at', 'asc')
@@ -225,7 +219,6 @@ class RekapBackupController extends Controller
             return $jumlahInput;
         };
 
-        // Helper untuk kurangi pemakaian (reverse FIFO)
         $kurangiPemakaian = function($namaBarang, $jumlahKurang) {
             $stokList = Stok::where('nama_barang', $namaBarang)
                 ->orderBy('created_at', 'desc')
@@ -366,9 +359,13 @@ class RekapBackupController extends Controller
             ->where('inventori.departemen_id', $departemenId)
             ->where(function($q) use ($periode) {
                 $periodeDate = DB::raw("STR_TO_DATE('$periode','%Y-%m-%d')");
-                $q->where('inventori.status', 'active')
-                ->orWhere($periodeDate, '<', DB::raw('inventori.updated_at'));
+                $q->where(function($sub) use ($periodeDate) {
+                    $sub->where('inventori.status', 'active')
+                        ->orWhere($periodeDate, '<', DB::raw('inventori.updated_at'));
+                })
+                ->where($periodeDate, '>=', DB::raw('inventori.created_at')); 
             })
+
             ->select(
                 'inventori.id',
                 DB::raw("CASE 
@@ -395,13 +392,6 @@ class RekapBackupController extends Controller
                 DB::raw("CASE 
                     WHEN snapshot.id IS NOT NULL 
                         AND '$periode' < snapshot.effective_date 
-                    THEN snapshot.status 
-                    ELSE inventori.status 
-                END as status"),
-
-                DB::raw("CASE 
-                    WHEN snapshot.id IS NOT NULL 
-                        AND '$periode' < snapshot.effective_date 
                     THEN snapshot.kategori 
                     ELSE inventori.kategori 
                 END as kategori"),
@@ -410,7 +400,7 @@ class RekapBackupController extends Controller
                 DB::raw('COALESCE(SUM(rekap_backup.size_email), 0) AS size_email'),
                 DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size')
             )
-            ->groupBy('inventori.id','hostname','username','email', 'status', 'kategori')
+            ->groupBy('inventori.id','hostname','username','email', 'kategori')
             ->orderBy('hostname')
             ->get();
 
