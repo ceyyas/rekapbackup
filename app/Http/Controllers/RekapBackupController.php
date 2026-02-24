@@ -91,9 +91,9 @@ class RekapBackupController extends Controller
                         WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rekap_backup.id)
                             AND COALESCE(SUM(rekap_backup.size_data),0) > 0
                             AND (
-                                (SUM(CASE WHEN snapshot.email IS NOT NULL AND snapshot.email <> '' THEN 1 ELSE 0 END) > 0
+                                (SUM(CASE WHEN inventori.email IS NOT NULL AND inventori.email <> '' THEN 1 ELSE 0 END) > 0
                                 AND COALESCE(SUM(rekap_backup.size_email),0) > 0)
-                                OR SUM(CASE WHEN snapshot.email IS NOT NULL AND snapshot.email <> '' THEN 1 ELSE 0 END) = 0
+                                OR SUM(CASE WHEN inventori.email IS NOT NULL AND inventori.email <> '' THEN 1 ELSE 0 END) = 0
                             )
                         THEN 'completed'
                         ELSE 'partial'

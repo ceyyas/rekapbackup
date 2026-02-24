@@ -154,6 +154,13 @@ class KomputerController extends Controller
     public function destroy(string $id)
     {
         $komputer = Inventori::findOrFail($id);
+
+        if ($komputer->status !== 'inactive') {
+            return redirect()
+                ->route('komputer.index')
+                ->with('error', 'Data komputer hanya bisa dihapus jika status inactive');
+        }
+
         $komputer->delete();
 
         return redirect()

@@ -10,13 +10,20 @@
     </a>
 </button>
 
-<form action="{{ route('komputer.destroy', $row->id) }}"
-      method="POST"
-      onsubmit="return confirm('Are you sure?')"
-      style="display: inline;">
-    @csrf
-    @method('DELETE')
-    <button type="submit" class="aksi-delete">
+@if ($row->status === 'inactive')
+    <form action="{{ route('komputer.destroy', $row->id) }}"
+          method="POST"
+          onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')"
+          style="display: inline;">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="aksi-delete">
+            <i class='bx bx-trash'></i>
+        </button>
+    </form>
+@else
+    <button type="button" class="aksi-delete"
+            onclick="alert('Data hanya bisa dihapus jika status inactive')">
         <i class='bx bx-trash'></i>
     </button>
-</form>
+@endif
