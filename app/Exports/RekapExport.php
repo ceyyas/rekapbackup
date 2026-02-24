@@ -20,16 +20,16 @@ class RekapExport implements
         WithEvents, 
         WithCustomStartCell
 {
-    protected $rekap;        
-    protected $departemens;  
+    protected $rekapDepartemen;        
+    protected $rekapDetail;  
     protected $perusahaan;
     protected $periode;
     protected $headingRows = [];
 
-    public function __construct($rekap, $departemens, $perusahaan, $periode)
+    public function __construct($rekapDepartemen, $rekapDetail, $perusahaan, $periode)
     {
-        $this->rekap = $rekap;              
-        $this->departemens = $departemens;  
+        $this->rekapDepartemen = $rekapDepartemen;              
+        $this->rekapDetail = $rekapDetail;  
         $this->perusahaan = $perusahaan; 
         $this->periode = $periode;
     }
@@ -53,7 +53,7 @@ class RekapExport implements
         ]);
 
         // --- Isi Global ---
-        foreach ($this->rekap as $dept) {
+        foreach ($this->rekapDepartemen as $dept) {
             $rows->push([
             $no++,
             $dept->nama_departemen,
@@ -72,17 +72,17 @@ class RekapExport implements
         $rows->push([
             '',
             'TOTAL',
-            $this->rekap->sum('size_data') . ' MB',
-            round($this->rekap->sum('size_data')/1024,2).' GB',
-            $this->rekap->sum('size_email') . ' MB',
-            round($this->rekap->sum('size_email')/1024,2).' GB',
-            $this->rekap->sum('total_size') . ' MB',
-            round($this->rekap->sum('total_size')/1024,2).' GB',
+            $this->rekapDepartemen->sum('size_data') . ' MB',
+            round($this->rekapDepartemen->sum('size_data')/1024,2).' GB',
+            $this->rekapDepartemen->sum('size_email') . ' MB',
+            round($this->rekapDepartemen->sum('size_email')/1024,2).' GB',
+            $this->rekapDepartemen->sum('total_size') . ' MB',
+            round($this->rekapDepartemen->sum('total_size')/1024,2).' GB',
             '',
             ''
         ]);
 
-        foreach ($this->departemens as $dept) {
+        foreach ($this->rekapDetail as $dept) {
         
             // heading nama departemen
             $rows->push([$dept->nama_departemen]);
@@ -101,10 +101,10 @@ class RekapExport implements
             $totalEmailMb = 0;
             $totalBurningMb = 0;
 
-            foreach ($dept->inventori as $inv) {
-                $dataMb   = $inv->rekap_backup->sum('size_data');
-                $emailMb  = $inv->rekap_backup->sum('size_email');
-                $burningMb = $dataMb + $emailMb;
+            foreach ($dept->detail_inventori as $inv) {
+                $dataMb = $inv->size_data; 
+                $emailMb = $inv->size_email; 
+                $burningMb = $inv->total_size;
 
                 $rows->push([
                     $noDetail++,

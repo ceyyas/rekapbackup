@@ -10,6 +10,9 @@
             + Tambah Data
         </a>
     </div>
+    @if (session('error'))
+            {{ session('error') }}
+    @endif
 
      <table id="stokTable" class="display">
         <thead>

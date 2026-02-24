@@ -31,9 +31,9 @@ class RekapBackupController extends Controller
                     SELECT ih.*
                     FROM inventori_history ih
                     JOIN (
-                        SELECT inventori_id, MAX(effective_date) as last_date
+                        SELECT inventori_id, MIN(effective_date) as last_date
                         FROM inventori_history
-                        WHERE effective_date <= STR_TO_DATE('$periode','%Y-%m-%d')
+                        WHERE effective_date >= STR_TO_DATE('$periode','%Y-%m-%d')
                         GROUP BY inventori_id
                     ) latest
                     ON ih.inventori_id = latest.inventori_id
@@ -150,6 +150,226 @@ class RekapBackupController extends Controller
         $departemens = $this->getDepartemenQuery($request->perusahaan_id, $periode)->get();
 
         return response()->json($departemens);
+    }
+
+    public function detailPage(Request $request, $departemenId)
+    {
+        $request->validate([
+            'periode_id' => 'required|date_format:Y-m'
+        ]);
+
+        $departemen = Departemen::findOrFail($departemenId);
+        $periode = \Carbon\Carbon::createFromFormat('Y-m', $request->periode_id);
+
+        $periodeFormatted = $periode->translatedFormat('F Y');
+
+        return view('rekap.detail-page', compact('departemen', 'periodeFormatted'));
+    }
+
+    public function detailData(Request $request, $departemenId)
+    {
+        $request->validate([
+            'periode_id' => 'required|date_format:Y-m'
+        ]);
+
+        $periode = $request->periode_id . '-01';
+
+        $inventoris = DB::table('inventori')
+            ->leftJoin(DB::raw("
+                (
+                    SELECT ih.*
+                    FROM inventori_history ih
+                    JOIN (
+                        SELECT inventori_id, MIN(effective_date) as last_date
+                        FROM inventori_history
+                        WHERE effective_date >= STR_TO_DATE('$periode','%Y-%m-%d')
+                        GROUP BY inventori_id
+                    ) latest
+                    ON ih.inventori_id = latest.inventori_id
+                    AND ih.effective_date = latest.last_date
+                ) as snapshot
+            "), 'snapshot.inventori_id', '=', 'inventori.id')
+            ->leftJoin('rekap_backup', function ($join) use ($periode) {
+                $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
+                    ->where('rekap_backup.periode', $periode);
+            })
+
+            ->where('inventori.departemen_id', $departemenId)
+            ->where(function($q) use ($periode) {
+                $periodeDate = DB::raw("STR_TO_DATE('$periode','%Y-%m-%d')");
+                $q->where(function($sub) use ($periodeDate) {
+                    $sub->where('inventori.status', 'active')
+                        ->orWhere($periodeDate, '<', DB::raw('inventori.updated_at'));
+                })
+                ->where($periodeDate, '>=', DB::raw('inventori.created_at')); 
+            })
+
+            ->select(
+                'inventori.id',
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.hostname 
+                    ELSE inventori.hostname 
+                END as hostname"),
+
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.username 
+                    ELSE inventori.username 
+                END as username"),
+
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.email 
+                    ELSE inventori.email 
+                END as email"),
+
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.kategori 
+                    ELSE inventori.kategori 
+                END as kategori"),
+
+                DB::raw('COALESCE(SUM(rekap_backup.size_data), 0) AS size_data'),
+                DB::raw('COALESCE(SUM(rekap_backup.size_email), 0) AS size_email'),
+                DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size')
+            )
+            ->groupBy('inventori.id','hostname','username','email', 'kategori')
+            ->orderBy('hostname')
+            ->get();
+
+        return view('rekap.detail-table', [
+            'inventoris' => $inventoris,
+            'periodeId' => $periode
+        ]);
+    }
+    
+    public function saveDetail(Request $request)
+    {
+        $request->validate([
+            'periode_id' => 'required|date_format:Y-m',
+            'data' => 'required|array'
+        ]);
+
+        $periode = $request->periode_id . '-01';
+
+        foreach ($request->data as $inventoriId => $val) {
+            RekapBackup::updateOrCreate(
+                [
+                    'inventori_id' => $inventoriId,
+                    'periode' => $periode
+                ],
+                [
+                    'size_data' => $val['size_data'] ?? 0,
+                    'size_email' => $val['size_email'] ?? 0,
+                    'status' => (
+                        ($val['size_data'] ?? 0) + ($val['size_email'] ?? 0)
+                    ) > 0 ? 'completed' : 'pending'
+                ]
+            );
+        }
+
+        return back()->with('success', 'Data backup berhasil disimpan');
+    }
+
+    private function getInventoriDetailQuery($departemenId, $periode)
+    {
+        return DB::table('inventori')
+            ->leftJoin(DB::raw("
+                (
+                    SELECT ih.*
+                    FROM inventori_history ih
+                    JOIN (
+                        SELECT inventori_id, MIN(effective_date) as last_date
+                        FROM inventori_history
+                        WHERE effective_date >= STR_TO_DATE('$periode','%Y-%m-%d')
+                        GROUP BY inventori_id
+                    ) latest
+                    ON ih.inventori_id = latest.inventori_id
+                    AND ih.effective_date = latest.last_date
+                ) as snapshot
+            "), 'snapshot.inventori_id', '=', 'inventori.id')
+            ->leftJoin('rekap_backup', function ($join) use ($periode) {
+                $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
+                    ->where('rekap_backup.periode', $periode);
+            })
+            ->where('inventori.departemen_id', $departemenId)
+            ->where(function($q) use ($periode) {
+                $periodeDate = DB::raw("STR_TO_DATE('$periode','%Y-%m-%d')");
+                $q->where(function($sub) use ($periodeDate) {
+                    $sub->where('inventori.status', 'active')
+                        ->orWhere($periodeDate, '<', DB::raw('inventori.updated_at'));
+                })
+                ->where($periodeDate, '>=', DB::raw('inventori.created_at')); 
+            })
+            ->select(
+                'inventori.id',
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.hostname 
+                    ELSE inventori.hostname 
+                END as hostname"),
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.username 
+                    ELSE inventori.username 
+                END as username"),
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.email 
+                    ELSE inventori.email 
+                END as email"),
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.kategori 
+                    ELSE inventori.kategori 
+                END as kategori"),
+                DB::raw('COALESCE(SUM(rekap_backup.size_data), 0) AS size_data'),
+                DB::raw('COALESCE(SUM(rekap_backup.size_email), 0) AS size_email'),
+                DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size')
+            )
+            ->groupBy('inventori.id','hostname','username','email','kategori')
+            ->orderBy('hostname');
+    }
+    
+    public function export(Request $request)
+    {
+        $request->validate([
+            'periode_id' => 'required|date_format:Y-m',
+            'perusahaan_id' => 'required|exists:perusahaan,id'
+        ]);
+
+        $perusahaanId = $request->input('perusahaan_id'); 
+        $periode = $request->periode_id . '-01'; 
+
+        $perusahaan = Perusahaan::find($perusahaanId)->nama_perusahaan;
+
+        // Rekap per departemen
+        $rekapDepartemen = $this->getDepartemenQuery($perusahaanId, $periode)->get();
+
+        // Detail inventori per departemen (pakai query snapshot)
+        $rekapDetail = Departemen::where('perusahaan_id', $perusahaanId)
+            ->get()
+            ->map(function($dept) use ($periode) {
+                $dept->detail_inventori = $this->getInventoriDetailQuery($dept->id, $periode)->get();
+                return $dept;
+            });
+
+        $periodeFormat = \Carbon\Carbon::parse($periode)->translatedFormat('F Y');
+        $fileName = "rekap_backup_{$perusahaan}_{$periodeFormat}.xlsx";
+
+        return Excel::download(
+            new RekapExport($rekapDepartemen, $rekapDetail, $perusahaan, $periode),
+            $fileName
+        );
     }
 
     public function cdDvd(Request $request)
@@ -314,162 +534,9 @@ class RekapBackupController extends Controller
         );
     }
 
-    public function detailPage(Request $request, $departemenId)
-    {
-        $request->validate([
-            'periode_id' => 'required|date_format:Y-m'
-        ]);
-
-        $departemen = Departemen::findOrFail($departemenId);
-        $periode = \Carbon\Carbon::createFromFormat('Y-m', $request->periode_id);
-
-        $periodeFormatted = $periode->translatedFormat('F Y');
-
-        return view('rekap.detail-page', compact('departemen', 'periodeFormatted'));
-    }
-
-    public function detailData(Request $request, $departemenId)
-    {
-        $request->validate([
-            'periode_id' => 'required|date_format:Y-m'
-        ]);
-
-        $periode = $request->periode_id . '-01';
-
-        $inventoris = DB::table('inventori')
-            ->leftJoin(DB::raw("
-                (
-                    SELECT ih.*
-                    FROM inventori_history ih
-                    JOIN (
-                        SELECT inventori_id, MIN(effective_date) as last_date
-                        FROM inventori_history
-                        WHERE effective_date >= STR_TO_DATE('$periode','%Y-%m-%d')
-                        GROUP BY inventori_id
-                    ) latest
-                    ON ih.inventori_id = latest.inventori_id
-                    AND ih.effective_date = latest.last_date
-                ) as snapshot
-            "), 'snapshot.inventori_id', '=', 'inventori.id')
-            ->leftJoin('rekap_backup', function ($join) use ($periode) {
-                $join->on('rekap_backup.inventori_id', '=', 'inventori.id')
-                    ->where('rekap_backup.periode', $periode);
-            })
-
-            ->where('inventori.departemen_id', $departemenId)
-            ->where(function($q) use ($periode) {
-                $periodeDate = DB::raw("STR_TO_DATE('$periode','%Y-%m-%d')");
-                $q->where(function($sub) use ($periodeDate) {
-                    $sub->where('inventori.status', 'active')
-                        ->orWhere($periodeDate, '<', DB::raw('inventori.updated_at'));
-                })
-                ->where($periodeDate, '>=', DB::raw('inventori.created_at')); 
-            })
-
-            ->select(
-                'inventori.id',
-                DB::raw("CASE 
-                    WHEN snapshot.id IS NOT NULL 
-                        AND '$periode' < snapshot.effective_date 
-                    THEN snapshot.hostname 
-                    ELSE inventori.hostname 
-                END as hostname"),
-
-                DB::raw("CASE 
-                    WHEN snapshot.id IS NOT NULL 
-                        AND '$periode' < snapshot.effective_date 
-                    THEN snapshot.username 
-                    ELSE inventori.username 
-                END as username"),
-
-                DB::raw("CASE 
-                    WHEN snapshot.id IS NOT NULL 
-                        AND '$periode' < snapshot.effective_date 
-                    THEN snapshot.email 
-                    ELSE inventori.email 
-                END as email"),
-
-                DB::raw("CASE 
-                    WHEN snapshot.id IS NOT NULL 
-                        AND '$periode' < snapshot.effective_date 
-                    THEN snapshot.kategori 
-                    ELSE inventori.kategori 
-                END as kategori"),
-
-                DB::raw('COALESCE(SUM(rekap_backup.size_data), 0) AS size_data'),
-                DB::raw('COALESCE(SUM(rekap_backup.size_email), 0) AS size_email'),
-                DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size')
-            )
-            ->groupBy('inventori.id','hostname','username','email', 'kategori')
-            ->orderBy('hostname')
-            ->get();
-
-        return view('rekap.detail-table', [
-            'inventoris' => $inventoris,
-            'periodeId' => $periode
-        ]);
-    }
-    
-    public function saveDetail(Request $request)
-    {
-        $request->validate([
-            'periode_id' => 'required|date_format:Y-m',
-            'data' => 'required|array'
-        ]);
-
-        $periode = $request->periode_id . '-01';
-
-        foreach ($request->data as $inventoriId => $val) {
-            RekapBackup::updateOrCreate(
-                [
-                    'inventori_id' => $inventoriId,
-                    'periode' => $periode
-                ],
-                [
-                    'size_data' => $val['size_data'] ?? 0,
-                    'size_email' => $val['size_email'] ?? 0,
-                    'status' => (
-                        ($val['size_data'] ?? 0) + ($val['size_email'] ?? 0)
-                    ) > 0 ? 'completed' : 'pending'
-                ]
-            );
-        }
-
-        return back()->with('success', 'Data backup berhasil disimpan');
-    }
-    
-    public function export(Request $request)
-    {
-        $request->validate([
-            'periode_id' => 'required|date_format:Y-m',
-            'perusahaan_id' => 'required|exists:perusahaan,id'
-        ]);
-
-        $perusahaanId = $request->input('perusahaan_id'); 
-        $periode = $request->periode_id . '-01'; 
-
-        $perusahaan = Perusahaan::find($perusahaanId)->nama_perusahaan;
-        $rekap = $this->getDepartemenQuery($perusahaanId, $periode)->get();
-
-        $departemens = Departemen::with(['inventori.rekap_backup' => function($q) use ($periode) {
-            $q->where('periode', $periode);
-        }])
-        ->where('perusahaan_id', $perusahaanId)
-        ->get();
-
-        $periodeFormat = \Carbon\Carbon::parse($periode)->translatedFormat('F Y');
-        $fileName = "rekap_backup_{$perusahaan}_{$periodeFormat}.xlsx";
-
-        return Excel::download(
-            new RekapExport($rekap, $departemens, $perusahaan, $periode),
-            $fileName
-        );
-    }
-
     public function laporanperusahaan(Request $request)
     {
         $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
-
         return view('laporan.perusahaan.index', compact('perusahaans'));
     }
 
@@ -482,7 +549,7 @@ class RekapBackupController extends Controller
             ->where('departemen.perusahaan_id', $perusahaanId)
             ->select(DB::raw("DATE_FORMAT(rekap_backup.periode, '%b-%Y') as periode"))
             ->distinct()
-            ->orderBy('periode')
+            ->orderBy('rekap_backup.periode')
             ->pluck('periode')
             ->toArray();
 
@@ -525,7 +592,7 @@ class RekapBackupController extends Controller
             ->where('departemen.perusahaan_id',$perusahaanId)
             ->selectRaw("DATE_FORMAT(rekap_backup.periode,'%b-%Y') as periode")
             ->distinct()
-            ->orderBy('periode')
+            ->orderBy('rekap_backup.periode')
             ->pluck('periode')
             ->toArray();
 
@@ -557,16 +624,55 @@ class RekapBackupController extends Controller
         // Detail per periode
         $detailPeriodes = [];
         foreach ($periodes as $p) {
+            $periodeDate = \Carbon\Carbon::createFromFormat('M-Y', $p)->format('Y-m-01');
+
             $rekapDetail = DB::table('rekap_backup')
                 ->join('inventori', 'rekap_backup.inventori_id', '=', 'inventori.id')
                 ->join('departemen', 'inventori.departemen_id', '=', 'departemen.id')
+                ->leftJoin(DB::raw("
+                    (
+                        SELECT ih.*
+                        FROM inventori_history ih
+                        JOIN (
+                            SELECT inventori_id, MIN(effective_date) as last_date
+                            FROM inventori_history
+                            WHERE effective_date >= STR_TO_DATE('$periodeDate','%Y-%m-%d')
+                            GROUP BY inventori_id
+                        ) latest
+                        ON ih.inventori_id = latest.inventori_id
+                        AND ih.effective_date = latest.last_date
+                    ) as snapshot
+                "), 'snapshot.inventori_id', '=', 'inventori.id')
                 ->where('departemen.perusahaan_id', $perusahaanId)
                 ->whereRaw("DATE_FORMAT(rekap_backup.periode,'%b-%Y') = ?", [$p])
+                ->where(function($q) use ($periodeDate) {
+                    $q->where(function($sub) use ($periodeDate) {
+                        $sub->where('inventori.status', 'active')
+                            ->orWhere('inventori.updated_at', '>', $periodeDate);
+                    })
+                    ->where('inventori.created_at', '<=', $periodeDate); 
+                })
+                
                 ->select(
                     'departemen.nama_departemen as departemen',
-                    'inventori.hostname',
-                    'inventori.username',
-                    'inventori.email',
+                    DB::raw("CASE 
+                        WHEN snapshot.id IS NOT NULL 
+                            AND STR_TO_DATE('$periodeDate','%Y-%m-%d') < snapshot.effective_date 
+                        THEN snapshot.hostname 
+                        ELSE inventori.hostname 
+                    END as hostname"),
+                    DB::raw("CASE 
+                        WHEN snapshot.id IS NOT NULL 
+                            AND STR_TO_DATE('$periodeDate','%Y-%m-%d') < snapshot.effective_date 
+                        THEN snapshot.username 
+                        ELSE inventori.username 
+                    END as username"),
+                    DB::raw("CASE 
+                        WHEN snapshot.id IS NOT NULL 
+                            AND STR_TO_DATE('$periodeDate','%Y-%m-%d') < snapshot.effective_date 
+                        THEN snapshot.email 
+                        ELSE inventori.email 
+                    END as email"),
                     'rekap_backup.size_data',
                     'rekap_backup.size_email'
                 )
@@ -584,8 +690,6 @@ class RekapBackupController extends Controller
                 ->toArray();
 
             $detailPeriodes[$p] = $rekapDetail;
-
-
         }
 
         return Excel::download(
