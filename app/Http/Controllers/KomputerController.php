@@ -31,7 +31,7 @@ class KomputerController extends Controller
                 $q->where('inventori.departemen_id', $request->departemen_id))
             ->when($request->kategori, fn($q) => 
                 $q->where('inventori.kategori', $request->kategori))
-            ->orderBy('updated_at', 'desc'); 
+            ->orderBy('inventori.updated_at', 'desc'); 
 
         return DataTables::of($query)
             ->addIndexColumn()
