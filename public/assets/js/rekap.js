@@ -371,7 +371,6 @@ function initLaporanPerusahaan() {
         if (!perusahaanId) return;
 
         $.get(window.rekapRoutes.pivot, { perusahaan_id: perusahaanId }, function(res) {
-            console.log(res); 
             let periodes = Array.isArray(res.periodes) ? res.periodes : [];
             let pivot = res.pivot || {};
 

@@ -8,6 +8,8 @@ use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\KomputerController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\RekapBackupController;
+use App\Http\Controllers\LaporanPerusahaanController;
+use App\Http\Controllers\LaporanBulananController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -43,19 +45,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/rekap-backup/export', [RekapBackupController::class, 'export'])->name('rekap-backup.export');
 
     // laporan perusahaan
-    Route::get('/laporan/perusahaan', [RekapBackupController::class, 'laporanperusahaan'])
+    Route::get('/laporan/perusahaan', [LaporanPerusahaanController::class, 'laporanperusahaan'])
     ->name('rekap-backup.laporan-perusahaan');
-    Route::get('/laporan/perusahaan/pivot', [RekapBackupController::class, 'laporanPerusahaanPivot'])
+    Route::get('/laporan/perusahaan/pivot', [LaporanPerusahaanController::class, 'laporanPerusahaanPivot'])
     ->name('rekap-backup.laporan-perusahaan-pivot');
-    Route::get('/laporan/perusahaan/export', [RekapBackupController::class, 'exportPerusahaan'])
+    Route::get('/laporan/perusahaan/export', [LaporanPerusahaanController::class, 'exportPerusahaan'])
     ->name('rekap-backup.export-perusahaan');
 
     // laporan bulanan
-    Route::get('/laporan/bulanan', [RekapBackupController::class, 'laporanbulanan'])
+    Route::get('/laporan/bulanan', [LaporanBulananController::class, 'laporanbulanan'])
     ->name('rekap-backup.laporan-bulanan');
-    Route::get('/laporan/bulanan/data', [RekapBackupController::class, 'laporanbulanandata'])
+    Route::get('/laporan/bulanan/data', [LaporanBulananController::class, 'laporanbulanandata'])
     ->name('laporan-bulanan.data');
-    Route::get('/laporan/bulanan/export', [RekapBackupController::class, 'exportBulanan'])
+    Route::get('/laporan/bulanan/export', [LaporanBulananController::class, 'exportBulanan'])
     ->name('rekap-backup.export-bulanan');
 
     // input penggunaan CD DVD
