@@ -46,7 +46,6 @@ class KomputerController extends Controller
             ->make(true);
     }
 
-
     /**
      * Show the form for creating a new resource.
      */

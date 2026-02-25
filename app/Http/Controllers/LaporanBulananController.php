@@ -13,6 +13,7 @@ use App\Models\RekapBackup;
 use App\Exports\RekapBulananExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 
 class LaporanBulananController extends Controller
 {
@@ -64,7 +65,7 @@ class LaporanBulananController extends Controller
     public function exportBulanan(Request $request) 
     {
         $periode = $request->periode_bulanan;
-
+        $periodeFormat = Carbon::createFromFormat('Y-m', $periode) ->translatedFormat('F Y');
         $perusahaans = Perusahaan::with(['departemen.inventori.rekap_backup' => function($q) use ($periode) {
             $q->whereRaw("DATE_FORMAT(periode, '%Y-%m') = ?", [$periode]);
         }])->get();
@@ -87,6 +88,10 @@ class LaporanBulananController extends Controller
             ];
         }
 
-        return Excel::download(new RekapBulananExport($result, $periode), 'laporan_bulanan_ALL_PT.xlsx');
+        return Excel::download(
+            new RekapBulananExport($result, $periode, $periodeFormat),
+            'laporan_bulanan_all_pt_' . $periodeFormat . '.xlsx'
+        );
+
     }
 }
