@@ -84,7 +84,12 @@ class RekapBackupController extends Controller
                             THEN snapshot.kategori 
                             ELSE inventori.kategori 
                         END) as kategori"),
-
+                DB::raw("MAX(CASE 
+                            WHEN snapshot.id IS NOT NULL 
+                                AND STR_TO_DATE('$periode','%Y-%m-%d') < snapshot.effective_date 
+                            THEN snapshot.status 
+                            ELSE inventori.status 
+                        END) as status"),
                 DB::raw("
                     CASE
                         WHEN COUNT(rekap_backup.id) = 0 THEN 'pending'
@@ -204,11 +209,17 @@ class RekapBackupController extends Controller
                     THEN snapshot.kategori 
                     ELSE inventori.kategori 
                 END as kategori"),
+                DB::raw("CASE 
+                    WHEN snapshot.id IS NOT NULL 
+                        AND '$periode' < snapshot.effective_date 
+                    THEN snapshot.status 
+                    ELSE inventori.status 
+                END as status"),
                 DB::raw('COALESCE(SUM(rekap_backup.size_data), 0) AS size_data'),
                 DB::raw('COALESCE(SUM(rekap_backup.size_email), 0) AS size_email'),
                 DB::raw('COALESCE(SUM(rekap_backup.size_data + rekap_backup.size_email), 0) AS total_size')
             )
-            ->groupBy('inventori.id','hostname','username','email','kategori')
+            ->groupBy('inventori.id','hostname','username','email','kategori', 'status')
             ->orderBy('hostname');
     }
 
