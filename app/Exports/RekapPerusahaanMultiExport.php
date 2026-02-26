@@ -47,9 +47,29 @@ class RekapPerusahaanMultiExport implements WithMultipleSheets
             $sizeData   = $items->sum('size_data');
             $sizeEmail  = $items->sum('size_email');
             $jumlah_cd700   = $items->sum('jumlah_cd700');
-            $jumlah_dvd47 = $items->sum('jumlah_dvd47');
-            $jumlah_dvd85 = $items->sum('jumlah_dvd85');
-            $total_cd_dvd = $jumlah_cd700 + $jumlah_dvd47 + $jumlah_dvd85;
+            $jumlah_dvd47   = $items->sum('jumlah_dvd47');
+            $jumlah_dvd85   = $items->sum('jumlah_dvd85');
+            $total_cd_dvd   = $jumlah_cd700 + $jumlah_dvd47 + $jumlah_dvd85;
+
+            // Status Backup
+            $statusBackupList = $items->pluck('status')->filter()->unique();
+            if ($statusBackupList->count() === 1) {
+                $statusBackup = $statusBackupList->first();
+            } elseif ($statusBackupList->isEmpty()) {
+                $statusBackup = '';
+            } else {
+                $statusBackup = 'Partial';
+            }
+
+            // Status Data
+            $statusDataList = $items->pluck('status_data')->filter()->unique();
+            if ($statusDataList->count() === 1) {
+                $statusData = $statusDataList->first();
+            } elseif ($statusDataList->isEmpty()) {
+                $statusData = '';
+            } else {
+                $statusData = 'Partial';
+            }
 
             return (object)[
                 'nama_departemen' => $dept->nama_departemen,
@@ -60,12 +80,11 @@ class RekapPerusahaanMultiExport implements WithMultipleSheets
                 'jumlah_dvd47'    => $jumlah_dvd47,
                 'jumlah_dvd85'    => $jumlah_dvd85,
                 'total_cd_dvd'    => $total_cd_dvd,
-                'status_backup'   => $items->first()['status_backup'] ?? '',
-                'status_data'     => $items->first()['status_data'] ?? '',
+                'status_backup'   => $statusBackup,
+                'status_data'     => $statusData,
             ];
         });
     }
-
 
     protected function transformDetail(array $data, $perusahaanId)
     {

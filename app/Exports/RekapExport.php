@@ -97,7 +97,6 @@ class RekapExport implements
             ''
         ]);
 
-        // --- Tambahkan 2 baris kosong sebelum detail ---
         $rows->push(['','','','','','','','','','','','','','']);
         $rows->push(['','','','','','','','','','','','','','']);
 

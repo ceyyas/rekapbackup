@@ -83,7 +83,6 @@ class LaporanPerusahaanController extends Controller
         return $result;
     }
 
-
     public function laporanperusahaan(Request $request)
     {
         $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
