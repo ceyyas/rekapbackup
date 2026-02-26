@@ -51,11 +51,20 @@ class LaporanBulananController extends Controller
             $emailSize = $rekap->sum('size_email'); 
             $total = $dataSize + $emailSize;
 
+            $jumlah_cd700 = $rekap->sum('jumlah_cd700');
+            $jumlah_dvd47 = $rekap->sum('jumlah_dvd47');
+            $jumlah_dvd85 = $rekap->sum('jumlah_dvd85');
+            $total_cd_dvd = $jumlah_cd700 + $jumlah_dvd47 + $jumlah_dvd85;
+
             $result[] = [
                 'perusahaan' => $perusahaan->nama_perusahaan,
                 'data' => $dataSize,
                 'email' => $emailSize,
                 'total' => $total,
+                'jumlah_cd700' => $jumlah_cd700,
+                'jumlah_dvd47' => $jumlah_dvd47,
+                'jumlah_dvd85' => $jumlah_dvd85,
+                'total_cd_dvd' => $total_cd_dvd,
             ];
         }
 
@@ -80,11 +89,20 @@ class LaporanBulananController extends Controller
             $emailSize = $rekap->sum('size_email'); 
             $total = $dataSize + $emailSize;
 
+            $jumlah_cd700 = $rekap->sum('jumlah_cd700');
+            $jumlah_dvd47 = $rekap->sum('jumlah_dvd47');
+            $jumlah_dvd85 = $rekap->sum('jumlah_dvd85');
+            $total_cd_dvd = $jumlah_cd700 + $jumlah_dvd47 + $jumlah_dvd85;
+
             $result[] = [
                 'perusahaan' => $perusahaan->nama_perusahaan,
                 'data' => $dataSize,
                 'email' => $emailSize,
                 'total' => $total,
+                'jumlah_cd700' => $jumlah_cd700,
+                'jumlah_dvd47' => $jumlah_dvd47,
+                'jumlah_dvd85' => $jumlah_dvd85,
+                'total_cd_dvd' => $total_cd_dvd,
             ];
         }
 

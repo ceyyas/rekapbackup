@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Carbon\Carbon;
@@ -18,6 +19,7 @@ class RekapExport implements
         WithStyles, 
         WithColumnWidths, 
         WithEvents, 
+        WithTitle,
         WithCustomStartCell
 {
     protected $rekapDepartemen;        
@@ -33,6 +35,10 @@ class RekapExport implements
         $this->perusahaan = $perusahaan; 
         $this->periode = $periode;
     }
+    public function title(): string { 
+        return \Carbon\Carbon::parse($this->periode)->translatedFormat('F Y'); 
+    }
+
 
     public function startCell(): string { 
         return 'A2'; 
@@ -167,6 +173,33 @@ class RekapExport implements
                             'alignment' => [
                                 'horizontal' => Alignment::HORIZONTAL_CENTER,
                                 'vertical'   => Alignment::VERTICAL_CENTER,
+                            ],
+                        ]);
+                    }
+                }
+
+                // style nama column
+                for ($row = 1; $row <= $highestRow; $row++) {
+                    $value = $sheet->getCell("A{$row}")->getValue();
+                    if ($value === 'No') {
+                        $sheet->getStyle("A{$row}:J{$row}")->applyFromArray([
+                            'font' => ['bold' => true],
+                            'fill' => [
+                                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                                'startColor' => ['rgb' => 'D9EAF7'],
+                            ],
+                        ]);
+                    }
+                }
+
+                for ($row = 1; $row <= $highestRow; $row++) {
+                    $value = $sheet->getCell("J{$row}")->getValue();
+                    if ($value === 'TOTAL') {
+                        $sheet->getStyle("A{$row}:J{$row}")->applyFromArray([
+                            'font' => ['bold' => true],
+                            'fill' => [
+                                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                                'startColor' => ['rgb' => 'f8f731'], 
                             ],
                         ]);
                     }

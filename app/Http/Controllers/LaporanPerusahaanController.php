@@ -52,6 +52,38 @@ class LaporanPerusahaanController extends Controller
             ->get();
     }
 
+    private function getRekapComplete($perusahaanId)
+    {
+        $periodes = $this->getPeriodes($perusahaanId);
+        $departemen = Departemen::where('perusahaan_id', $perusahaanId)->pluck('nama_departemen');
+
+        $rekap = $this->getRekap($perusahaanId)->keyBy(function($row) {
+            return $row->nama_departemen.'_'.$row->periode;
+        });
+
+        $result = collect();
+
+        foreach ($departemen as $dept) {
+            foreach ($periodes as $periode) {
+                $key = $dept.'_'.$periode;
+                if (isset($rekap[$key])) {
+                    $result->push($rekap[$key]);
+                } else {
+                    $result->push((object)[
+                        'nama_departemen' => $dept,
+                        'periode'         => $periode,
+                        'size_data'       => 0,
+                        'size_email'      => 0,
+                        'total_size'      => 0,
+                    ]);
+                }
+            }
+        }
+
+        return $result;
+    }
+
+
     public function laporanperusahaan(Request $request)
     {
         $perusahaans = Perusahaan::orderBy('nama_perusahaan')->get();
@@ -62,7 +94,7 @@ class LaporanPerusahaanController extends Controller
     {
         $perusahaanId = $request->perusahaan_id;
         $periodes = $this->getPeriodes($perusahaanId);
-        $rekap    = $this->getRekap($perusahaanId);
+        $rekap    = $this->getRekapComplete($perusahaanId);
 
         $pivot = [];
         foreach ($rekap as $r) {
@@ -81,7 +113,7 @@ class LaporanPerusahaanController extends Controller
         $perusahaanNama = Perusahaan::find($perusahaanId)->nama_perusahaan;
 
         $periodes = $this->getPeriodes($perusahaanId);
-        $rekap    = $this->getRekap($perusahaanId);
+        $rekap    = $this->getRekapComplete($perusahaanId);
 
         $pivot = [];
         foreach ($rekap as $r) {
@@ -160,7 +192,7 @@ class LaporanPerusahaanController extends Controller
         }
 
         return Excel::download(
-            new RekapPerusahaanMultiExport($globalPivot, $detailPeriodes, $perusahaanNama),
+            new RekapPerusahaanMultiExport($globalPivot, $detailPeriodes, $perusahaanNama, $perusahaanId),
             "laporan_perusahaan_{$perusahaanNama}.xlsx"
         );
     }

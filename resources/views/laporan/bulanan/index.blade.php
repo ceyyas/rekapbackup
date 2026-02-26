@@ -18,6 +18,10 @@
                 <th>Size Data</th>
                 <th>Size Email</th>
                 <th>Total Size</th>
+                <th>CD 700 MB</th>
+                <th>DVD 4.7 GB</th>
+                <th>DVD 8.5 GB</th>
+                <th>Total CD/DVD</th>
             </tr>
         </thead>
         <tbody></tbody>

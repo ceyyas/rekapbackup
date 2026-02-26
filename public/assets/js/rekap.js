@@ -190,7 +190,8 @@ function initIndexPage() {
         info: true,
         searching: true,
         lengthChange: false,
-        destroy: true
+        destroy: true,
+        columnDefs: [ { targets: [4,5,6,7], width: '60px', className: 'dt-center' } ]
     });
 
     $('#perusahaan_id, #periode_id').on('change', function() {
@@ -229,6 +230,10 @@ function initIndexPage() {
                     formatSizeBoth(d.size_data),
                     formatSizeBoth(d.size_email),
                     formatSizeBoth(d.total_size),
+                    d.jumlah_cd700,
+                    d.jumlah_dvd47,
+                    d.jumlah_dvd85,
+                    d.total_cd_dvd,
                     '<span class="status '+d.status_backup+'">'+d.status_backup+'</span>',
                     '<span class="status_data '+d.status_data+'">'+d.status_data+'</span>'
                 ]).draw(false).node();
@@ -464,6 +469,10 @@ function initLaporanBulanan() {
                             <td>${(r.data/1024).toFixed(2)} GB</td>
                             <td>${(r.email/1024).toFixed(2)} GB</td>
                             <td>${(r.total/1024).toFixed(2)} GB</td>
+                            <td>${r.jumlah_cd700}</td>
+                            <td>${r.jumlah_dvd47}</td>
+                            <td>${r.jumlah_dvd85}</td>
+                            <td>${r.total_cd_dvd}</td>
                         </tr>`;
                         labels.push(r.perusahaan ?? '-');
                         totals.push(r.total/1024);

@@ -39,17 +39,21 @@ class RekapBulananExport implements
     {
         return collect(array_map(function($row) {
             return [
-                'Perusahaan'     => $row['perusahaan'],
-                'Size Data (GB)' => number_format($row['data'] / 1024, 2, '.', '.') . ' GB',
-                'Size Email (GB)' => number_format($row['email'] / 1024, 2, '.', '.') . ' GB',
-                'Total Size (GB)' => number_format($row['total'] / 1024, 2, '.', '.') . ' GB',
+                'Perusahaan'       => $row['perusahaan'],
+                'Size Data (GB)'   => number_format($row['data'] / 1024, 2, '.', '.') . ' GB',
+                'Size Email (GB)'  => number_format($row['email'] / 1024, 2, '.', '.') . ' GB',
+                'Total Size (GB)'  => number_format($row['total'] / 1024, 2, '.', '.') . ' GB',
+                'CD 700 MB'        => $row['jumlah_cd700'],
+                'DVD 4.7 GB'       => $row['jumlah_dvd47'],
+                'DVD 8.5 GB'       => $row['jumlah_dvd85'],
+                'Total CD/DVD'     => $row['total_cd_dvd'],
             ];
         }, $this->data));
     }
 
     public function headings(): array
     {
-        return ['Perusahaan', 'Size Data', 'Size Email', 'Total Size'];
+        return ['Perusahaan', 'Size Data', 'Size Email', 'Total Size', 'CD 700 MB', 'DVD 4.7 GB', 'DVD 8.5 GB', 'Total CD/DVD'];
     }
 
     public function columnWidths(): array
@@ -59,13 +63,17 @@ class RekapBulananExport implements
             'B' => 12,
             'C' => 12,
             'D' => 12,
+            'E' => 12,
+            'F' => 12,
+            'G' => 12,
+            'H' => 12,
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
         // Header bold + background
-        $sheet->getStyle('A2:D2')->applyFromArray([
+        $sheet->getStyle('A2:H2')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => '000000']],
             'fill' => [
                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
@@ -103,8 +111,8 @@ class RekapBulananExport implements
                 $judul = "Laporan Rekap Backup Data ALL PT - Periode {$periodeFormat}";
                      
                 $sheet->setCellValue('A1', $judul);
-                $sheet->mergeCells("A1:D1");        
-                $sheet->getStyle("A1:D1")->applyFromArray([
+                $sheet->mergeCells("A1:H1");        
+                $sheet->getStyle("A1:H1")->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF'], 

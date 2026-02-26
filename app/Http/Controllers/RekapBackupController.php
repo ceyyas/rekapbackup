@@ -60,7 +60,8 @@ class RekapBackupController extends Controller
                 DB::raw('COALESCE(SUM(rekap_backup.jumlah_cd700), 0) AS jumlah_cd700'),
                 DB::raw('COALESCE(SUM(rekap_backup.jumlah_dvd47), 0) AS jumlah_dvd47'),
                 DB::raw('COALESCE(SUM(rekap_backup.jumlah_dvd85), 0) AS jumlah_dvd85'),
-                 DB::raw("MAX(CASE 
+                DB::raw('COALESCE(SUM(rekap_backup.jumlah_cd700 + rekap_backup.jumlah_dvd47 + rekap_backup.jumlah_dvd85), 0) AS total_cd_dvd'),
+                DB::raw("MAX(CASE 
                             WHEN snapshot.id IS NOT NULL 
                                 AND STR_TO_DATE('$periode','%Y-%m-%d') < snapshot.effective_date 
                             THEN snapshot.hostname 
