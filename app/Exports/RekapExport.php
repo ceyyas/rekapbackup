@@ -55,23 +55,28 @@ class RekapExport implements
             'SIZE DATA (MB)','SIZE DATA (GB)',
             'SIZE EMAIL (MB)','SIZE EMAIL (GB)',
             'Total Size (MB)','Total Size (GB)',
+            'CD 700 MB','DVD 4.7 GB','DVD 8.5 GB','Total CD/DVD',
             'Status Backup','Status Data'
         ]);
 
         // --- Isi Global ---
         foreach ($this->rekapDepartemen as $dept) {
             $rows->push([
-            $no++,
-            $dept->nama_departemen,
-            $dept->size_data . ' MB',
-            round($dept->size_data / 1024, 2) . ' GB',
-            $dept->size_email . ' MB',
-            round($dept->size_email / 1024, 2) . ' GB',
-            $dept->total_size . ' MB',
-            round($dept->total_size / 1024, 2) . ' GB',
-            $dept->status_backup,
-            $dept->status_data,
-        ]);
+                $no++,
+                $dept->nama_departemen,
+                $dept->size_data . ' MB',
+                round($dept->size_data / 1024, 2) . ' GB',
+                $dept->size_email . ' MB',
+                round($dept->size_email / 1024, 2) . ' GB',
+                $dept->total_size . ' MB',
+                round($dept->total_size / 1024, 2) . ' GB',
+                $dept->jumlah_cd700,
+                $dept->jumlah_dvd47,
+                $dept->jumlah_dvd85,
+                $dept->total_cd_dvd,
+                $dept->status_backup,
+                $dept->status_data,
+            ]);
         }
 
         // --- Total Global ---
@@ -84,9 +89,18 @@ class RekapExport implements
             round($this->rekapDepartemen->sum('size_email')/1024,2).' GB',
             $this->rekapDepartemen->sum('total_size') . ' MB',
             round($this->rekapDepartemen->sum('total_size')/1024,2).' GB',
+            $this->rekapDepartemen->sum('jumlah_cd700'),
+            $this->rekapDepartemen->sum('jumlah_dvd47'),
+            $this->rekapDepartemen->sum('jumlah_dvd85'),
+            $this->rekapDepartemen->sum('total_cd_dvd'),
             '',
             ''
         ]);
+
+        // --- Tambahkan 2 baris kosong sebelum detail ---
+        $rows->push(['','','','','','','','','','','','','','']);
+        $rows->push(['','','','','','','','','','','','','','']);
+
 
         foreach ($this->rekapDetail as $dept) {
         
@@ -150,7 +164,6 @@ class RekapExport implements
         return $rows;
     }
 
-
     public function registerEvents(): array    
     {    
         return [
@@ -158,110 +171,89 @@ class RekapExport implements
                 $sheet = $event->sheet->getDelegate();
                 $highestRow = $sheet->getHighestRow();
 
-                for ($row = 1; $row <= $highestRow; $row++) {
-                    $value = $sheet->getCell("A{$row}")->getValue();
-                    $colB  = $sheet->getCell("B{$row}")->getValue();
-
-                    if (!empty($value) && empty($colB)) {
-                        $sheet->mergeCells("A{$row}:J{$row}");
-                        $sheet->getStyle("A{$row}:J{$row}")->applyFromArray([
-                            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                            'fill' => [
-                                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => '2a6099'],
-                            ],
-                            'alignment' => [
-                                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                                'vertical'   => Alignment::VERTICAL_CENTER,
-                            ],
-                        ]);
-                    }
-                }
-
-                // style nama column
-                for ($row = 1; $row <= $highestRow; $row++) {
-                    $value = $sheet->getCell("A{$row}")->getValue();
-                    if ($value === 'No') {
-                        $sheet->getStyle("A{$row}:J{$row}")->applyFromArray([
-                            'font' => ['bold' => true],
-                            'fill' => [
-                                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => 'D9EAF7'],
-                            ],
-                        ]);
-                    }
-                }
-
-                for ($row = 1; $row <= $highestRow; $row++) {
-                    $value = $sheet->getCell("J{$row}")->getValue();
-                    if ($value === 'TOTAL') {
-                        $sheet->getStyle("A{$row}:J{$row}")->applyFromArray([
-                            'font' => ['bold' => true],
-                            'fill' => [
-                                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                                'startColor' => ['rgb' => 'f8f731'], 
-                            ],
-                        ]);
-                    }
-                }
-
-                // judul laporan di baris 1
+                // Judul laporan
                 $periodeFormat = \Carbon\Carbon::parse($this->periode)->translatedFormat('F Y');
                 $judul = "Laporan Rekap Backup Data - {$this->perusahaan} - Periode {$periodeFormat}";                
                 $event->sheet->setCellValue('A1', $judul);
-                $event->sheet->mergeCells('A1:J1');          
-                $event->sheet->getStyle('A1:J1')->applyFromArray([
-                    'font' => [
-                        'bold' => true,
-                        'color' => ['rgb' => 'FFFFFF'], 
-                    ],
-                    'fill' => [
-                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => '4E8BC9'], 
-                    ],
-                    'alignment' => [
-                        'horizontal' => Alignment::HORIZONTAL_CENTER,
-                        'vertical'   => Alignment::VERTICAL_CENTER,
-                    ],
+                $event->sheet->mergeCells('A1:N1');          
+                $event->sheet->getStyle('A1:N1')->applyFromArray([
+                    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 14],
+                    'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '276522']],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
+                $sheet->getRowDimension(1)->setRowHeight(25);
+
+                $startRow = null;
+                $isDetail = false;
+
+                for ($row = 2; $row <= $highestRow; $row++) {
+                    $valA = $sheet->getCell("A{$row}")->getValue();
+                    $valB = $sheet->getCell("B{$row}")->getValue();
+                    $valC = $sheet->getCell("C{$row}")->getValue();
+
+                    // Heading departemen detail
+                    if (!empty($valA) && empty($valB)) {
+                        $sheet->mergeCells("A{$row}:J{$row}");
+                        $sheet->getStyle("A{$row}:J{$row}")->applyFromArray([
+                            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                            'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '2a6099']],
+                            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                        ]);
+                    }
+
+                    // Awal tabel
+                    if ($valA === 'No') {
+                        $startRow = $row;
+                        // cek apakah tabel detail (kolom B = Hostname)
+                        $isDetail = ($valB === 'Hostname');
+
+                        // style header
+                        $endCol = $isDetail ? 'J' : 'N';
+                        $sheet->getStyle("A{$row}:{$endCol}{$row}")->applyFromArray([
+                            'font' => ['bold' => true],
+                            'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D9EAF7']],
+                            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                        ]);
+                    }
+
+                    // Akhir tabel (TOTAL)
+                    if ($valB === 'TOTAL' || $valC === 'TOTAL') {
+                        if ($startRow !== null) {
+                            $endCol = $isDetail ? 'J' : 'N';
+                            // border tabel
+                            $sheet->getStyle("A{$startRow}:{$endCol}{$row}")->applyFromArray([
+                                'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
+                            ]);
+                            // style TOTAL
+                            $sheet->getStyle("A{$row}:{$endCol}{$row}")->applyFromArray([
+                                'font' => ['bold' => true],
+                                'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFF933']],
+                            ]);
+                            $startRow = null;
+                            $isDetail = false;
+                        }
+                    }
+                }
             },
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
-        // Header bold + background
-        $sheet->getStyle('A2:J2')->applyFromArray([
-            'font' => ['bold' => true, 'color' => ['rgb' => '000000']],
-            'fill' => [
-                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
-            ],
-            'alignment' => [ 'horizontal' => Alignment::HORIZONTAL_CENTER, 
-            'vertical' => Alignment::VERTICAL_CENTER, ]
-        ]);
-
-        // Border untuk semua sel
         $highestRow = $sheet->getHighestRow();
-        $highestColumn = $sheet->getHighestColumn();
-        $sheet->getStyle("A2:{$highestColumn}{$highestRow}")
-            ->applyFromArray([
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                        'color' => ['rgb' => '000000']
-                    ]
-                ]
-            ]);
 
+        // Kolom No rata tengah
         $sheet->getStyle("A3:A{$highestRow}")
-            ->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
-            ->setVertical(Alignment::VERTICAL_CENTER);
+            ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
 
+        // Kolom angka global (C–N)
+        $sheet->getStyle("C3:N{$highestRow}")
+            ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+
+        // Kolom angka detail (C–J)
         $sheet->getStyle("C3:J{$highestRow}")
-            ->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
-            ->setVertical(Alignment::VERTICAL_CENTER);
+            ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+
         return [];
     }
 
@@ -276,8 +268,12 @@ class RekapExport implements
             'F' => 12,
             'G' => 12,
             'H' => 12,
-            'I' => 13,
-            'J' => 22,
+            'I' => 12,
+            'J' => 12,
+            'K' => 12,
+            'L' => 14,
+            'M' => 15,
+            'N' => 20,
         ];
     }
 
