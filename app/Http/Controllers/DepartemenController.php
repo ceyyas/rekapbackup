@@ -93,7 +93,6 @@ class DepartemenController extends Controller
             'perusahaan_id'  => $request->perusahaan_id,
         ]);
 
-
         return redirect()->route('departemen.index')
             ->with('success', 'Data departemen berhasil diupdate');
     }
@@ -104,11 +103,18 @@ class DepartemenController extends Controller
     public function destroy(string $id)
     {
         $departemen = Departemen::findOrFail($id);
+
+        if ($departemen->inventori()->exists()) {
+            return redirect()->route('departemen.index')
+                ->with('error', 'Departemen tidak bisa dihapus karena masih memiliki data inventori.');
+        }
+
         $departemen->delete();
 
         return redirect()->route('departemen.index')
             ->with('success', 'Data departemen berhasil dihapus');
     }
+
 
     public function byPerusahaan(Request $request)
     {
