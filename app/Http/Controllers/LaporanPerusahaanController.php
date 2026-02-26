@@ -75,6 +75,11 @@ class LaporanPerusahaanController extends Controller
                         'size_data'       => 0,
                         'size_email'      => 0,
                         'total_size'      => 0,
+                        'jumlah_cd700'    => 0,
+                        'jumlah_dvd47'    => 0,
+                        'jumlah_dvd85'    => 0,
+                        'total_cd_dvd'    => 0,
+
                     ]);
                 }
             }

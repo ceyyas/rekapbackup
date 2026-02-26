@@ -52,7 +52,7 @@ class RekapPerusahaanMultiExport implements WithMultipleSheets
             $total_cd_dvd   = $jumlah_cd700 + $jumlah_dvd47 + $jumlah_dvd85;
 
             // Status Backup
-            $statusBackupList = $items->pluck('status')->filter()->unique();
+            $statusBackupList = $items->pluck('status_backup')->filter()->unique();
             if ($statusBackupList->count() === 1) {
                 $statusBackup = $statusBackupList->first();
             } elseif ($statusBackupList->isEmpty()) {
