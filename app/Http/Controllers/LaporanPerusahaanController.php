@@ -139,43 +139,54 @@ class LaporanPerusahaanController extends Controller
     }
 
     public function exportPerusahaan(Request $request)
-    {
-        $perusahaanId   = $request->perusahaan_id;
-        $perusahaanNama = Perusahaan::find($perusahaanId)->nama_perusahaan;
+{
+    $perusahaanId   = $request->perusahaan_id;
+    $tahun          = $request->tahun; 
+    $perusahaanNama = Perusahaan::find($perusahaanId)->nama_perusahaan;
 
-        $periodes = $this->getPeriodes($perusahaanId);
-        $rekap    = $this->getRekapComplete($perusahaanId);
+    $periodes = $this->getPeriodes($perusahaanId, $tahun);
+    $rekap    = $this->getRekapComplete($perusahaanId, $tahun);
 
-        // Pivot data
-        $pivot = [];
-        foreach ($rekap as $r) {
-            $pivot[$r->nama_departemen][$r->periode] = $r->total_size.' MB';
-        }
-
-        $globalPivot = [
-            'periodes' => $periodes,
-            'pivot'    => $pivot,
-        ];
-
-        $detailPeriodes = [];
-            foreach ($periodes as $p) {
-                $periodeDate = \Carbon\Carbon::createFromFormat('M-Y', $p)->format;
-
-                $departemens = Departemen::where('perusahaan_id', $perusahaanId)->get();
-                $rekapDetail = $departemens->map(function($dept) use ($periodeDate) {
-                    return (object)[
-                        'nama_departemen' => $dept->nama_departemen,
-                        'detail_inventori'=> $this->getInventoriDetailQuery($dept->id, $periodeDate)->get()
-                    ];
-                });
-
-                $detailPeriodes[$p] = $rekapDetail;
-            }
-
-        return Excel::download(
-            new RekapPerusahaanMultiExport($globalPivot, $detailPeriodes, $perusahaanNama, $perusahaanId),
-            "laporan_perusahaan_{$perusahaanNama}.xlsx"
-        );
+    // Pivot data
+    $pivot = [];
+    foreach ($rekap as $r) {
+        $pivot[$r->nama_departemen][$r->periode] = $r->total_size.' MB';
     }
-}
 
+    $globalPivot = [
+        'periodes' => $periodes,
+        'pivot'    => $pivot,
+    ];
+
+    $detailPeriodes = [];
+
+    foreach ($periodes as $p) {
+        $periodeDate = \Carbon\Carbon::createFromFormat('M-Y', $p)
+                        ->startOfMonth()
+                        ->format('Y-m-d');
+
+        $departemens = Departemen::where('perusahaan_id', $perusahaanId)->get();
+
+        $rekapDetail = $departemens->map(function($dept) use ($periodeDate) {
+            $detailInventori = $this->getInventoriDetailQuery($dept->id, $periodeDate)->get();
+
+            return (object)[
+                'nama_departemen' => $dept->nama_departemen,
+                'detail_inventori'=> $detailInventori
+            ];
+        });
+
+        $detailPeriodes[$p] = $rekapDetail;
+    }
+
+    return Excel::download(
+        new RekapPerusahaanMultiExport(
+            $globalPivot,
+            $detailPeriodes,
+            $perusahaanNama,
+            $perusahaanId
+        ),
+        "laporan_perusahaan_{$perusahaanNama}_{$tahun}.xlsx"
+    );
+}
+}

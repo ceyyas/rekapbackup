@@ -373,16 +373,11 @@ function initLaporanPerusahaan() {
     }
 
     let chartInstance = null;
-
-    // =========================
-    // FUNCTION RENDER TABLE + CHART
-    // =========================
     function renderPivot(res) {
 
         let periodes = Array.isArray(res.periodes) ? res.periodes : [];
         let pivot = res.pivot || {};
 
-        // ====== TABLE HEADER ======
         let thead = '<tr><th>Departemen</th>';
         periodes.forEach(p => {
             thead += '<th>' + p + '</th>';
@@ -390,7 +385,6 @@ function initLaporanPerusahaan() {
         thead += '</tr>';
         $('#laporanPivot thead').html(thead);
 
-        // ====== TABLE BODY ======
         let tbody = '';
         Object.keys(pivot).forEach(dept => {
             tbody += '<tr><td>' + dept + '</td>';
@@ -402,7 +396,6 @@ function initLaporanPerusahaan() {
         });
         $('#laporanPivot tbody').html(tbody);
 
-        // ====== CHART DATA ======
         let labels = [];
         let data = [];
 
@@ -420,7 +413,6 @@ function initLaporanPerusahaan() {
             data.push(total);
         });
 
-        // Destroy chart lama
         if (chartInstance) {
             chartInstance.destroy();
         }
@@ -453,9 +445,6 @@ function initLaporanPerusahaan() {
         });
     }
 
-    // =========================
-    // SAAT PILIH PERUSAHAAN
-    // =========================
     $('#perusahaan_id').on('change', function () {
 
         let perusahaanId = $(this).val();
@@ -465,7 +454,6 @@ function initLaporanPerusahaan() {
             perusahaan_id: perusahaanId
         }, function (res) {
 
-            // ===== Populate Dropdown Tahun =====
             let tahunSelect = $('#tahun');
             tahunSelect.prop('disabled', false);
             tahunSelect.html('<option value="">-- Semua Tahun --</option>');
@@ -480,9 +468,6 @@ function initLaporanPerusahaan() {
         });
     });
 
-    // =========================
-    // SAAT PILIH TAHUN
-    // =========================
     $('#tahun').on('change', function () {
 
         let perusahaanId = $('#perusahaan_id').val();
@@ -498,9 +483,6 @@ function initLaporanPerusahaan() {
         });
     });
 
-    // =========================
-    // EXPORT
-    // =========================
     $('#btnExportPerusahaan').on('click', function () {
 
         let perusahaanId = $('#perusahaan_id').val();
