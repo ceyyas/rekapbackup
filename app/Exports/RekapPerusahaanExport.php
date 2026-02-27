@@ -42,17 +42,51 @@ class RekapPerusahaanExport implements
         $header = ['Departemen'];
         if (!empty($this->rekap['periodes'])) {
             $header = array_merge($header, $this->rekap['periodes']);
+            $header[] = 'TOTAL'; // tambahkan kolom total
         }
         $rows[] = $header;
 
-        // isi data
+        // isi data per departemen
         foreach ($this->rekap['pivot'] as $dept => $data) {
             $row = [$dept];
+            $totalDept = 0;
+
             foreach ($this->rekap['periodes'] as $p) {
-                $row[] = $data[$p] ?? '-';
+                $val = $data[$p] ?? 0;
+                // hilangkan ' MB' agar bisa dijumlahkan
+                $numVal = is_string($val) ? (float) str_replace([' MB','.'], ['',''], $val) : $val;
+                $row[] = $val ?: '-';
+                $totalDept += $numVal;
             }
+
+            $row[] = $totalDept . ' MB'; 
             $rows[] = $row;
         }
+
+        // baris total per periode
+        $totalRow = ['TOTAL'];
+        foreach ($this->rekap['periodes'] as $p) {
+            $sumPeriode = 0;
+            foreach ($this->rekap['pivot'] as $dept => $data) {
+                $val = $data[$p] ?? 0;
+                $numVal = is_string($val) ? (float) str_replace([' MB','.'], ['',''], $val) : $val;
+                $sumPeriode += $numVal;
+            }
+            $totalRow[] = $sumPeriode . ' MB';
+        }
+
+        // total keseluruhan (semua periode + semua departemen)
+        $grandTotal = 0;
+        foreach ($this->rekap['pivot'] as $dept => $data) {
+            foreach ($this->rekap['periodes'] as $p) {
+                $val = $data[$p] ?? 0;
+                $numVal = is_string($val) ? (float) str_replace([' MB','.'], ['',''], $val) : $val;
+                $grandTotal += $numVal;
+            }
+        }
+        $totalRow[] = $grandTotal . ' MB';
+
+        $rows[] = $totalRow;
 
         return new Collection($rows);
     }
@@ -60,7 +94,7 @@ class RekapPerusahaanExport implements
     public function styles(Worksheet $sheet)
     {
         // Header bold + background
-        $sheet->getStyle('A2:F2')->applyFromArray([
+        $sheet->getStyle('A2:N2')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => '000000']],
             'fill' => [
                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
@@ -98,6 +132,14 @@ class RekapPerusahaanExport implements
             'D' => 12,
             'E' => 12,
             'F' => 12,
+            'G' => 12,
+            'H' => 12, 
+            'I' => 12, 
+            'J' => 12,
+            'K' => 12,
+            'L' => 12,
+            'M' => 12,
+            'N' => 12,
         ];
     }
 
@@ -135,4 +177,3 @@ class RekapPerusahaanExport implements
         ];
     }
 }
-
