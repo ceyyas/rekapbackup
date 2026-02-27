@@ -12,7 +12,9 @@
                     </option>
                 @endforeach
             </select>
-
+            <select id="tahun" class="filter" name="tahun" disabled>
+                <option value="">-- Pilih Tahun --</option>
+            </select>
             <button id="btnExportPerusahaan" class="entry-button">Export Data</button>
         
         </div>

@@ -28,9 +28,15 @@ class LaporanPerusahaanController extends Controller
             ->where('departemen.perusahaan_id', $perusahaanId);
     }
 
-    private function getPeriodes($perusahaanId)
+    private function getPeriodes($perusahaanId, $tahun = null)
     {
-        return $this->getPerusahaanRekap($perusahaanId)
+        $query = $this->getPerusahaanRekap($perusahaanId);
+
+        if ($tahun) {
+            $query->whereYear('rekap_backup.periode', $tahun);
+        }
+
+        return $query
             ->selectRaw("DATE_FORMAT(rekap_backup.periode,'%b-%Y') as periode")
             ->distinct()
             ->orderBy('rekap_backup.periode')
@@ -38,9 +44,15 @@ class LaporanPerusahaanController extends Controller
             ->toArray();
     }
 
-    private function getRekap($perusahaanId)
+    private function getRekap($perusahaanId, $tahun = null)
     {
-        return $this->getPerusahaanRekap($perusahaanId)
+        $query = $this->getPerusahaanRekap($perusahaanId);
+
+        if ($tahun) {
+            $query->whereYear('rekap_backup.periode', $tahun);
+        }
+
+        return $query
             ->select(
                 'departemen.nama_departemen',
                 DB::raw("DATE_FORMAT(rekap_backup.periode, '%b-%Y') as periode"),
@@ -54,20 +66,23 @@ class LaporanPerusahaanController extends Controller
             ->get();
     }
 
-    private function getRekapComplete($perusahaanId)
+    private function getRekapComplete($perusahaanId, $tahun = null)
     {
-        $periodes   = $this->getPeriodes($perusahaanId);
-        $departemen = Departemen::where('perusahaan_id', $perusahaanId)->pluck('nama_departemen');
+        $periodes   = $this->getPeriodes($perusahaanId, $tahun);
+        $departemen = Departemen::where('perusahaan_id', $perusahaanId)
+                        ->pluck('nama_departemen');
 
-        $rekap = $this->getRekap($perusahaanId)->keyBy(function($row) {
-            return $row->nama_departemen.'_'.$row->periode;
-        });
+        $rekap = $this->getRekap($perusahaanId, $tahun)
+            ->keyBy(function($row) {
+                return $row->nama_departemen.'_'.$row->periode;
+            });
 
         $result = collect();
 
         foreach ($departemen as $dept) {
             foreach ($periodes as $periode) {
                 $key = $dept.'_'.$periode;
+
                 if (isset($rekap[$key])) {
                     $result->push($rekap[$key]);
                 } else {
@@ -77,16 +92,22 @@ class LaporanPerusahaanController extends Controller
                         'size_data'       => 0,
                         'size_email'      => 0,
                         'total_size'      => 0,
-                        'jumlah_cd700'    => 0,
-                        'jumlah_dvd47'    => 0,
-                        'jumlah_dvd85'    => 0,
-                        'total_cd_dvd'    => 0,
                     ]);
                 }
             }
         }
 
         return $result;
+    }
+
+    private function getTahunList($perusahaanId)
+    {
+        return $this->getPerusahaanRekap($perusahaanId)
+            ->selectRaw("YEAR(rekap_backup.periode) as tahun")
+            ->distinct()
+            ->orderBy('tahun')
+            ->pluck('tahun')
+            ->toArray();
     }
 
     public function laporanperusahaan(Request $request)
@@ -98,17 +119,22 @@ class LaporanPerusahaanController extends Controller
     public function laporanPerusahaanPivot(Request $request)
     {
         $perusahaanId = $request->perusahaan_id;
-        $periodes     = $this->getPeriodes($perusahaanId);
-        $rekap        = $this->getRekapComplete($perusahaanId);
+        $tahun        = $request->tahun;
+
+        $periodes = $this->getPeriodes($perusahaanId, $tahun);
+        $rekap    = $this->getRekapComplete($perusahaanId, $tahun);
+        $tahunList = $this->getTahunList($perusahaanId);
 
         $pivot = [];
         foreach ($rekap as $r) {
-            $pivot[$r->nama_departemen][$r->periode] = number_format($r->total_size, 0, ',', '.') . ' MB';
+            $pivot[$r->nama_departemen][$r->periode] =
+                number_format($r->total_size, 0, ',', '.') . ' MB';
         }
 
         return response()->json([
-            'periodes' => $periodes,
-            'pivot'    => $pivot
+            'tahun_list' => $tahunList,
+            'periodes'   => $periodes,
+            'pivot'      => $pivot
         ]);
     }
 
@@ -133,7 +159,7 @@ class LaporanPerusahaanController extends Controller
 
         $detailPeriodes = [];
             foreach ($periodes as $p) {
-                $periodeDate = \Carbon\Carbon::createFromFormat('M-Y', $p)->format('Y-m-01');
+                $periodeDate = \Carbon\Carbon::createFromFormat('M-Y', $p)->format;
 
                 $departemens = Departemen::where('perusahaan_id', $perusahaanId)->get();
                 $rekapDetail = $departemens->map(function($dept) use ($periodeDate) {

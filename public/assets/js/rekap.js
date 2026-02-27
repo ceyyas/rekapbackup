@@ -365,80 +365,157 @@ function initDetailPage() {
 
 // laporan per perusahaan
 function initLaporanPerusahaan() {
+
     if (!document.getElementById('perusahaan_id') ||
         !document.getElementById('laporanPivot') ||
         !document.getElementById('laporanChart')) {
-        return; 
+        return;
     }
+
     let chartInstance = null;
-    $('#perusahaan_id').on('change', function() {
+
+    // =========================
+    // FUNCTION RENDER TABLE + CHART
+    // =========================
+    function renderPivot(res) {
+
+        let periodes = Array.isArray(res.periodes) ? res.periodes : [];
+        let pivot = res.pivot || {};
+
+        // ====== TABLE HEADER ======
+        let thead = '<tr><th>Departemen</th>';
+        periodes.forEach(p => {
+            thead += '<th>' + p + '</th>';
+        });
+        thead += '</tr>';
+        $('#laporanPivot thead').html(thead);
+
+        // ====== TABLE BODY ======
+        let tbody = '';
+        Object.keys(pivot).forEach(dept => {
+            tbody += '<tr><td>' + dept + '</td>';
+            periodes.forEach(p => {
+                let val = pivot[dept][p] ?? '-';
+                tbody += '<td>' + val + '</td>';
+            });
+            tbody += '</tr>';
+        });
+        $('#laporanPivot tbody').html(tbody);
+
+        // ====== CHART DATA ======
+        let labels = [];
+        let data = [];
+
+        Object.keys(pivot).forEach(dept => {
+            labels.push(dept);
+
+            let total = 0;
+            periodes.forEach(p => {
+                let val = pivot[dept][p];
+                if (val) {
+                    total += parseInt(val.toString().replace(/\D/g, '')) || 0;
+                }
+            });
+
+            data.push(total);
+        });
+
+        // Destroy chart lama
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        let ctx = document.getElementById('laporanChart').getContext('2d');
+
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Size (MB)',
+                    data: data,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Total Size per Departemen'
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    // =========================
+    // SAAT PILIH PERUSAHAAN
+    // =========================
+    $('#perusahaan_id').on('change', function () {
+
         let perusahaanId = $(this).val();
         if (!perusahaanId) return;
 
-        $.get(window.rekapRoutes.pivot, { perusahaan_id: perusahaanId }, function(res) {
-            let periodes = Array.isArray(res.periodes) ? res.periodes : [];
-            let pivot = res.pivot || {};
+        $.get(window.rekapRoutes.pivot, {
+            perusahaan_id: perusahaanId
+        }, function (res) {
 
-            let thead = '<tr><th>Departemen</th>';
-            periodes.forEach(p => { thead += '<th>'+p+'</th>'; });
-            thead += '</tr>';
-            $('#laporanPivot thead').html(thead);
+            // ===== Populate Dropdown Tahun =====
+            let tahunSelect = $('#tahun');
+            tahunSelect.prop('disabled', false);
+            tahunSelect.html('<option value="">-- Semua Tahun --</option>');
 
-            let tbody = '';
-            Object.keys(pivot).forEach(dept => {
-                tbody += '<tr><td>'+dept+'</td>';
-                periodes.forEach(p => {
-                    let val = pivot[dept][p] ?? '-';
-                    tbody += '<td>'+val+'</td>';
+            if (Array.isArray(res.tahun_list)) {
+                res.tahun_list.forEach(t => {
+                    tahunSelect.append('<option value="' + t + '">' + t + '</option>');
                 });
-                tbody += '</tr>';
-            });
-            $('#laporanPivot tbody').html(tbody);
+            }
 
-            let labels = [];
-            let data = [];
-            Object.keys(pivot).forEach(dept => {
-                labels.push(dept);
-                let total = 0;
-                periodes.forEach(p => {
-                    let val = pivot[dept][p];
-                    if (val) {
-                        total += parseInt(val.toString().replace(/\D/g,'')) || 0;
-                    }
-                });
-                data.push(total);
-            });
-
-            if (chartInstance) chartInstance.destroy();
-            let ctx = document.getElementById('laporanChart').getContext('2d');
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Total Size (MB)',
-                        data: data,
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: true, text: 'Total Size per Departemen' }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
+            renderPivot(res);
         });
     });
 
-    $('#btnExportPerusahaan').on('click', function() {
+    // =========================
+    // SAAT PILIH TAHUN
+    // =========================
+    $('#tahun').on('change', function () {
+
         let perusahaanId = $('#perusahaan_id').val();
+        let tahun = $(this).val();
+
         if (!perusahaanId) return;
-        window.location.href = window.rekapRoutes.exportPerusahaan + '?perusahaan_id=' + perusahaanId;
+
+        $.get(window.rekapRoutes.pivot, {
+            perusahaan_id: perusahaanId,
+            tahun: tahun
+        }, function (res) {
+            renderPivot(res);
+        });
+    });
+
+    // =========================
+    // EXPORT
+    // =========================
+    $('#btnExportPerusahaan').on('click', function () {
+
+        let perusahaanId = $('#perusahaan_id').val();
+        let tahun = $('#tahun').val();
+
+        if (!perusahaanId) return;
+
+        let url = window.rekapRoutes.exportPerusahaan +
+            '?perusahaan_id=' + perusahaanId;
+
+        if (tahun) {
+            url += '&tahun=' + tahun;
+        }
+
+        window.location.href = url;
     });
 }
 
