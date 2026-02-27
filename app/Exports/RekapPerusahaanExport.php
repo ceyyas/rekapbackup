@@ -42,7 +42,7 @@ class RekapPerusahaanExport implements
         $header = ['Departemen'];
         if (!empty($this->rekap['periodes'])) {
             $header = array_merge($header, $this->rekap['periodes']);
-            $header[] = 'TOTAL'; // tambahkan kolom total
+            $header[] = 'TOTAL'; 
         }
         $rows[] = $header;
 
@@ -95,7 +95,6 @@ class RekapPerusahaanExport implements
         $highestColumn = Coordinate::stringFromColumnIndex($colCount);
         $highestRow = $sheet->getHighestRow();
 
-        // Header bold + center
         $sheet->getStyle("A2:{$highestColumn}2")->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => '000000']],
             'fill' => [
@@ -107,7 +106,6 @@ class RekapPerusahaanExport implements
             ]
         ]);
 
-        // Border untuk semua sel
         $sheet->getStyle("A2:{$highestColumn}{$highestRow}")
             ->applyFromArray([
                 'borders' => [
@@ -118,7 +116,6 @@ class RekapPerusahaanExport implements
                 ]
             ]);
 
-        // Alignment center untuk semua kolom kecuali Departemen
         $sheet->getStyle("B3:{$highestColumn}{$highestRow}")
             ->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER)
@@ -127,7 +124,6 @@ class RekapPerusahaanExport implements
 
     public function columnWidths(): array
     {
-        // Default untuk A-N, bisa ditambah kalau periode lebih dari 12
         $widths = ['A' => 20];
         for ($i = 2; $i <= 20; $i++) { 
             $col = Coordinate::stringFromColumnIndex($i);
@@ -142,14 +138,12 @@ class RekapPerusahaanExport implements
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // merge headingRows jika ada
                 foreach ($this->headingRows as $rowIndex) {
                     $sheet->mergeCells("A{$rowIndex}:F{$rowIndex}");
                     $sheet->getStyle("A{$rowIndex}")->getFont()->setBold(true);
                     $sheet->getStyle("A{$rowIndex}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 }
 
-                // merge judul menyesuaikan jumlah periode
                 $colCount = 1 + count($this->rekap['periodes']) + 1;
                 $highestColumn = Coordinate::stringFromColumnIndex($colCount);
 
