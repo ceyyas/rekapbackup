@@ -9,7 +9,7 @@ use App\Models\Departemen;
 use App\Models\Inventori;
 use App\Models\InventoriHistory;
 use App\Models\RekapBackup;
-
+use App\Traits\RekapBackupTrait;
 use App\Exports\RekapPerusahaanExport;
 use App\Exports\RekapPerusahaanMultiExport;
 
@@ -18,6 +18,8 @@ use App\Http\Controllers\Controller;
 
 class LaporanPerusahaanController extends Controller
 {
+    use RekapBackupTrait;
+
     private function getPerusahaanRekap($perusahaanId)
     {
         return DB::table('rekap_backup')
@@ -54,7 +56,7 @@ class LaporanPerusahaanController extends Controller
 
     private function getRekapComplete($perusahaanId)
     {
-        $periodes = $this->getPeriodes($perusahaanId);
+        $periodes   = $this->getPeriodes($perusahaanId);
         $departemen = Departemen::where('perusahaan_id', $perusahaanId)->pluck('nama_departemen');
 
         $rekap = $this->getRekap($perusahaanId)->keyBy(function($row) {
@@ -79,7 +81,6 @@ class LaporanPerusahaanController extends Controller
                         'jumlah_dvd47'    => 0,
                         'jumlah_dvd85'    => 0,
                         'total_cd_dvd'    => 0,
-
                     ]);
                 }
             }
@@ -97,8 +98,8 @@ class LaporanPerusahaanController extends Controller
     public function laporanPerusahaanPivot(Request $request)
     {
         $perusahaanId = $request->perusahaan_id;
-        $periodes = $this->getPeriodes($perusahaanId);
-        $rekap    = $this->getRekapComplete($perusahaanId);
+        $periodes     = $this->getPeriodes($perusahaanId);
+        $rekap        = $this->getRekapComplete($perusahaanId);
 
         $pivot = [];
         foreach ($rekap as $r) {
@@ -119,6 +120,7 @@ class LaporanPerusahaanController extends Controller
         $periodes = $this->getPeriodes($perusahaanId);
         $rekap    = $this->getRekapComplete($perusahaanId);
 
+        // Pivot data
         $pivot = [];
         foreach ($rekap as $r) {
             $pivot[$r->nama_departemen][$r->periode] = $r->total_size.' MB';
@@ -130,70 +132,19 @@ class LaporanPerusahaanController extends Controller
         ];
 
         $detailPeriodes = [];
-        foreach ($periodes as $p) {
-            $periodeDate = \Carbon\Carbon::createFromFormat('M-Y', $p)->format('Y-m-01');
-            $rekapDetail = DB::table('rekap_backup')
-                ->join('inventori', 'rekap_backup.inventori_id', '=', 'inventori.id')
-                ->join('departemen', 'inventori.departemen_id', '=', 'departemen.id')
-                ->leftJoin(DB::raw("
-                    (
-                        SELECT ih.*
-                        FROM inventori_history ih
-                        JOIN (
-                            SELECT inventori_id, MIN(effective_date) as last_date
-                            FROM inventori_history
-                            WHERE effective_date >= STR_TO_DATE('$periodeDate','%Y-%m-%d')
-                            GROUP BY inventori_id
-                        ) latest
-                        ON ih.inventori_id = latest.inventori_id
-                        AND ih.effective_date = latest.last_date
-                    ) as snapshot
-                "), 'snapshot.inventori_id', '=', 'inventori.id')
-                ->where('departemen.perusahaan_id', $perusahaanId)
-                ->whereRaw("DATE_FORMAT(rekap_backup.periode,'%b-%Y') = ?", [$p])
-                ->where(function($q) use ($periodeDate) {
-                    $q->where(function($sub) use ($periodeDate) {
-                        $sub->where('inventori.status', 'active')
-                            ->orWhere('inventori.updated_at', '>', $periodeDate);
-                    })
-                    ->where('inventori.created_at', '<=', $periodeDate); 
-                })
-                   ->select(
-                    'departemen.nama_departemen as departemen',
-                    DB::raw("CASE 
-                        WHEN snapshot.id IS NOT NULL 
-                            AND STR_TO_DATE('$periodeDate','%Y-%m-%d') < snapshot.effective_date 
-                        THEN snapshot.hostname 
-                        ELSE inventori.hostname 
-                    END as hostname"),
-                    DB::raw("CASE 
-                        WHEN snapshot.id IS NOT NULL 
-                            AND STR_TO_DATE('$periodeDate','%Y-%m-%d') < snapshot.effective_date 
-                        THEN snapshot.username 
-                        ELSE inventori.username 
-                    END as username"),
-                    DB::raw("CASE 
-                        WHEN snapshot.id IS NOT NULL 
-                            AND STR_TO_DATE('$periodeDate','%Y-%m-%d') < snapshot.effective_date 
-                        THEN snapshot.email 
-                        ELSE inventori.email 
-                    END as email"),
-                    'rekap_backup.size_data',
-                    'rekap_backup.size_email'
-                )
-                ->get()
-                ->map(fn($row) => [
-                    'departemen' => $row->departemen,
-                    'hostname'   => $row->hostname,
-                    'username'   => $row->username,
-                    'email'      => $row->email,
-                    'size_data'  => $row->size_data,
-                    'size_email' => $row->size_email,
-                ])
-                ->toArray();
+            foreach ($periodes as $p) {
+                $periodeDate = \Carbon\Carbon::createFromFormat('M-Y', $p)->format('Y-m-01');
 
-            $detailPeriodes[$p] = $rekapDetail;
-        }
+                $departemens = Departemen::where('perusahaan_id', $perusahaanId)->get();
+                $rekapDetail = $departemens->map(function($dept) use ($periodeDate) {
+                    return (object)[
+                        'nama_departemen' => $dept->nama_departemen,
+                        'detail_inventori'=> $this->getInventoriDetailQuery($dept->id, $periodeDate)->get()
+                    ];
+                });
+
+                $detailPeriodes[$p] = $rekapDetail;
+            }
 
         return Excel::download(
             new RekapPerusahaanMultiExport($globalPivot, $detailPeriodes, $perusahaanNama, $perusahaanId),
@@ -201,3 +152,4 @@ class LaporanPerusahaanController extends Controller
         );
     }
 }
+
