@@ -103,11 +103,28 @@ trait RekapBackupTrait
                         WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) < COUNT(rekap_backup.id) 
                             THEN 'proses backup'
                         WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rekap_backup.id) 
+                            AND COALESCE(SUM(rekap_backup.size_data),0) > 0
+                            AND (
+                                (SUM(CASE WHEN inventori.email IS NOT NULL AND inventori.email <> '' THEN 1 ELSE 0 END) > 0
+                                AND COALESCE(SUM(rekap_backup.size_email),0) > 0)
+                                OR SUM(CASE WHEN inventori.email IS NOT NULL AND inventori.email <> '' THEN 1 ELSE 0 END) = 0
+                            )
                             AND (COALESCE(SUM(rekap_backup.jumlah_cd700),0) = 0 
                                 AND COALESCE(SUM(rekap_backup.jumlah_dvd47),0) = 0 
                                 AND COALESCE(SUM(rekap_backup.jumlah_dvd85),0) = 0)
                             THEN 'file di main folder aman'
-                        ELSE 'file di cd aman'
+                        WHEN SUM(CASE WHEN rekap_backup.status = 'completed' THEN 1 ELSE 0 END) = COUNT(rekap_backup.id) 
+                            AND COALESCE(SUM(rekap_backup.size_data),0) > 0
+                            AND (
+                                (SUM(CASE WHEN inventori.email IS NOT NULL AND inventori.email <> '' THEN 1 ELSE 0 END) > 0
+                                AND COALESCE(SUM(rekap_backup.size_email),0) > 0)
+                                OR SUM(CASE WHEN inventori.email IS NOT NULL AND inventori.email <> '' THEN 1 ELSE 0 END) = 0
+                            )
+                            AND (COALESCE(SUM(rekap_backup.jumlah_cd700),0) > 0 
+                                OR COALESCE(SUM(rekap_backup.jumlah_dvd47),0) > 0 
+                                OR COALESCE(SUM(rekap_backup.jumlah_dvd85),0) > 0)
+                            THEN 'file di cd aman'
+                        ELSE 'proses backup'
                     END AS status_data
                 ")
             )
