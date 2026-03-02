@@ -181,16 +181,24 @@ function initStokPage() {
     });
 }
 
-flatpickr(".date-picker", {
-  altInput: true,
-  plugins: [
-    new monthSelectPlugin({
-      shorthand: true,
-      dateFormat: "Y-m",
-      altFormat: "M Y"
-    })
-  ]
+document.addEventListener("DOMContentLoaded", function () {
+  flatpickr(".date-picker", {
+    altInput: true,
+    plugins: [
+      new monthSelectPlugin({
+        shorthand: true,
+        dateFormat: "Y-m", 
+        altFormat: "M Y"   
+      })
+    ]
+  });
 });
+
+window.addEventListener("pageshow", function(event) {
+    if (event.persisted) {
+        location.reload();
+    }
+    });
 
 // rekap backup global
 function initIndexPage() {
