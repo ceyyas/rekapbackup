@@ -53,13 +53,10 @@
     </div>
 
     <div class="button-back">
-        <button class="back" 
-        onclick="window.location.href='{{ route('rekap-backup.index', [
-                    'perusahaan_id' => request('perusahaan_id'),
-                    'periode_id' => request('periode_id')
-                ]) }}'">
-            Kembali
+        <button class="back">
+        <a href="{{ route('rekap-backup.index', [
+            'perusahaan_id' => request('perusahaan_id'),
+            'periode_id' => request('periode_id')]) }}" >Kembali</a>
         </button>
-
     </div>
 </form>

@@ -182,23 +182,34 @@ function initStokPage() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  flatpickr(".date-picker", {
-    altInput: true,
-    plugins: [
-      new monthSelectPlugin({
-        shorthand: true,
-        dateFormat: "Y-m", 
-        altFormat: "M Y"   
-      })
-    ]
-  });
+  // Flatpickr hanya di halaman yang punya .date-picker
+  if (document.querySelector(".date-picker") && typeof flatpickr !== "undefined") {
+    flatpickr(".date-picker", {
+      altInput: true,
+      plugins: [
+        new monthSelectPlugin({
+          shorthand: true,
+          dateFormat: "Y-m",
+          altFormat: "M Y"
+        })
+      ]
+    });
+  }
+
+  // DataTables hanya di halaman yang punya #rekapTable
+  if (document.getElementById("rekapTable")) {
+    $('#rekapTable').DataTable({
+      responsive: true,
+      destroy: true,
+      paging: false,
+      searching: true,
+      info: true,
+      lengthChange: false
+    });
+  }
 });
 
-window.addEventListener("pageshow", function(event) {
-    if (event.persisted) {
-        location.reload();
-    }
-    });
+
 
 // rekap backup global
 function initIndexPage() {
@@ -268,6 +279,26 @@ function initIndexPage() {
         });
     }
 
+    $(document).ready(function() {
+        let params = new URLSearchParams(window.location.search);
+        let perusahaanId = params.get('perusahaan_id');
+        let periodeId = params.get('periode_id');
+
+        if (perusahaanId && periodeId) {
+            $('#perusahaan_id').val(perusahaanId);
+            $('#periode_id').val(periodeId);
+            loadData(table);
+        }
+    });
+
+    window.addEventListener("pageshow", function(event) {
+        if (event.persisted) {
+            let params = new URLSearchParams(window.location.search);
+            if (params.get('perusahaan_id') && params.get('periode_id')) {
+                loadData(table);
+            }
+        }
+    });
 }
 
 // input cd/dvd
