@@ -5,8 +5,7 @@
     <h2>Laporan Bulanan</h2>
 
     <div class="filter-menu">
-        <label for="periode_bulanan">Pilih Periode:</label>
-            <input type="month" id="periode_bulanan" name="periode_bulanan" class="date-picker" value="{{ request('periode_bulanan') }}">
+        <input type="text" id="periode_bulanan" name="periode_bulanan" class="date-picker" value="{{ request('periode_bulanan') }}" placeholder="Pilih Periode">
 
         <button id="btnExportBulanan" class="entry-button">Export Data</button>
     </div>

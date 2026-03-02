@@ -181,6 +181,17 @@ function initStokPage() {
     });
 }
 
+flatpickr(".date-picker", {
+  altInput: true,
+  plugins: [
+    new monthSelectPlugin({
+      shorthand: true,
+      dateFormat: "Y-m",
+      altFormat: "M Y"
+    })
+  ]
+});
+
 // rekap backup global
 function initIndexPage() {
     if (!document.getElementById('rekapTable')) return;
@@ -517,8 +528,6 @@ function initLaporanBulanan() {
 
             $.get(window.rekapRoutes.laporanBulanan, { periode_bulanan: periode })
                 .done(res => {
-                    console.log("AJAX sukses:", res);
-
                     let tbody = '';
                     let labels = [];
                     let totals = [];

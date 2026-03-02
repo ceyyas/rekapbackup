@@ -17,8 +17,7 @@
                 @endforeach
             </select>
 
-            <label for="periode_id">Pilih Periode:</label>
-            <input type="month" id="periode_id" name="periode_id" class="date-picker" value="{{ request('periode_id') }}">
+            <input type="month" id="periode_id" name="periode_id" class="date-picker" value="{{ request('periode_id') }}" placeholder="Pilih Periode">
 
             <a id="btnExportBurning" 
                 href="{{ route('rekap-backup.export-burning') }}?perusahaan_id={{ request('perusahaan_id') }}&periode_id={{ request('periode_id') }}"     
