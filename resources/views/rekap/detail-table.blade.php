@@ -2,7 +2,7 @@
     @csrf
     <input type="hidden" name="periode_id" value="{{ \Carbon\Carbon::parse($periodeId)->format('Y-m') }}">
 
-    <table class="display">
+    <table class="display" id="detailTable">
         <thead>
             <tr>
                 <th>Hostname</th>

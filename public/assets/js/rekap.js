@@ -190,7 +190,6 @@ function initStokPage() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  // Flatpickr hanya di halaman yang punya .date-picker
   if (document.querySelector(".date-picker") && typeof flatpickr !== "undefined") {
     flatpickr(".date-picker", {
       altInput: true,
@@ -204,7 +203,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // DataTables hanya di halaman yang punya #rekapTable
   if (document.getElementById("rekapTable")) {
     $('#rekapTable').DataTable({
       responsive: true,
@@ -309,6 +307,35 @@ function initIndexPage() {
     });
 }
 
+// detail backup per departemen
+function initDetailPage() {
+    let container = document.getElementById('detail-container');
+    if (!container) return;
+
+    let departemenId = document.getElementById('departemen_id')?.value;
+    let periodeId = document.getElementById('periode_id')?.value;
+
+    if (!departemenId || !periodeId) return;
+
+    let url = window.rekapRoutes.detailData.replace(':id', departemenId) +
+              "?periode_id=" + periodeId;
+
+    fetch(url)
+        .then(res => res.text())
+        .then(html => {
+            container.innerHTML = html;
+
+            $(document).ready(function() {
+                $('#detailTable').DataTable({
+                    pageLength: 10,
+                    lengthChange: true,
+                    searching: true,
+                    ordering: true
+                });
+            });
+        });
+}
+
 // input cd/dvd
 function initCdDvdPage() {
     if (!document.getElementById('cdDvdTable')) return;
@@ -399,26 +426,6 @@ function initCdDvdPage() {
             }
         });
     });
-}
-
-// detail backup per departemen
-function initDetailPage() {
-    let container = document.getElementById('detail-container');
-    if (!container) return;
-
-    let departemenId = document.getElementById('departemen_id')?.value;
-    let periodeId = document.getElementById('periode_id')?.value;
-
-    if (!departemenId || !periodeId) return;
-
-    let url = window.rekapRoutes.detailData.replace(':id', departemenId) +
-              "?periode_id=" + periodeId;
-
-    fetch(url)
-        .then(res => res.text())
-        .then(html => {
-            container.innerHTML = html;
-        });
 }
 
 // laporan per perusahaan
