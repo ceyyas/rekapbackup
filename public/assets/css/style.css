@@ -751,19 +751,18 @@ ul#customBarangDropdown li:hover {
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
-  align-items: flex-start; /* rata kiri */
+  align-items: flex-start; 
 }
 
 .cards {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); 
   gap: 20px;
   width: 100%;
   margin-bottom: 30px;
 }
 
 .big-card {
-  flex: 1;
-  min-width: 400px;
   padding: 25px 30px;
   border-radius: 12px;
   color: #fff;
