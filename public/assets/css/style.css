@@ -840,6 +840,35 @@ ul#customBarangDropdown li:hover {
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
+/* Styling untuk filter */
+.chart .filter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 15px;
+  gap: 10px;
+}
+
+.chart .filter label {
+  font-weight: 600;
+  color: #333;
+}
+
+.chart .filter select {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.chart .filter select:focus {
+  outline: none;
+  border-color: #36a2eb;
+  box-shadow: 0 0 0 2px rgba(54,162,235,0.2);
+}
+
 #backupChart {
   width: 100% !important;
   height: 500px !important;

@@ -32,8 +32,17 @@
         </div>
       </div>
     </div>
-
+  
     <div class="chart">
+      <div class="filter">
+        <label for="yearFilter">Filter Tahun:</label>
+        <select id="yearFilter">
+            <option value="all">Semua Tahun</option>
+            @foreach($years as $year)
+                <option value="{{ $year }}">{{ $year }}</option>
+            @endforeach
+        </select>
+      </div>
       <canvas id="backupChart"></canvas>
     </div>
   </div>
@@ -43,7 +52,8 @@
 <script>
     window.dashboardData = {
             rawData: @json($dataChart),
-            labels: @json(array_keys($dataChart))
+            labels: @json(array_keys($dataChart)),
+            years: @json($years)
         };
 </script>
 

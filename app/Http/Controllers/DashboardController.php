@@ -35,6 +35,8 @@ class DashboardController extends Controller
             ->get();
 
         $dataChart = [];
+        $years = [];
+
         foreach ($rekapBackup as $row) {
             $periode = Carbon::createFromDate($row->tahun, $row->bulan, 1);
             $labelBulan = $periode->format('F Y'); 
@@ -44,8 +46,19 @@ class DashboardController extends Controller
             }
 
             $dataChart[$labelBulan][$row->nama_perusahaan] = round($row->total_size / 1024, 2);
+
+            $years[$row->tahun] = $row->tahun;
         }
 
-        return view('dashboard', compact('totalDataGB', 'totalEmailGB','stoks','totalTersisa', 'totalPemakaian', 'dataChart'));
+        return view('dashboard', compact(
+            'totalDataGB',
+            'totalEmailGB',
+            'stoks',
+            'totalTersisa',
+            'totalPemakaian',
+            'dataChart',
+            'years'
+        ));
     }
+
 }

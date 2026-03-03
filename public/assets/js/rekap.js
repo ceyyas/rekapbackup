@@ -2,43 +2,51 @@
 document.addEventListener("DOMContentLoaded", function() {
     const chartElement = document.getElementById('backupChart');
     if (!chartElement) return; 
+
     const rawData = window.dashboardData.rawData;
-    const labels = window.dashboardData.labels;
+    const labels = Object.keys(rawData);
 
     const perusahaanList = [...new Set(Object.values(rawData).flatMap(obj => Object.keys(obj)))];
 
-    const colors = [
-        '#36a2eb80',
-        '#ff638480',
-        '#4bc0c080',
-        '#ffce5680',
-        '#9966ff80'
-    ];
+    const colors = ['#36a2eb80','#ff638480','#4bc0c080','#ffce5680','#9966ff80'];
 
-    const datasets = perusahaanList.map((nama, idx) => ({
-        label: nama,
-        data: labels.map(bulan => rawData[bulan] && rawData[bulan][nama] ? rawData[bulan][nama] : 0),
-        backgroundColor: colors[idx % colors.length],
-    }));
+    function generateDatasets(filteredLabels) {
+        return perusahaanList.map((nama, idx) => ({
+            label: nama,
+            data: filteredLabels.map(bulan => rawData[bulan] && rawData[bulan][nama] ? rawData[bulan][nama] : 0),
+            backgroundColor: colors[idx % colors.length],
+        }));
+    }
 
     const ctx = chartElement.getContext('2d');
-    new Chart(ctx, {
+    const chart = new Chart(ctx, {
         type: 'bar',
-        data: { labels, datasets },
+        data: { labels, datasets: generateDatasets(labels) },
         options: {
             responsive: true,
             plugins: {
-                title: {
-                    display: true,
-                    text: 'Rekap Backup Per Bulan (GB)'
-                },
-                legend: {
-                    position: 'bottom'
-                }
+                title: { display: true, text: 'Rekap Backup Per Bulan (GB)' },
+                legend: { position: 'bottom' }
             }
         }
     });
+
+    // Event listener untuk filter tahun
+    const yearFilter = document.getElementById('yearFilter');
+    yearFilter.addEventListener('change', function() {
+        const selectedYear = this.value;
+        let filteredLabels = labels;
+
+        if (selectedYear !== 'all') {
+            filteredLabels = labels.filter(label => label.includes(selectedYear));
+        }
+
+        chart.data.labels = filteredLabels;
+        chart.data.datasets = generateDatasets(filteredLabels);
+        chart.update();
+    });
 });
+
 
 function initDepartemenPage() {
     let table = $('#departemenTable').DataTable({
