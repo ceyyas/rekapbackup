@@ -215,8 +215,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-
-
 // rekap backup global
 function initIndexPage() {
     if (!document.getElementById('rekapTable')) return;

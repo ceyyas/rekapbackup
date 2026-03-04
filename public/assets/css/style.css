@@ -607,9 +607,9 @@ td button {
 }
 
 .sub-kategori.close {
-    display: none; /* Atur agar sub-kategori error dan dropdown tersembunyi saat tidak digunakan */
+    display: none; 
     position: absolute;
-    top: 100%; /* Menempatkan sub-kategori di bawah elemen utama */
+    top: 100%; 
     left: 0;
     width: 100%;
     background-color: white;
@@ -952,4 +952,13 @@ table.dataTable thead .sorting_desc:after {
 table.dataTable thead .sorting_asc,
 table.dataTable thead .sorting_desc {
     background-color: #f0f4ff;
+}
+
+#rekapTable,
+#komputerTable,
+#departemenTable,
+#stokTable {
+    width: 100% !important;
+    table-layout: auto;
+    word-wrap: break-word;
 }
